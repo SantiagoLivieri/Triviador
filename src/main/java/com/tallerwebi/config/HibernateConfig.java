@@ -25,9 +25,9 @@ public class HibernateConfig {
 
     if (dbHost == null) dbHost = "localhost";
     if (dbPort == null) dbPort = "3306";
-    if (dbName == null) dbName = "triviador";
-    if (dbUser == null) dbUser = "root";
-    if (dbPassword == null) dbPassword = "root";
+    if (dbName == null) dbName = "triviador"; //Nombre de la base de datos
+    if (dbUser == null) dbUser = "root"; // Usuario de MySQL Workbench
+    if (dbPassword == null) dbPassword = "root"; //Contraseña de MySQL Workbench
 
     String url = String.format(
       "jdbc:mysql://%s:%s/%s?useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true",
@@ -47,7 +47,7 @@ public class HibernateConfig {
   public LocalSessionFactoryBean sessionFactory(DataSource dataSource) {
     LocalSessionFactoryBean sessionFactory = new LocalSessionFactoryBean();
     sessionFactory.setDataSource(dataSource);
-    sessionFactory.setPackagesToScan("com.tallerwebi.entidades");
+    sessionFactory.setPackagesToScan("com.tallerwebi.entidades"); //Carpeta de donde debe tomar las entidades para la base de datos
     sessionFactory.setHibernateProperties(hibernateProperties());
     return sessionFactory;
   }
@@ -62,7 +62,7 @@ public class HibernateConfig {
     properties.setProperty("hibernate.dialect", "org.hibernate.dialect.MySQL8Dialect");
     properties.setProperty("hibernate.show_sql", "true");
     properties.setProperty("hibernate.format_sql", "true");
-    properties.setProperty("hibernate.hbm2ddl.auto", "update");
+    properties.setProperty("hibernate.hbm2ddl.auto", "update"); //Update para actualizar con lo que haya en resources /data.sql
     properties.setProperty("hibernate.connection.characterEncoding", "utf8");
     properties.setProperty("hibernate.connection.CharSet", "utf8");
     properties.setProperty("hibernate.connection.useUnicode", "true");

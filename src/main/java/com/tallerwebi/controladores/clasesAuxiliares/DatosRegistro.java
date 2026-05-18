@@ -1,4 +1,4 @@
-package com.tallerwebi.controladores;
+package com.tallerwebi.controladores.clasesAuxiliares;
 
 public class DatosRegistro {
 

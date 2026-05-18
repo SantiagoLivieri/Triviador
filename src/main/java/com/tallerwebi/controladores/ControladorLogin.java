@@ -1,5 +1,7 @@
 package com.tallerwebi.controladores;
 
+import com.tallerwebi.controladores.clasesAuxiliares.DatosLogin;
+import com.tallerwebi.controladores.clasesAuxiliares.DatosRegistro;
 import com.tallerwebi.entidades.Usuario;
 import com.tallerwebi.servicios.*;
 import com.tallerwebi.servicios.excepcion.PasswordsDiferentesException;
