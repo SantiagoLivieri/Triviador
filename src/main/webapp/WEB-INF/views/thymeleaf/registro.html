@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Crear Cuenta - TallerWebI</title>
+  <!-- Tailwind CSS desde CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+</head>
+<body class="bg-gray-100 flex items-center justify-center min-h-screen">
+
+<div class="bg-white p-8 rounded-xl shadow-md w-full max-w-md my-8">
+
+  <!-- Encabezado -->
+  <div class="text-center mb-6">
+    <h2 class="text-3xl font-bold text-gray-800">Crear Cuenta</h2>
+    <p class="text-gray-500 text-sm mt-1">Regístrate para empezar a usar la plataforma</p>
+  </div>
+
+  <!-- Mensaje de Error (Se activa si las contraseñas no coinciden o el email ya existe) -->
+  <!-- Integración: th:if="${error != null}" o c:if test="${not empty error}" -->
+  <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4 text-sm hidden" id="error-box">
+    <span class="font-medium">Error:</span> <span th:text="${error}">El correo ya está registrado.</span>
+  </div>
+
+  <!-- Formulario de Registro -->
+  <!-- Nota: 'action' debe apuntar al @PostMapping de registro en tu Controlador -->
+  <form th:action="@{/validarRegistro}" method="POST" th:object="${datosRegistro}" class="space-y-4">
+
+    <!-- Campo Nombre (Opcional, por si tu entidad Usuario lo tiene) -->
+    <div>
+      <label for="nombre" class="block text-sm font-medium text-gray-700 mb-1">Nombre Completo</label>
+      <input th:field="*{nombre}" type="text"
+             id="nombre"
+             name="nombre"
+             placeholder="Juan Pérez"
+             class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all">
+    </div>
+
+    <!-- Campo Email -->
+    <div>
+      <label for="email" class="block text-sm font-medium text-gray-700 mb-1">Correo Electrónico</label>
+      <input th:field="*{email}" type="email"
+             id="email"
+             name="email"
+             required
+             placeholder="ejemplo@correo.com"
+             class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all">
+    </div>
+
+    <!-- Campo Contraseña -->
+    <div>
+      <label for="password" class="block text-sm font-medium text-gray-700 mb-1">Contraseña</label>
+      <input th:field="*{password}" type="password"
+             id="password"
+             name="password"
+             required
+             placeholder="••••••••"
+             class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all">
+    </div>
+
+    <!-- Campo Repetir Contraseña (Clave para validar del lado del servidor) -->
+    <div>
+      <label for="rePassword" class="block text-sm font-medium text-gray-700 mb-1">Confirmar Contraseña</label>
+      <input th:field="*{rePassword}" type="password"
+             id="rePassword"
+             name="rePassword"
+             required
+             placeholder="••••••••"
+             class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all">
+    </div>
+
+    <!-- Botón de Registro -->
+    <button type="submit"
+            class="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-2.5 px-4 rounded-lg transition-colors shadow-sm mt-2">
+      Registrarse
+    </button>
+    <p th:if="${error != null}" th:text="${error}"></p>
+  </form>
+
+  <!-- Volver al Login -->
+  <div class="text-center mt-6 text-sm text-gray-600">
+    ¿Ya tienes una cuenta?
+    <a th:href="@{/login}" class="text-blue-600 font-medium hover:underline">Inicia sesión aquí</a>
+  </div>
+
+</div>
+
+</body>
+</html>
