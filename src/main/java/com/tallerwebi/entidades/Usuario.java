@@ -1,7 +1,6 @@
 package com.tallerwebi.entidades;
 
 import com.tallerwebi.controladores.clasesAuxiliares.DatosRegistro;
-
 import javax.persistence.*;
 
 @Entity

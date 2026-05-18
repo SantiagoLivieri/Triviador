@@ -4,11 +4,10 @@ import com.tallerwebi.controladores.clasesAuxiliares.DatosLogin;
 import com.tallerwebi.controladores.clasesAuxiliares.DatosRegistro;
 import com.tallerwebi.entidades.Usuario;
 import com.tallerwebi.repositorios.RepositorioUsuario;
-import javax.transaction.Transactional;
-
 import com.tallerwebi.servicios.excepcion.PasswordsDiferentesException;
 import com.tallerwebi.servicios.excepcion.UsuarioExistenteException;
 import com.tallerwebi.servicios.excepcion.UsuarioInexistenteException;
+import javax.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
