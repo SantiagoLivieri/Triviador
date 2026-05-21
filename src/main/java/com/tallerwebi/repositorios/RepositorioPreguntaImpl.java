@@ -1,14 +1,44 @@
 package com.tallerwebi.repositorios;
 
 import com.tallerwebi.entidades.Pregunta;
+import java.util.List;
 import org.hibernate.SessionFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Repository;
 
+@Repository
 public class RepositorioPreguntaImpl implements RepositorioPregunta {
 
-  private SessionFactory sessionFactory;
+  private final SessionFactory sessionFactory;
+
+  @Autowired
+  public RepositorioPreguntaImpl(SessionFactory sessionFactory) {
+    this.sessionFactory = sessionFactory;
+  }
 
   @Override
-  public void guardarPregunta(Pregunta pregunta) {
+  public void guardar(Pregunta pregunta) {
     sessionFactory.getCurrentSession().save(pregunta);
+  }
+
+  @Override
+  public Pregunta buscarPorId(Long id) {
+    return sessionFactory.getCurrentSession().get(Pregunta.class, id);
+  }
+
+  @Override
+  public List<Pregunta> buscarTodas() {
+    return sessionFactory
+      .getCurrentSession()
+      .createQuery("from Pregunta p order by p.id", Pregunta.class)
+      .getResultList();
+  }
+
+  @Override
+  public Long contar() {
+    return sessionFactory
+      .getCurrentSession()
+      .createQuery("select count(p) from Pregunta p", Long.class)
+      .getSingleResult();
   }
 }
