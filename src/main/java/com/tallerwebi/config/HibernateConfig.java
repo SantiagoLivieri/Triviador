@@ -26,9 +26,9 @@ public class HibernateConfig {
     if (dbHost == null) dbHost = "localhost";
     if (dbPort == null) dbPort = "3306";
 
-    if (dbName == null) dbName = "tallerwebi";
-    if (dbUser == null) dbUser = "user";
-    if (dbPassword == null) dbPassword = "user";
+    if (dbName == null) dbName = "triviador";
+    if (dbUser == null) dbUser = "root";
+    if (dbPassword == null) dbPassword = "rootpassword";
 
     String url = String.format(
       "jdbc:mysql://%s:%s/%s?useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true",
@@ -48,7 +48,8 @@ public class HibernateConfig {
   public LocalSessionFactoryBean sessionFactory(DataSource dataSource) {
     LocalSessionFactoryBean sessionFactory = new LocalSessionFactoryBean();
     sessionFactory.setDataSource(dataSource);
-    sessionFactory.setPackagesToScan("com.tallerwebi.dominio");
+    //sessionFactory.setPackagesToScan("com.tallerwebi.dominio");
+    sessionFactory.setPackagesToScan("com.tallerwebi.entidades");
     sessionFactory.setHibernateProperties(hibernateProperties());
     return sessionFactory;
   }
