@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <title>Pregunta - Triviador Argentina</title>
+</head>
+
+<body style="background:#111827; color:white; font-family:Arial; padding:40px;">
+
+<h1>Pantalla de pregunta</h1>
+
+<p>
+  Provincia seleccionada:
+  <strong th:text="${idProvincia}">idProvincia</strong>
+</p>
+
+<p>
+  Jugador actual:
+  <strong th:text="${jugadorActual != null ? jugadorActual.nombre : 'Sin jugador'}">
+    Jugador
+  </strong>
+</p>
+
+<h2 th:text="${pregunta != null ? pregunta.enunciado : 'No llegó pregunta'}">
+  Enunciado
+</h2>
+
+<form th:action="@{/responder-provincia}" method="post">
+  <input type="hidden" name="idProvincia" th:value="${idProvincia}">
+  <input type="hidden" name="idPregunta" th:value="${pregunta.id}">
+
+  <div th:each="opcion : ${opciones}">
+    <label>
+      <input type="radio" name="respuesta" th:value="${opcion}" required>
+      <span th:text="${opcion}">Opción</span>
+    </label>
+  </div>
+
+  <br>
+
+  <button type="submit">
+    Responder
+  </button>
+</form>
+
+</body>
+</html>

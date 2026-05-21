@@ -20,7 +20,7 @@ public class RepositorioPreguntaTest {
 
   @BeforeEach
   public void init() {
-    this.repositorioPregunta = new RepositorioPreguntaImpl();
+    this.repositorioPregunta = new RepositorioPreguntaImpl(sessionFactory);
   }
 
   @Test

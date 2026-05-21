@@ -1,9 +1,20 @@
 package com.tallerwebi.entidades;
 
 import com.tallerwebi.controladores.clasesAuxiliares.DatosRegistro;
-import javax.persistence.*;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
+import javax.persistence.Table;
 
+/**
+ * Representa un usuario o jugador del sistema.
+ */
 @Entity
+@Table(name = "Usuario")
 public class Usuario {
 
   @Id
@@ -11,13 +22,27 @@ public class Usuario {
   private Long id;
 
   private String nombre;
+
   private String email;
+
   private String password;
 
+  private Boolean activo;
+
+  @Column(name = "nombre_jugador", length = 100)
+  private String nombreJugador;
+
+  @Column(name = "color_asignado", length = 50)
+  private String colorAsignado;
+
+  @Column(nullable = false)
+  private Integer puntaje = 0;
+
   @ManyToOne
+  @JoinColumn(name = "rol_id")
   private Rol rol;
 
-  private Boolean activo;
+  public Usuario() {}
 
   public Usuario(DatosRegistro datosRegistro, Rol rolUser) {
     this.nombre = datosRegistro.getNombre();
@@ -25,9 +50,9 @@ public class Usuario {
     this.password = datosRegistro.getPassword();
     this.activo = true;
     this.rol = rolUser;
+    this.nombreJugador = datosRegistro.getNombre();
+    this.puntaje = 0;
   }
-
-  public Usuario() {}
 
   public Long getId() {
     return id;
@@ -35,6 +60,14 @@ public class Usuario {
 
   public void setId(Long id) {
     this.id = id;
+  }
+
+  public String getNombre() {
+    return nombre;
+  }
+
+  public void setNombre(String nombre) {
+    this.nombre = nombre;
   }
 
   public String getEmail() {
@@ -62,15 +95,31 @@ public class Usuario {
   }
 
   public void activar() {
-    activo = true;
+    this.activo = true;
   }
 
-  public String getNombre() {
-    return nombre;
+  public String getNombreJugador() {
+    return nombreJugador;
   }
 
-  public void setNombre(String nombre) {
-    this.nombre = nombre;
+  public void setNombreJugador(String nombreJugador) {
+    this.nombreJugador = nombreJugador;
+  }
+
+  public String getColorAsignado() {
+    return colorAsignado;
+  }
+
+  public void setColorAsignado(String colorAsignado) {
+    this.colorAsignado = colorAsignado;
+  }
+
+  public Integer getPuntaje() {
+    return puntaje;
+  }
+
+  public void setPuntaje(Integer puntaje) {
+    this.puntaje = puntaje;
   }
 
   public Rol getRol() {

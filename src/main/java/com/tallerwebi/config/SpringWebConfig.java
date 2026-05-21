@@ -5,6 +5,7 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.web.filter.CharacterEncodingFilter;
 import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
@@ -46,6 +47,9 @@ public class SpringWebConfig implements WebMvcConfigurer {
     // Template cache is true by default. Set to false if you want
     // templates to be automatically updated when modified.
     templateResolver.setCacheable(true);
+    // para el manejo de caracteres especiales en los templates
+    templateResolver.setCharacterEncoding("UTF-8");
+    templateResolver.setCacheable(false);
     return templateResolver;
   }
 
@@ -71,6 +75,18 @@ public class SpringWebConfig implements WebMvcConfigurer {
   public ThymeleafViewResolver viewResolver() {
     ThymeleafViewResolver viewResolver = new ThymeleafViewResolver();
     viewResolver.setTemplateEngine(templateEngine());
+    // para el manejo de caracteres especiales en los templates
+    viewResolver.setCharacterEncoding("UTF-8");
+    viewResolver.setContentType("text/html; charset=UTF-8");
     return viewResolver;
+  }
+
+  // Para evitar problemas con caracteres especiales en los formularios
+  @Bean
+  public CharacterEncodingFilter characterEncodingFilter() {
+    CharacterEncodingFilter filter = new CharacterEncodingFilter();
+    filter.setEncoding("UTF-8");
+    filter.setForceEncoding(true);
+    return filter;
   }
 }

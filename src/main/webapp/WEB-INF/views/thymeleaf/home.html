@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="es">
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -130,6 +130,8 @@
             letter-spacing: 1px;
             box-shadow: 0 8px 25px rgba(9, 132, 227, 0.6);
             transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            text-decoration: none;
+            display: inline-block;
         }
 
         .play-btn:hover {
@@ -196,7 +198,7 @@
 <!-- CUERPO DEL LOBBY -->
 <main>
     <!-- Botón Principal -->
-    <button class="play-btn" onclick="buscarPartida()">¡Buscar Partida!</button>
+    <a th:href="@{/lobby}" class="play-btn">¡Buscar Partida!</a>
 
     <!-- Otras Opciones del Lobby -->
     <div class="secondary-options">
