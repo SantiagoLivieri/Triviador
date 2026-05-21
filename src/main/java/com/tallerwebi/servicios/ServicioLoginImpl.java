@@ -2,7 +2,9 @@ package com.tallerwebi.servicios;
 
 import com.tallerwebi.controladores.clasesAuxiliares.DatosLogin;
 import com.tallerwebi.controladores.clasesAuxiliares.DatosRegistro;
+import com.tallerwebi.entidades.Rol;
 import com.tallerwebi.entidades.Usuario;
+import com.tallerwebi.repositorios.RepositorioRol;
 import com.tallerwebi.repositorios.RepositorioUsuario;
 import com.tallerwebi.servicios.excepcion.PasswordsDiferentesException;
 import com.tallerwebi.servicios.excepcion.UsuarioExistenteException;
@@ -16,10 +18,12 @@ import org.springframework.stereotype.Service;
 public class ServicioLoginImpl implements ServicioLogin {
 
   private RepositorioUsuario repositorioUsuario;
+  private RepositorioRol repositorioRol;
 
   @Autowired
-  public ServicioLoginImpl(RepositorioUsuario repositorioUsuario) {
+  public ServicioLoginImpl(RepositorioUsuario repositorioUsuario, RepositorioRol repositorioRol) {
     this.repositorioUsuario = repositorioUsuario;
+    this.repositorioRol = repositorioRol;
   }
 
   @Override
@@ -52,6 +56,7 @@ public class ServicioLoginImpl implements ServicioLogin {
 
   @Override
   public void crearUsuario(DatosRegistro datosRegistro) {
-    repositorioUsuario.crearUsuario(new Usuario(datosRegistro));
+    Rol rolUser = repositorioRol.buscarRolPorId(2L);
+    repositorioUsuario.crearUsuario(new Usuario(datosRegistro, rolUser));
   }
 }

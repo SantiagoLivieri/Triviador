@@ -1,0 +1,26 @@
+package com.tallerwebi.repositorios;
+
+import com.tallerwebi.entidades.Rol;
+import org.hibernate.SessionFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Repository;
+
+@Repository("repositorioRol")
+public class RepositorioRolImpl implements RepositorioRol {
+
+  private SessionFactory sessionFactory;
+
+  @Autowired
+  public RepositorioRolImpl(SessionFactory sessionFactory) {
+    this.sessionFactory = sessionFactory;
+  }
+
+  @Override
+  public Rol buscarRolPorId(Long id) {
+    return (Rol) sessionFactory
+      .getCurrentSession()
+      .createQuery("FROM Rol WHERE id = :id")
+      .setParameter("id", id)
+      .uniqueResult();
+  }
+}

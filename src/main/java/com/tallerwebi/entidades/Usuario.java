@@ -19,11 +19,12 @@ public class Usuario {
 
   private Boolean activo;
 
-  public Usuario(DatosRegistro datosRegistro) {
+  public Usuario(DatosRegistro datosRegistro, Rol rolUser) {
     this.nombre = datosRegistro.getNombre();
     this.email = datosRegistro.getEmail();
     this.password = datosRegistro.getPassword();
     this.activo = true;
+    this.rol = rolUser;
   }
 
   public Usuario() {}
