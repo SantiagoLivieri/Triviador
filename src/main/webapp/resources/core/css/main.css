@@ -1,19 +1,30 @@
 body {
   padding-top: 5rem;
 }
+
 .starter-template {
   padding: 3rem 1.5rem;
   text-align: center;
 }
 
-h1{
-	color:#0000FF;
+h1 {
+  color: #0000FF;
 }
 
-h2{
-	color:#FF0000;
+h2 {
+  color: #FF0000;
 }
 
-.navbar-brand{
-    margin:0 2rem;
+.navbar-brand {
+  margin: 0 2rem;
+}
+
+header {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 24px 40px;
+  background: rgba(0, 0, 0, 0.45);
+  backdrop-filter: blur(10px);
+  border-bottom: 2px solid rgba(255, 255, 255, 0.1);
 }

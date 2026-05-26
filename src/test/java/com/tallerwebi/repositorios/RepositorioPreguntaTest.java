@@ -16,6 +16,7 @@ public class RepositorioPreguntaTest {
   @Autowired
   private SessionFactory sessionFactory;
 
+  @SuppressWarnings("unused")
   private RepositorioPregunta repositorioPregunta;
 
   @BeforeEach

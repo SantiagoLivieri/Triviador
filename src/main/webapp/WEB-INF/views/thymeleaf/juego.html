@@ -2,6 +2,7 @@
 <html lang="es" xmlns:th="http://www.thymeleaf.org">
 <head>
   <meta charset="UTF-8">
+  <link rel="stylesheet" th:href="@{/css/main.css}">
   <title>Triviador Argentina - Juego</title>
 
   <style>
@@ -144,6 +145,10 @@
   <strong th:text="${jugadorActual != null ? jugadorActual.nombre : 'Sin jugadores'}"></strong>
 </div>
 
+<div style="text-align: center; font-size: 1.5rem; margin-bottom: 20px; color: #ff7675; font-weight: bold;">
+  Tiempo restante: <span id="timer">30</span>s
+</div>
+
 <div
     class="mensaje"
     th:if="${mensajeResultado != null}"
@@ -171,6 +176,8 @@
       th:action="@{/seleccionar-provincia}"
       method="post">
 
+    <input type="hidden" name="partidaId" th:value="${partida.id}">
+    
     <input type="hidden" name="idProvincia" th:value="${provincia.id}">
 
     <button
@@ -197,6 +204,46 @@
     </button>
   </form>
 </section>
+<script th:inline="javascript">
+  
+const partidaId = /*[[${partida.id}]]*/ 0;
+    const inicioEtapaStr = /*[[${partida.inicioEtapa.toString()}]]*/ '';
+    const inicioTurno = new Date(inicioEtapaStr).getTime();
+    const DURACION_TURNO_MS = 30 * 1000; 
+    const display = document.getElementById('timer');
 
+    function actualizarCronometro() {
+        const ahora = new Date().getTime();
+        const tiempoTranscurrido = ahora - inicioTurno;
+        const tiempoRestante = Math.max(0, Math.round((DURACION_TURNO_MS - tiempoTranscurrido) / 1000));
+
+        if (display) {
+            display.textContent = tiempoRestante;
+        }
+        if (tiempoRestante <= 0) {
+            clearInterval(cronometro);
+            forzarTiempoAgotado();
+        }
+    }
+
+    actualizarCronometro(); 
+    
+    const cronometro = setInterval(actualizarCronometro, 1000);
+
+    function forzarTiempoAgotado() {
+        const form = document.createElement('form');
+        form.method = 'POST';
+        form.action = '/spring/juego/tiempo-agotado';
+
+        const input = document.createElement('input');
+        input.type = 'hidden';
+        input.name = 'partidaId';
+        input.value = partidaId;
+
+        form.appendChild(input);
+        document.body.appendChild(form);
+        form.submit(); 
+    }
+</script>
 </body>
 </html>

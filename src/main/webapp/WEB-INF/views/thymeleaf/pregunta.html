@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="es" xmlns:th="http://www.thymeleaf.org">
+
 <head>
   <meta charset="UTF-8">
   <title>Pregunta - Triviador Argentina</title>
@@ -7,41 +8,85 @@
 
 <body style="background:#111827; color:white; font-family:Arial; padding:40px;">
 
-<h1>Pantalla de pregunta</h1>
+  <h1>Pantalla de pregunta</h1>
 
-<p>
-  Provincia seleccionada:
-  <strong th:text="${idProvincia}">idProvincia</strong>
-</p>
+  <p>
+    Provincia seleccionada:
+    <strong th:text="${idProvincia}">idProvincia</strong>
+  </p>
 
-<p>
-  Jugador actual:
-  <strong th:text="${jugadorActual != null ? jugadorActual.nombre : 'Sin jugador'}">
-    Jugador
-  </strong>
-</p>
+  <p>
+    Jugador actual:
+    <strong th:text="${jugadorActual != null ? jugadorActual.nombre : 'Sin jugador'}">
+      Jugador
+    </strong>
+  </p>
 
-<h2 th:text="${pregunta != null ? pregunta.enunciado : 'No llegó pregunta'}">
-  Enunciado
-</h2>
+  <h2 th:text="${pregunta != null ? pregunta.enunciado : 'No llegó pregunta'}">
+    Enunciado
+  </h2>
 
-<form th:action="@{/responder-provincia}" method="post">
-  <input type="hidden" name="idProvincia" th:value="${idProvincia}">
-  <input type="hidden" name="idPregunta" th:value="${pregunta.id}">
+  <form th:action="@{/responder-provincia}" method="post">
+    <input type="hidden" name="partidaId" th:value="${partidaId}">
+    <input type="hidden" name="idProvincia" th:value="${idProvincia}">
+    <input type="hidden" name="idPregunta" th:value="${pregunta.id}">
 
-  <div th:each="opcion : ${opciones}">
-    <label>
-      <input type="radio" name="respuesta" th:value="${opcion}" required>
-      <span th:text="${opcion}">Opción</span>
-    </label>
+    <div th:each="opcion : ${opciones}">
+      <label>
+        <input type="radio" name="respuesta" th:value="${opcion}" required>
+        <span th:text="${opcion}">Opción</span>
+      </label>
+    </div>
+
+    <br>
+
+    <button type="submit">
+      Responder
+    </button>
+  </form>
+  <div style="text-align: center; font-size: 1.5rem; margin-bottom: 20px; color: #ff7675; font-weight: bold;">
+    Tiempo para responder: <span id="timer">30</span>s
   </div>
 
-  <br>
+  <script th:inline="javascript">
+    const partidaId = /*[[${partidaId}]]*/ 0;
+    const inicioEtapaStr = /*[[${partida.inicioEtapa.toString()}]]*/ '';
+    const inicioTurno = new Date(inicioEtapaStr).getTime();
+    const DURACION_TURNO_MS = 30 * 1000;
+    const display = document.getElementById('timer');
 
-  <button type="submit">
-    Responder
-  </button>
-</form>
+    function actualizarCronometro() {
+      const ahora = new Date().getTime();
+      const tiempoTranscurrido = ahora - inicioTurno;
+      const tiempoRestante = Math.max(0, Math.round((DURACION_TURNO_MS - tiempoTranscurrido) / 1000));
 
+      if (display) {
+        display.textContent = tiempoRestante;
+      }
+      if (tiempoRestante <= 0) {
+        clearInterval(cronometro);
+        forzarTiempoAgotado();
+      }
+    }
+    actualizarCronometro();
+    
+    const cronometro = setInterval(actualizarCronometro, 1000);
+
+    function forzarTiempoAgotado() {
+      const form = document.createElement('form');
+      form.method = 'POST';
+      form.action = '/spring/juego/tiempo-agotado';
+
+      const input = document.createElement('input');
+      input.type = 'hidden';
+      input.name = 'partidaId';
+      input.value = partidaId;
+
+      form.appendChild(input);
+      document.body.appendChild(form);
+      form.submit();
+    }
+  </script>
 </body>
+
 </html>
