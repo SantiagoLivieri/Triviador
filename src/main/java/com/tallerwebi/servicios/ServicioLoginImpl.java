@@ -56,7 +56,8 @@ public class ServicioLoginImpl implements ServicioLogin {
 
   @Override
   public void crearUsuario(DatosRegistro datosRegistro) {
-    Rol rolUser = repositorioRol.buscarRolPorId(2L);
+    //Rol rolUser = repositorioRol.buscarRolPorId(2L);
+    Rol rolUser = repositorioRol.buscarPorDescripcion("JUGADOR");
     repositorioUsuario.crearUsuario(new Usuario(datosRegistro, rolUser));
   }
 }

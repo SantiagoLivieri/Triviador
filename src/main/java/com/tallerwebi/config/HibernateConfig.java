@@ -64,7 +64,11 @@ public class HibernateConfig {
     properties.setProperty("hibernate.dialect", "org.hibernate.dialect.MySQL8Dialect");
     properties.setProperty("hibernate.show_sql", "true");
     properties.setProperty("hibernate.format_sql", "true");
+    /*
+      Cada vez que levanto la aplicaciono, Hibernate borra las tablas y las vuelve a crear. se pierden los roles, cambiar por update
     properties.setProperty("hibernate.hbm2ddl.auto", "create");
+    */
+    properties.setProperty("hibernate.hbm2ddl.auto", "update");
     properties.setProperty("hibernate.connection.characterEncoding", "utf8");
     properties.setProperty("hibernate.connection.CharSet", "utf8");
     properties.setProperty("hibernate.connection.useUnicode", "true");

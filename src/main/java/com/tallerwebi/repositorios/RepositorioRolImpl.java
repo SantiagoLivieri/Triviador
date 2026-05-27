@@ -23,4 +23,13 @@ public class RepositorioRolImpl implements RepositorioRol {
       .setParameter("id", id)
       .uniqueResult();
   }
+
+  @Override
+  public Rol buscarPorDescripcion(String descripcion) {
+    return (Rol) sessionFactory
+      .getCurrentSession()
+      .createQuery("FROM Rol WHERE descripcion = :descripcion")
+      .setParameter("descripcion", descripcion)
+      .uniqueResult();
+  }
 }
