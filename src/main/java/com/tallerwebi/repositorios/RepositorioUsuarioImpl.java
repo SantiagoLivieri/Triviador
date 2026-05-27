@@ -35,7 +35,21 @@ public class RepositorioUsuarioImpl implements RepositorioUsuario {
   }
 
   @Override
+  public Usuario buscarUsuarioPorId(Long id) {
+    return (Usuario) sessionFactory
+      .getCurrentSession()
+      .createQuery("FROM Usuario WHERE id = :id")
+      .setParameter("id", id)
+      .uniqueResult();
+  }
+
+  @Override
   public void crearUsuario(Usuario usuario) {
     sessionFactory.getCurrentSession().save(usuario);
+  }
+
+  @Override
+  public void actualizarUsuario(Usuario usuario) {
+    sessionFactory.getCurrentSession().update(usuario);
   }
 }
