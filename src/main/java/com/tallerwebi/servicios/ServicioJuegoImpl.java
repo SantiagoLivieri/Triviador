@@ -59,9 +59,9 @@ public class ServicioJuegoImpl implements ServicioJuego {
 
     Partida partida = new Partida();
     partida.setJugadores(Arrays.asList(j1, j2, j3));
-    partida.setJugadorEnTurno(j1); 
+    partida.setJugadorEnTurno(j1);
     partida.setEtapaActual(1);
-    partida.setInicioEtapa(LocalDateTime.now()); 
+    partida.setInicioEtapa(LocalDateTime.now());
 
     repositorioPartida.guardar(partida);
     return partida.getId();
@@ -148,8 +148,7 @@ public class ServicioJuegoImpl implements ServicioJuego {
   public void forzarSaltoPorTiempo(Long partidaId) {
     Partida partida = repositorioPartida.buscarPorId(partidaId);
     if (partida == null || partida.getInicioEtapa() == null) {
-        System.out.println("Error: No se encontró la partida con ID " + partidaId + " o no tiene inicio de etapa.");
-        return; 
+      return;
     }
     long segundosTranscurridos = ChronoUnit.SECONDS.between(
       partida.getInicioEtapa(),

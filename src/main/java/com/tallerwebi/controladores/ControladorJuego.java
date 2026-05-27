@@ -1,7 +1,10 @@
 package com.tallerwebi.controladores;
 
+import com.tallerwebi.controladores.clasesAuxiliares.DatosLobby;
+import com.tallerwebi.entidades.Partida;
+import com.tallerwebi.entidades.Pregunta;
+import com.tallerwebi.servicios.ServicioJuego;
 import javax.servlet.http.HttpServletRequest;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
@@ -12,11 +15,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
-
-import com.tallerwebi.controladores.clasesAuxiliares.DatosLobby;
-import com.tallerwebi.entidades.Partida;
-import com.tallerwebi.entidades.Pregunta;
-import com.tallerwebi.servicios.ServicioJuego;
 
 @Controller
 public class ControladorJuego {
@@ -68,23 +66,25 @@ public class ControladorJuego {
       request.getSession().setAttribute(MENSAJE_RESULTADO, "No hay preguntas cargadas.");
       return new ModelAndView(REDIRECT_JUEGO + partidaId);
     }
-    ModelMap modelo = new ModelMap();
     Partida partida = servicioJuego.obtenerPartidaPorId(partidaId);
-
-  try {
+    try {
       servicioJuego.procesarJugada(partidaId, partida.getJugadorEnTurno().getId(), idProvincia);
-      partida = servicioJuego.obtenerPartidaPorId(partidaId); 
-  } catch (Exception e) {
+    } catch (Exception e) {
       request.getSession().setAttribute(MENSAJE_RESULTADO, e.getMessage());
       return new ModelAndView(REDIRECT_JUEGO + partidaId);
-  }
+    }
+    Partida partidaActualizada = servicioJuego.obtenerPartidaPorId(partidaId);
+    if (partidaActualizada == null) {
+        partidaActualizada = partida; 
+    }
+    ModelMap modelo = new ModelMap();
 
-    modelo.put("partida", partida);
+    modelo.put("partida", partidaActualizada);
     modelo.put(ATRIBUTO_PARTIDA_ID, partidaId);
     modelo.put("idProvincia", idProvincia);
     modelo.put("pregunta", pregunta);
     modelo.put("opciones", servicioJuego.obtenerOpcionesMezcladas(pregunta));
-    modelo.put("jugadorActual", partida.getJugadorEnTurno());
+    modelo.put("jugadorActual", partidaActualizada.getJugadorEnTurno());
 
     return new ModelAndView("pregunta", modelo);
   }
@@ -97,7 +97,6 @@ public class ControladorJuego {
     @RequestParam("respuesta") String respuesta,
     HttpServletRequest request
   ) {
-    
     Boolean acerto = servicioJuego.procesarRespuestaYPasarTurno(
       partidaId,
       idProvincia,
