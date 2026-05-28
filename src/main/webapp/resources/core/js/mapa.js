@@ -25,8 +25,8 @@ L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
 }).addTo(map);
 
 //hago que lea el geoJSON
-
-fetch('/spring/js/ProvinciasArgentinas.json')
+//agregué date.now para que el navegador descargue el json y no use cargas viejas
+fetch('/spring/js/ProvinciasArgentinas.json?v=' + Date.now())
     .then(response => response.json())
     .then(data => {
 
@@ -49,6 +49,24 @@ fetch('/spring/js/ProvinciasArgentinas.json')
 
                     ocultarInfoProvincia();
                 });
+
+                layer.on('click', function(e) {
+
+                console.log(feature);
+                console.log(feature.properties);
+
+                const idProvincia = feature.properties.id;
+
+                console.log("Provincia clickeada:", idProvincia);
+
+                const boton = document.querySelector(`.provincia[data-id="${idProvincia}"]`);
+
+                if (boton) {
+                    boton.click();
+                } else {
+                console.error("No se encontró botón");
+                }
+                });
             }
 
         });
@@ -70,11 +88,10 @@ function estiloProvincia(feature) {
 }
 
 //FUNCIONES
-    //al hacer hover cambia color y agranda
+    //al hacer hover agranda
 function hoverProvincia(layer) {
 
     layer.setStyle({
-        fillColor: '#d63535',
         weight: 3
     });
 

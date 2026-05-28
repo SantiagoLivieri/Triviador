@@ -3,7 +3,10 @@
 <head>
   <meta charset="UTF-8">
   <link rel="stylesheet" th:href="@{/css/main.css}">
-  <title>Triviador Argentina - Juego</title>
+  <title>Triviador Argentina - Partida</title>
+
+  <link rel="stylesheet" th:href="@{/css/leaflet.css}">
+  <link rel="stylesheet" th:href="@{/css/mapa.css}">
 
   <style>
     body {
@@ -169,7 +172,12 @@
   </article>
 </section>
 
+<div id="map">
+  <div id="info-provincia"></div>
+</div>
+
 <section class="tablero">
+
   <form
       class="provincia-form"
       th:each="provincia : ${provincias}"
@@ -183,6 +191,7 @@
     <button
         type="submit"
         class="provincia"
+        th:attr="data-id=${provincia.id}"
         th:classappend="${
           provincia.idJugadorDuenio == null
             ? ' provincia-neutral'
@@ -204,6 +213,13 @@
     </button>
   </form>
 </section>
+
+  <!--inicia leaflet-->
+  <script th:src="@{/js/leaflet.js}"></script>
+
+  <!--carga el mapa-->
+  <script th:src="@{/js/mapa.js}"></script>
+
 <script th:inline="javascript">
   
 const partidaId = /*[[${partida.id}]]*/ 0;
