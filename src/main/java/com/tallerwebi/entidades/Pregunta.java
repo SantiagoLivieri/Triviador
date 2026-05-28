@@ -7,6 +7,7 @@ import javax.persistence.Enumerated;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -18,6 +19,17 @@ import lombok.Setter;
 @Setter
 @NoArgsConstructor
 public class Pregunta {
+
+  @ManyToOne
+  private Provincia provincia;
+
+  public Provincia getProvincia() {
+    return provincia;
+  }
+
+  public void setProvincia(Provincia provincia) {
+    this.provincia = provincia;
+  }
 
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -53,7 +65,8 @@ public class Pregunta {
     String opcionIncorrectaDos,
     String opcionIncorrectaTres,
     TipoPregunta tipoPregunta,
-    CategoriaPregunta categoriaPregunta
+    CategoriaPregunta categoriaPregunta,
+    Provincia provincia
   ) {
     this.enunciado = enunciado;
     this.respuestaCorrecta = respuestaCorrecta;
@@ -62,5 +75,21 @@ public class Pregunta {
     this.opcionIncorrectaTres = opcionIncorrectaTres;
     this.tipoPregunta = tipoPregunta;
     this.categoriaPregunta = categoriaPregunta;
+    this.provincia = provincia;
+  }
+
+  public Pregunta(
+    String enunciado2,
+    String respuestaCorrecta2,
+    TipoPregunta tipo,
+    CategoriaPregunta cat,
+    Provincia prov
+  ) {
+    this.enunciado = enunciado2;
+    this.respuestaCorrecta = respuestaCorrecta2;
+    this.tipoPregunta = tipo;
+    this.categoriaPregunta = cat;
+    this.provincia = prov;
+    //TODO Auto-generated constructor stub
   }
 }

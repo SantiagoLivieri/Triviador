@@ -239,12 +239,22 @@ public class ServicioJuegoImpl implements ServicioJuego {
   }
 
   @Override
-  public Pregunta obtenerPreguntaAleatoria() {
+  public Pregunta obtenerPreguntaPorProvincia(Long idProvincia) {
     List<Pregunta> preguntas = repositorioPregunta.buscarTodas();
-    if (preguntas.isEmpty()) {
-      return null;
+    List<Pregunta> preguntasFiltradas = new ArrayList<>();
+    for (Pregunta pregunta : preguntas) {
+      if (pregunta.getProvincia() != null && pregunta.getProvincia().getId().equals(idProvincia)) {
+        preguntasFiltradas.add(pregunta);
+      }
     }
-    Collections.shuffle(preguntas);
-    return preguntas.get(0);
+    if (preguntasFiltradas.isEmpty()) {
+      if (preguntas.isEmpty()) {
+        return null;
+      }
+      Collections.shuffle(preguntas);
+      return preguntas.get(0);
+    }
+    Collections.shuffle(preguntasFiltradas);
+    return preguntasFiltradas.get(0);
   }
 }

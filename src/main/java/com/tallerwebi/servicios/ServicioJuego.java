@@ -16,7 +16,7 @@ public interface ServicioJuego {
 
   List<Provincia> obtenerProvincias();
 
-  Pregunta obtenerPreguntaAleatoria();
+  // Pregunta obtenerPreguntaAleatoria();
 
   List<String> obtenerOpcionesMezcladas(Pregunta pregunta);
 
@@ -34,5 +34,5 @@ public interface ServicioJuego {
 
   List<Jugador> obtenerJugadores();
 
-  Provincia obtenerProvinciaPorId(Long idProvincia);
+  Pregunta obtenerPreguntaPorProvincia(Long idProvincia);
 }

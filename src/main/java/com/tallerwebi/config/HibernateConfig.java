@@ -27,6 +27,7 @@ public class HibernateConfig {
     if (dbPort == null) dbPort = "3306";
 
     if (dbName == null) dbName = "triviador"; //Nombre de la base de datos
+
     if (dbUser == null) dbUser = "root"; // Usuario de MySQL Workbench
     if (dbPassword == null) dbPassword = "root"; //Contraseña de MySQL Workbench
 
