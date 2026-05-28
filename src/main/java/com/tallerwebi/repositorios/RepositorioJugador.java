@@ -11,4 +11,6 @@ public interface RepositorioJugador {
   void eliminarTodos();
 
   List<Jugador> buscarTodos();
+
+  Jugador buscarPorId(Long idJugadorDuenio);
 }

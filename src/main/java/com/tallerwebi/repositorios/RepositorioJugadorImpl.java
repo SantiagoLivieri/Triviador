@@ -41,4 +41,13 @@ public class RepositorioJugadorImpl implements RepositorioJugador {
   public void actualizar(Jugador jugador) {
     sessionFactory.getCurrentSession().update(jugador);
   }
+
+  @Override
+  public Jugador buscarPorId(Long idJugadorDuenio) {
+    return (Jugador) sessionFactory
+      .getCurrentSession()
+      .createQuery("from Jugador where id = :id")
+      .setParameter("id", idJugadorDuenio)
+      .uniqueResult();
+  }
 }

@@ -3,6 +3,7 @@ package com.tallerwebi.controladores;
 import com.tallerwebi.controladores.clasesAuxiliares.DatosLobby;
 import com.tallerwebi.entidades.Partida;
 import com.tallerwebi.entidades.Pregunta;
+import com.tallerwebi.entidades.Provincia;
 import com.tallerwebi.servicios.ServicioJuego;
 import javax.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -69,6 +70,20 @@ public class ControladorJuego {
 
     Partida partida = servicioJuego.obtenerPartidaPorId(partidaId);
 
+
+    Provincia provinciaElegida = servicioJuego.obtenerProvinciaPorId(idProvincia);
+
+    if (
+      provinciaElegida != null &&
+      provinciaElegida.getIdJugadorDuenio() != null &&
+      provinciaElegida.getIdJugadorDuenio().equals(partida.getJugadorEnTurno().getId())
+    ) {
+      request
+        .getSession()
+        .setAttribute(MENSAJE_RESULTADO, "No podes atacar tu propia provincia, ¡Ataca otra!");
+      return new ModelAndView(REDIRECT_JUEGO + partidaId);
+    }
+    
     try {
       servicioJuego.procesarJugada(partidaId, partida.getJugadorEnTurno().getId(), idProvincia);
     } catch (Exception e) {

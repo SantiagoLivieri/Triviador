@@ -12,7 +12,7 @@
 
   <p>
     Provincia seleccionada:
-    <strong th:text="${idProvincia}">idProvincia</strong>
+    <strong th:text="${provincia.nombre}"></strong>
   </p>
 
   <p>
@@ -28,7 +28,7 @@
 
   <form th:action="@{/responder-provincia}" method="post">
     <input type="hidden" name="partidaId" th:value="${partidaId}">
-    <input type="hidden" name="idProvincia" th:value="${idProvincia}">
+    <input type="hidden" name="idProvincia" th:value="${provincia.id}">
     <input type="hidden" name="idPregunta" th:value="${pregunta.id}">
 
     <div th:each="opcion : ${opciones}">
