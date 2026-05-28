@@ -19,6 +19,7 @@ public class ReiniciarDB {
         "ALTER TABLE Usuario AUTO_INCREMENT = 1;\n" +
         "INSERT INTO Usuario(id, email, password, rol, activo) VALUES(null, 'test@unlam.edu.ar', 'test', 'ADMIN', true);";
 
+      @SuppressWarnings("unused")
       String comando = String.format(
         "docker exec tallerwebi-mysql mysql -h %s -P %s -u %s -p%s %s -e \"%s\"",
         dbHost,
@@ -36,7 +37,8 @@ public class ReiniciarDB {
         // Si es Windows, usamos cmd.exe para ejecutar el script de limpieza
         process = Runtime.getRuntime().exec("cmd.exe /c tu_script_de_limpieza.bat");
         // O si es un archivo .sh y tenés Git Bash instalado:
-        // process = Runtime.getRuntime().exec("C:\\Program Files\\Git\\bin\\bash.exe tu_script.sh");
+        // process = Runtime.getRuntime().exec("C:\\Program Files\\Git\\bin\\bash.exe
+        // tu_script.sh");
       } else {
         // Si es Linux/Mac, mantiene el comportamiento original
         process =

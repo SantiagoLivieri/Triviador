@@ -16,6 +16,7 @@ public class RepositorioRolTest {
   @Autowired
   private SessionFactory sessionFactory;
 
+  @SuppressWarnings("unused")
   private RepositorioRol repositorioRolImpl;
 
   @BeforeEach

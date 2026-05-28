@@ -16,6 +16,7 @@ public class RepositorioUsuarioTest {
   @Autowired
   private SessionFactory sessionFactory;
 
+  @SuppressWarnings("unused")
   private RepositorioUsuario repositorioUsuario;
 
   @BeforeEach
