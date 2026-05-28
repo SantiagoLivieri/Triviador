@@ -61,30 +61,50 @@ public class ControladorJuego {
     @RequestParam(ATRIBUTO_PARTIDA_ID) Long partidaId,
     HttpServletRequest request
   ) {
-    Pregunta pregunta = servicioJuego.obtenerPreguntaAleatoria();
+    Pregunta pregunta = servicioJuego.obtenerPreguntaPorProvincia(idProvincia);
     if (pregunta == null) {
       request.getSession().setAttribute(MENSAJE_RESULTADO, "No hay preguntas cargadas.");
       return new ModelAndView(REDIRECT_JUEGO + partidaId);
     }
+
     Partida partida = servicioJuego.obtenerPartidaPorId(partidaId);
+
     try {
       servicioJuego.procesarJugada(partidaId, partida.getJugadorEnTurno().getId(), idProvincia);
     } catch (Exception e) {
       request.getSession().setAttribute(MENSAJE_RESULTADO, e.getMessage());
       return new ModelAndView(REDIRECT_JUEGO + partidaId);
     }
-    Partida partidaActualizada = servicioJuego.obtenerPartidaPorId(partidaId);
-    if (partidaActualizada == null) {
-        partidaActualizada = partida; 
-    }
-    ModelMap modelo = new ModelMap();
 
+    request.getSession().setAttribute("preguntaActual", pregunta);
+    request
+      .getSession()
+      .setAttribute("opcionesActuales", servicioJuego.obtenerOpcionesMezcladas(pregunta));
+    request.getSession().setAttribute("idProvinciaActual", idProvincia);
+
+    return new ModelAndView("redirect:/juego/pregunta-actual?partidaId=" + partidaId);
+  }
+
+  @GetMapping("/juego/pregunta-actual")
+  public ModelAndView mostrarPreguntaActual(
+    @RequestParam("partidaId") Long partidaId,
+    HttpServletRequest request
+  ) {
+    Pregunta pregunta = (Pregunta) request.getSession().getAttribute("preguntaActual");
+
+    if (pregunta == null) {
+      return new ModelAndView(REDIRECT_JUEGO + partidaId);
+    }
+
+    Partida partidaActualizada = servicioJuego.obtenerPartidaPorId(partidaId);
+
+    ModelMap modelo = new ModelMap();
     modelo.put("partida", partidaActualizada);
     modelo.put(ATRIBUTO_PARTIDA_ID, partidaId);
-    modelo.put("idProvincia", idProvincia);
     modelo.put("pregunta", pregunta);
-    modelo.put("opciones", servicioJuego.obtenerOpcionesMezcladas(pregunta));
     modelo.put("jugadorActual", partidaActualizada.getJugadorEnTurno());
+    modelo.put("idProvincia", request.getSession().getAttribute("idProvinciaActual"));
+    modelo.put("opciones", request.getSession().getAttribute("opcionesActuales"));
 
     return new ModelAndView("pregunta", modelo);
   }

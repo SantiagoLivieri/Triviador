@@ -30,7 +30,6 @@ public class HibernateConfig {
     if (dbUser == null) dbUser = "user"; // Usuario de MySQL Workbench
     if (dbPassword == null) dbPassword = "user"; //Contraseña de MySQL Workbench
 
-
     String url = String.format(
       "jdbc:mysql://%s:%s/%s?useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true",
       dbHost,
