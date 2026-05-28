@@ -78,6 +78,11 @@ public class ServicioJuegoImpl implements ServicioJuego {
   }
 
   @Override
+  public Provincia obtenerProvinciaPorId(Long idProvincia) {
+    return repositorioProvincia.buscarPorId(idProvincia);
+  }
+
+  @Override
   public List<Provincia> obtenerProvincias() {
     crearProvinciasSiNoExisten();
     return repositorioProvincia.buscarTodas();
@@ -109,15 +114,37 @@ public class ServicioJuegoImpl implements ServicioJuego {
     if (acerto) {
       Jugador jugadorActual = partida.getJugadorEnTurno();
       Provincia provincia = repositorioProvincia.buscarPorId(idProvincia);
+
+      if (
+        provincia.getIdJugadorDuenio() != null &&
+        !provincia.getIdJugadorDuenio().equals(jugadorActual.getId())
+      ) {
+        Jugador exduenio = repositorioJugador.buscarPorId(provincia.getIdJugadorDuenio());
+
+        Integer puntajeExDuenio = (exduenio.getPuntaje() != null) ? exduenio.getPuntaje() : 0;
+        exduenio.setPuntaje(Math.max(0, puntajeExDuenio - 10));
+        repositorioJugador.actualizar(exduenio);
+
+        Integer puntajeInvasor = (jugadorActual.getPuntaje() != null)
+          ? jugadorActual.getPuntaje()
+          : 0;
+        jugadorActual.setPuntaje(puntajeInvasor + 50);
+
+        provincia.setPuntos(50);
+      } else {
+        Integer puntajeActual = (jugadorActual.getPuntaje() != null)
+          ? jugadorActual.getPuntaje()
+          : 0;
+        jugadorActual.setPuntaje(puntajeActual + 20);
+        provincia.setPuntos(20);
+      }
+
       provincia.setIdJugadorDuenio(jugadorActual.getId());
-      provincia.setPuntos(10);
       repositorioProvincia.actualizar(provincia);
-
-      jugadorActual.setPuntaje(jugadorActual.getPuntaje() + 10);
       repositorioJugador.actualizar(jugadorActual);
+    } else {
+      avanzarTurno(partida);
     }
-
-    avanzarTurno(partida);
     return acerto;
   }
 

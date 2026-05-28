@@ -33,4 +33,6 @@ public interface ServicioJuego {
   void forzarSaltoPorTiempo(Long partidaId);
 
   List<Jugador> obtenerJugadores();
+
+  Provincia obtenerProvinciaPorId(Long idProvincia);
 }
