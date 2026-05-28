@@ -32,4 +32,9 @@ public class RepositorioRolImpl implements RepositorioRol {
       .setParameter("descripcion", descripcion)
       .uniqueResult();
   }
+
+  @Override
+  public void guardar(Rol rol) {
+    sessionFactory.getCurrentSession().save(rol);
+  }
 }
