@@ -2,8 +2,12 @@ package com.tallerwebi.servicios;
 
 import com.tallerwebi.entidades.CategoriaPregunta;
 import com.tallerwebi.entidades.Pregunta;
+import com.tallerwebi.entidades.Rol;
 import com.tallerwebi.entidades.TipoPregunta;
+import com.tallerwebi.entidades.Usuario;
 import com.tallerwebi.repositorios.RepositorioPregunta;
+import com.tallerwebi.repositorios.RepositorioRol;
+import com.tallerwebi.repositorios.RepositorioUsuario;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -17,10 +21,62 @@ public class ServicioCargaInicialImpl implements ServicioCargaInicial {
   private static final String MENDOZA = "Mendoza";
 
   private final RepositorioPregunta repositorioPregunta;
+  private final RepositorioRol repositorioRol;
+  private final RepositorioUsuario repositorioUsuario;
 
   @Autowired
-  public ServicioCargaInicialImpl(RepositorioPregunta repositorioPregunta) {
+  public ServicioCargaInicialImpl(
+    RepositorioPregunta repositorioPregunta,
+    RepositorioRol repositorioRol,
+    RepositorioUsuario repositorioUsuario
+  ) {
     this.repositorioPregunta = repositorioPregunta;
+    this.repositorioRol = repositorioRol;
+    this.repositorioUsuario = repositorioUsuario;
+  }
+
+  @Override
+  public void cargarDatosIniciales() {
+    cargarRolesIniciales();
+    cargarUsuarioAdminInicial();
+    cargarPreguntasIniciales();
+  }
+
+  @Override
+  public void cargarRolesIniciales() {
+    crearRolSiNoExiste("JUGADOR");
+    crearRolSiNoExiste("EDITOR");
+    crearRolSiNoExiste("ADMIN");
+  }
+
+  private void crearRolSiNoExiste(String descripcion) {
+    Rol rolExistente = repositorioRol.buscarPorDescripcion(descripcion);
+
+    if (rolExistente != null) {
+      return;
+    }
+
+    repositorioRol.guardar(new Rol(descripcion));
+  }
+
+  @Override
+  public void cargarUsuarioAdminInicial() {
+    Usuario adminExistente = repositorioUsuario.buscarUsuarioPorEmail("admin@triviador.com");
+
+    if (adminExistente != null) {
+      return;
+    }
+
+    Rol rolAdmin = repositorioRol.buscarPorDescripcion("ADMIN");
+
+    Usuario admin = new Usuario();
+    admin.setEmail("admin@triviador.com");
+    admin.setPassword("admin123");
+    admin.setNombre("Administrador");
+    admin.setNombreJugador("Admin");
+    admin.setRol(rolAdmin);
+
+    repositorioUsuario.crearUsuario(admin);
   }
 
   @Override

@@ -25,9 +25,11 @@ public class HibernateConfig {
 
     if (dbHost == null) dbHost = "localhost";
     if (dbPort == null) dbPort = "3306";
+
     if (dbName == null) dbName = "triviador"; //Nombre de la base de datos
     if (dbUser == null) dbUser = "user"; // Usuario de MySQL Workbench
     if (dbPassword == null) dbPassword = "user"; //Contraseña de MySQL Workbench
+
 
     String url = String.format(
       "jdbc:mysql://%s:%s/%s?useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true",
@@ -47,7 +49,9 @@ public class HibernateConfig {
   public LocalSessionFactoryBean sessionFactory(DataSource dataSource) {
     LocalSessionFactoryBean sessionFactory = new LocalSessionFactoryBean();
     sessionFactory.setDataSource(dataSource);
+
     sessionFactory.setPackagesToScan("com.tallerwebi.entidades"); //Carpeta de donde debe tomar las entidades para la base de datos
+
     sessionFactory.setHibernateProperties(hibernateProperties());
     return sessionFactory;
   }

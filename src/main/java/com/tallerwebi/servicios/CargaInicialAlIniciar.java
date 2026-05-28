@@ -20,7 +20,7 @@ public class CargaInicialAlIniciar implements ApplicationListener<ContextRefresh
   @Override
   public void onApplicationEvent(ContextRefreshedEvent event) {
     if (!cargaRealizada) {
-      servicioCargaInicial.cargarPreguntasIniciales();
+      servicioCargaInicial.cargarDatosIniciales();
       cargaRealizada = true;
     }
   }

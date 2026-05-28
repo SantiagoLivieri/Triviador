@@ -7,6 +7,7 @@ import com.tallerwebi.servicios.ServicioLogin;
 import com.tallerwebi.servicios.excepcion.PasswordsDiferentesException;
 import com.tallerwebi.servicios.excepcion.UsuarioExistenteException;
 import com.tallerwebi.servicios.excepcion.UsuarioInexistenteException;
+import javax.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
@@ -33,11 +34,18 @@ public class ControladorLogin {
   }
 
   @RequestMapping(path = "/validar-login", method = RequestMethod.POST)
-  public ModelAndView validarLogin(@ModelAttribute("datosLogin") DatosLogin datosLogin) {
+  public ModelAndView validarLogin(
+    @ModelAttribute("datosLogin") DatosLogin datosLogin,
+    HttpSession session
+  ) {
     ModelMap modelMap = new ModelMap();
     try {
       Usuario usuario = servicioLogin.validarDatos(datosLogin);
-      modelMap.put("id", usuario.getId());
+      //modelMap.put("id", usuario.getId());
+      /*Guardar en sesion el usuario que acaba de iniciar
+       */
+      session.setAttribute("usuarioLogueado", usuario);
+      session.setAttribute("usuarioId", usuario.getId());
     } catch (UsuarioInexistenteException e) {
       modelMap.put("error", e.getMessage());
       return new ModelAndView("login", modelMap);
@@ -45,9 +53,23 @@ public class ControladorLogin {
     return new ModelAndView("redirect:/home");
   }
 
+  //No puede entrar a home sin estar logueado
+
   @RequestMapping("/home")
-  public ModelAndView home() {
-    return new ModelAndView("home");
+  public ModelAndView home(HttpSession session) {
+    Usuario usuario = (Usuario) session.getAttribute("usuarioLogueado");
+    if (usuario == null) {
+      return new ModelAndView("redirect:/login");
+    }
+    ModelMap modelMap = new ModelMap();
+    modelMap.put("usuario", usuario);
+    return new ModelAndView("home", modelMap);
+  }
+
+  @RequestMapping("/logout")
+  public ModelAndView logout(HttpSession session) {
+    session.invalidate();
+    return new ModelAndView("redirect:/login");
   }
 
   @RequestMapping("/registro")

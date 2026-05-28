@@ -4,4 +4,8 @@ import com.tallerwebi.entidades.Rol;
 
 public interface RepositorioRol {
   Rol buscarRolPorId(Long id);
+
+  Rol buscarPorDescripcion(String descripcion);
+
+  void guardar(Rol rol);
 }

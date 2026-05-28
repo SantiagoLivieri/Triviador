@@ -180,7 +180,7 @@
 <!-- BARRA SUPERIOR -->
 <header>
     <!-- Izquierda: Desconectarse -->
-    <button class="logout-btn" onclick="alert('Cerrando sesión...')">Salir</button>
+    <a th:href="@{/logout}" class="logout-btn">Salir</a>
 
     <!-- Centro: Nombre del Juego -->
     <h1 class="game-title">Triviador <span>Argentina</span></h1>
@@ -189,8 +189,8 @@
     <div class="user-profile">
         <div class="avatar">👨‍</div>
         <div class="user-info">
-            <span class="username">CheJugador_10</span>
-            <span class="user-stats">Nivel 15 • 1250 PTS</span>
+            <span class="username" th:text="${usuario.nombreJugador}">Jugador</span>
+            <span class="user-stats">Puntos: <span th:text="${usuario.puntaje}">0</span></span>
         </div>
     </div>
 </header>

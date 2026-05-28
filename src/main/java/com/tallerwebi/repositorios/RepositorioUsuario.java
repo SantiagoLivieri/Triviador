@@ -7,5 +7,9 @@ public interface RepositorioUsuario {
 
   Usuario buscarUsuarioPorEmail(String email);
 
+  Usuario buscarUsuarioPorId(Long id);
+
   void crearUsuario(Usuario usuario);
+
+  void actualizarUsuario(Usuario usuario);
 }
