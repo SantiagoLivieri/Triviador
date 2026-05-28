@@ -35,4 +35,6 @@ public interface ServicioJuego {
   List<Jugador> obtenerJugadores();
 
   Pregunta obtenerPreguntaPorProvincia(Long idProvincia);
+
+  Provincia obtenerProvinciaPorId(Long idProvincia);
 }

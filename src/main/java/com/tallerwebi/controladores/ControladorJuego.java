@@ -70,7 +70,6 @@ public class ControladorJuego {
 
     Partida partida = servicioJuego.obtenerPartidaPorId(partidaId);
 
-
     Provincia provinciaElegida = servicioJuego.obtenerProvinciaPorId(idProvincia);
 
     if (
@@ -83,7 +82,7 @@ public class ControladorJuego {
         .setAttribute(MENSAJE_RESULTADO, "No podes atacar tu propia provincia, ¡Ataca otra!");
       return new ModelAndView(REDIRECT_JUEGO + partidaId);
     }
-    
+
     try {
       servicioJuego.procesarJugada(partidaId, partida.getJugadorEnTurno().getId(), idProvincia);
     } catch (Exception e) {
