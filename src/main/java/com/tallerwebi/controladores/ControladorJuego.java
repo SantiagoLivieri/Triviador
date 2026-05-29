@@ -110,7 +110,6 @@ public class ControladorJuego {
       return new ModelAndView(REDIRECT_JUEGO + partidaId);
     }
 
-    Partida partidaActualizada = servicioJuego.obtenerPartidaPorId(partidaId);
     Long idProvinciaActual = (Long) request.getSession().getAttribute("idProvinciaActual");
 
     Provincia provincia = idProvinciaActual != null
@@ -118,9 +117,13 @@ public class ControladorJuego {
       : pregunta.getProvincia();
 
     if (provincia == null) {
-      request.getSession().setAttribute(MENSAJE_RESULTADO, "No se encontro la provincia seleccionada.");
+      request
+        .getSession()
+        .setAttribute(MENSAJE_RESULTADO, "No se encontro la provincia seleccionada.");
       return new ModelAndView(REDIRECT_JUEGO + partidaId);
     }
+
+    Partida partidaActualizada = servicioJuego.obtenerPartidaPorId(partidaId);
 
     ModelMap modelo = new ModelMap();
     modelo.put("partida", partidaActualizada);
