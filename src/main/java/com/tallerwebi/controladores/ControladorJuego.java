@@ -111,14 +111,25 @@ public class ControladorJuego {
     }
 
     Partida partidaActualizada = servicioJuego.obtenerPartidaPorId(partidaId);
+    Long idProvinciaActual = (Long) request.getSession().getAttribute("idProvinciaActual");
+
+    Provincia provincia = idProvinciaActual != null
+      ? servicioJuego.obtenerProvinciaPorId(idProvinciaActual)
+      : pregunta.getProvincia();
+
+    if (provincia == null) {
+      request.getSession().setAttribute(MENSAJE_RESULTADO, "No se encontro la provincia seleccionada.");
+      return new ModelAndView(REDIRECT_JUEGO + partidaId);
+    }
 
     ModelMap modelo = new ModelMap();
     modelo.put("partida", partidaActualizada);
     modelo.put(ATRIBUTO_PARTIDA_ID, partidaId);
     modelo.put("pregunta", pregunta);
     modelo.put("jugadorActual", partidaActualizada.getJugadorEnTurno());
-    modelo.put("idProvincia", request.getSession().getAttribute("idProvinciaActual"));
+    modelo.put("idProvincia", provincia.getId());
     modelo.put("opciones", request.getSession().getAttribute("opcionesActuales"));
+    modelo.put("provincia", provincia);
 
     return new ModelAndView("pregunta", modelo);
   }
