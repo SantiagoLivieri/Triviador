@@ -13,15 +13,20 @@ const CONFIG_MAPA = {
 
 const map = L.map('map', {
     minZoom: CONFIG_MAPA.zoomMin,
-    maxZoom: CONFIG_MAPA.zoomMax
+    maxZoom: CONFIG_MAPA.zoomMax,
+    zoomControl: false
 }).setView(CONFIG_MAPA.centro, CONFIG_MAPA.zoomInicial);
+
+L.control.zoom({
+    position: 'bottomright'
+}).addTo(map);
 
 map.setMaxBounds(CONFIG_MAPA.limites);
 
 //mapa de fondo (después podemos cambiarlo)
 
-L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
-    attribution: '&copy; OpenStreetMap'
+L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager_nolabels/{z}/{x}/{y}{r}.png', {
+    attribution: '&copy; OpenStreetMap &copy; CARTO'
 }).addTo(map);
 
 //hago que lea el geoJSON
@@ -79,10 +84,33 @@ fetch('/spring/js/ProvinciasArgentinas.json?v=' + Date.now())
     //estilo de provincias
 function estiloProvincia(feature) {
 
+    const idProvincia = feature.properties.id;
+
+    const boton = document.querySelector(
+        `.provincia[data-id="${idProvincia}"]`
+    );
+
+    let color = '#e0d8b0';
+
+    if (boton) {
+
+        if (boton.classList.contains('provincia-rojo')) {
+            color = '#dc2626';
+        }
+
+        else if (boton.classList.contains('provincia-azul')) {
+            color = '#2563eb';
+        }
+
+        else if (boton.classList.contains('provincia-verde')) {
+            color = '#16a34a';
+        }
+    }
+
     return {
         color: '#333',
         weight: 1,
-        fillColor: '#e0d8b0',
+        fillColor: color,
         fillOpacity: 1
     };
 }
@@ -94,8 +122,6 @@ function hoverProvincia(layer) {
     layer.setStyle({
         weight: 3
     });
-
-    layer.bringToFront();
 }
 
     //cuando dejas de hacer hover la provincia vuelve a la normalidad
@@ -109,10 +135,16 @@ function salirProvincia(layer) {
 function mostrarInfoProvincia(feature) {
 
     const panel = document.getElementById('info-provincia');
+    
+    const boton = document.querySelector(
+        `.provincia[data-id="${feature.properties.id}"]`
+    );
+
+    if (boton) {
+        panel.innerText = boton.dataset.nombre;
+    }
 
     panel.style.display = 'block';
-
-    panel.innerText = feature.properties.NAME_1;
 }
 
     //desaparece nombre sin hover
