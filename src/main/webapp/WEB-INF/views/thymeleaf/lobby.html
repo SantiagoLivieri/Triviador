@@ -10,12 +10,17 @@
     body {
       margin: 0;
       padding: 0;
+      min-height: 100vh;
       font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
       color: #fff;
-      min-height: 100vh;
       background: radial-gradient(circle at top, #263b63, #111827 55%, #05070c);
       display: flex;
       flex-direction: column;
+    }
+
+    header {
+      padding-top: 10px;
+      padding-bottom: 10px;
     }
 
     .game-title {
@@ -37,7 +42,7 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      padding: 40px 20px;
+      padding: 20px 20px;
     }
 
     .lobby-card {
@@ -80,8 +85,22 @@
     .jugador h3 {
       margin-top: 0;
       margin-bottom: 18px;
-      color: #74b9ff;
       font-size: 1.4rem;
+    }
+
+    #cardPlayer1{
+      background-color: #dc2626;
+      border: 5px solid #F95834;
+    }
+
+    #cardPlayer2{
+      background-color: #2563eb;
+      border: 5px solid #4077ED;
+    }
+
+    #cardPlayer3{
+      background-color: #16a34a;
+      border: 5px solid #19B853;
     }
 
     label {
@@ -106,6 +125,14 @@
     input:focus,
     select:focus {
       box-shadow: 0 0 0 3px rgba(116, 185, 255, 0.45);
+    }
+
+    .colorJugadorTitle{
+      display: none;
+    }
+
+    .colorJugador{
+      display: none;
     }
 
     .acciones {
@@ -178,42 +205,42 @@
     <form th:action="@{/iniciar-partida}" th:object="${datosLobby}" method="post">
       <div class="jugadores-grid">
 
-        <article class="jugador">
+        <article class="jugador" id="cardPlayer1">
           <h3>Jugador 1</h3>
 
           <label for="nombreJugadorUno">Nombre</label>
           <input type="text" id="nombreJugadorUno" th:field="*{nombreJugadorUno}" required>
 
-          <label for="colorJugadorUno">Color</label>
-          <select id="colorJugadorUno" th:field="*{colorJugadorUno}" required>
+          <label class="colorJugadorTitle" for="colorJugadorUno">Color</label>
+          <select class="colorJugador" th:field="*{colorJugadorUno}" required>
             <option value="ROJO">Rojo</option>
             <option value="AZUL">Azul</option>
             <option value="VERDE">Verde</option>
           </select>
         </article>
 
-        <article class="jugador">
+        <article class="jugador" id="cardPlayer2">
           <h3>Jugador 2</h3>
 
           <label for="nombreJugadorDos">Nombre</label>
           <input type="text" id="nombreJugadorDos" th:field="*{nombreJugadorDos}" required>
 
-          <label for="colorJugadorDos">Color</label>
-          <select id="colorJugadorDos" th:field="*{colorJugadorDos}" required>
+          <label class="colorJugadorTitle" for="colorJugadorDos">Color</label>
+          <select class="colorJugador" th:field="*{colorJugadorDos}" required>
             <option value="AZUL">Azul</option>
             <option value="ROJO">Rojo</option>
             <option value="VERDE">Verde</option>
           </select>
         </article>
 
-        <article class="jugador">
+        <article class="jugador" id="cardPlayer3">
           <h3>Jugador 3</h3>
 
           <label for="nombreJugadorTres">Nombre</label>
           <input type="text" id="nombreJugadorTres" th:field="*{nombreJugadorTres}" required>
 
-          <label for="colorJugadorTres">Color</label>
-          <select id="colorJugadorTres" th:field="*{colorJugadorTres}" required>
+          <label class="colorJugadorTitle" for="colorJugadorTres">Color</label>
+          <select class="colorJugador" th:field="*{colorJugadorTres}" required>
             <option value="VERDE">Verde</option>
             <option value="ROJO">Rojo</option>
             <option value="AZUL">Azul</option>

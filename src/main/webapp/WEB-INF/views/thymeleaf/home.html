@@ -18,7 +18,16 @@
             flex-direction: column;
             justify-content: space-between;
             overflow: hidden;
-            background: gray;
+            background: radial-gradient(circle at top, #263b63, #111827 55%, #05070c);
+        }
+
+        header{
+            padding-top: 10px;
+            padding-bottom: 10px;
+            padding-left: 5px;
+            padding-right: 5px;
+            justify-content: space-around;
+            background: rgba(0, 0, 0, 0.25);
         }
 
         /* Botón Cerrar Sesión (Izquierda) */
@@ -103,13 +112,17 @@
             justify-content: center;
             align-items: center;
             gap: 25px;
+            background-image: url("/spring/css/images/Banner.png");
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
         }
 
         /* Botón Buscar Partida */
         .play-btn {
             background: linear-gradient(135deg, #74b9ff 0%, #0984e3 100%);
             color: white;
-            font-size: 2rem;
+            font-size: 1rem;
             font-weight: bold;
             padding: 20px 60px;
             border: none;
@@ -162,6 +175,19 @@
             font-size: 0.9rem;
             color: rgba(255, 255, 255, 0.6);
         }
+
+        @media (max-width: 900px) {
+      .tablero {
+        grid-template-columns: repeat(3, 1fr);
+      }
+    }
+
+    @media (max-width: 560px) {
+      .tablero {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+
     </style>
 </head>
 <body>
@@ -176,7 +202,7 @@
 
     <!-- Derecha: Perfil de Usuario -->
     <div class="user-profile">
-        <div class="avatar">👨‍</div>
+        <div class="avatar">👤</div>
         <div class="user-info">
             <span class="username" th:text="${usuario.nombreJugador}">Jugador</span>
             <span class="user-stats">Puntos: <span th:text="${usuario.puntaje}">0</span></span>
@@ -187,7 +213,7 @@
 <!-- CUERPO DEL LOBBY -->
 <main>
     <!-- Botón Principal -->
-    <a th:href="@{/lobby}" class="play-btn">¡Buscar Partida!</a>
+    <a th:href="@{/lobby}" class="play-btn">¡Iniciar Partida!</a>
 
     <!-- Otras Opciones del Lobby -->
     <div class="secondary-options">
