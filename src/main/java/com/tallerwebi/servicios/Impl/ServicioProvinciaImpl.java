@@ -18,7 +18,7 @@ public class ServicioProvinciaImpl implements ServicioProvincia {
   }
 
   @Override
-  public Provincia obtenerProvinciaPorId(Long idProvincia) {
+  public Provincia buscarPorId(Long idProvincia) {
     return repositorioProvincia.buscarPorId(idProvincia);
   }
 

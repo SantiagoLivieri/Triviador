@@ -1,7 +1,12 @@
 package com.tallerwebi.repositorios;
 
-import com.tallerwebi.integracion.config.HibernateTestConfig;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.*;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+
 import com.tallerwebi.entidades.Partida;
+import com.tallerwebi.integracion.config.HibernateTestConfig;
+import javax.transaction.Transactional;
 import org.hibernate.SessionFactory;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -11,59 +16,53 @@ import org.springframework.test.annotation.Rollback;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
-import javax.transaction.Transactional;
-
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.*;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-
 @ExtendWith(SpringExtension.class)
-@ContextConfiguration(classes = {HibernateTestConfig.class}) 
+@ContextConfiguration(classes = { HibernateTestConfig.class })
 public class RepositorioPartidaTest {
 
-    @Autowired
-    private SessionFactory sessionFactory;
+  @Autowired
+  private SessionFactory sessionFactory;
 
-    private RepositorioPartida repositorioPartida;
+  private RepositorioPartida repositorioPartida;
 
-    @BeforeEach
-    public void init() {
-        this.repositorioPartida = new RepositorioPartidaImpl(sessionFactory);
-    }
+  @BeforeEach
+  public void init() {
+    this.repositorioPartida = new RepositorioPartidaImpl(sessionFactory);
+  }
 
-    @Test
-    @Transactional
-    @Rollback
-    public void queSePuedaGuardarUnaPartidaYBuscarlaPorSuId() {
-        Partida nuevaPartida = new Partida();
+  @Test
+  @Transactional
+  @Rollback
+  public void queSePuedaGuardarUnaPartidaYBuscarlaPorSuId() {
+    Partida nuevaPartida = new Partida();
 
-        nuevaPartida.setEtapaActual(1);
+    nuevaPartida.setEtapaActual(1);
 
-        this.repositorioPartida.guardar(nuevaPartida);
+    this.repositorioPartida.guardar(nuevaPartida);
 
-        Long idGenerado = nuevaPartida.getId(); 
+    Long idGenerado = nuevaPartida.getId();
 
-        Partida partidaBuscada = this.repositorioPartida.buscarPorId(idGenerado);
+    Partida partidaBuscada = this.repositorioPartida.buscarPorId(idGenerado);
 
-        assertNotNull(partidaBuscada);
-        assertThat(partidaBuscada.getId(), is(equalTo(idGenerado)));
-    }
+    assertNotNull(partidaBuscada);
+    assertThat(partidaBuscada.getId(), is(equalTo(idGenerado)));
+  }
 
-    @Test
-    @Transactional
-    @Rollback
-    public void queAlBuscarUnaPartidaInexistenteDevuelvaNull() {
-        Long idInexistente = 3892L;
+  @Test
+  @Transactional
+  @Rollback
+  public void queAlBuscarUnaPartidaInexistenteDevuelvaNull() {
+    Long idInexistente = 3892L;
 
-        Partida partidaBuscada = this.repositorioPartida.buscarPorId(idInexistente);
+    Partida partidaBuscada = this.repositorioPartida.buscarPorId(idInexistente);
 
-        assertThat(partidaBuscada, is(nullValue()));
-    }
+    assertThat(partidaBuscada, is(nullValue()));
+  }
 
-    @Test
-    @Transactional
-    @Rollback
-    public void queSePuedaActualizarLaEtapaDeUnaPartida() {
+  @Test
+  @Transactional
+  @Rollback
+  public void queSePuedaActualizarLaEtapaDeUnaPartida() {
     Partida partida = new Partida();
     partida.setEtapaActual(1);
     this.repositorioPartida.guardar(partida);
@@ -78,6 +77,5 @@ public class RepositorioPartidaTest {
 
     assertNotNull(partidaRecuperada);
     assertThat(partidaRecuperada.getEtapaActual(), is(2));
+  }
 }
-}
-

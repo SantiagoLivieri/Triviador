@@ -84,7 +84,7 @@ public class ServicioJuegoImpl implements ServicioJuego {
 
     if (acerto) {
       Jugador jugadorActual = partida.getJugadorEnTurno();
-      Provincia provincia = servicioProvincia.obtenerProvinciaPorId(idProvincia);
+      Provincia provincia = servicioProvincia.buscarPorId(idProvincia);
 
       if (
         provincia.getIdJugadorDuenio() != null &&
@@ -117,6 +117,28 @@ public class ServicioJuegoImpl implements ServicioJuego {
       avanzarTurno(partida);
     }
     return acerto;
+  }
+
+  @Override
+  public void concretarConquista(Long partidaId, Long idProvincia) {
+    Partida partida = repositorioPartida.buscarPorId(partidaId);
+    Jugador jugadorActual = partida.getJugadorEnTurno();
+    Provincia provincia = servicioProvincia.buscarPorId(idProvincia);
+
+    Jugador exduenio = servicioJugador.buscarPorId(provincia.getIdJugadorDuenio());
+
+    Integer puntajeExDuenio = (exduenio.getPuntaje() != null) ? exduenio.getPuntaje() : 0;
+    exduenio.setPuntaje(Math.max(0, puntajeExDuenio - 10));
+    servicioJugador.actualizar(exduenio);
+
+    Integer puntajeInvasor = (jugadorActual.getPuntaje() != null) ? jugadorActual.getPuntaje() : 0;
+    jugadorActual.setPuntaje(puntajeInvasor + 50);
+
+    provincia.setPuntos(50);
+    provincia.setIdJugadorDuenio(jugadorActual.getId());
+
+    servicioProvincia.actualizar(provincia);
+    servicioJugador.actualizar(jugadorActual);
   }
 
   @Override

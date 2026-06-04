@@ -21,4 +21,6 @@ public interface ServicioJuego {
   );
 
   void forzarSaltoPorTiempo(Long partidaId);
+
+  void concretarConquista(Long partidaId, Long idProvincia);
 }

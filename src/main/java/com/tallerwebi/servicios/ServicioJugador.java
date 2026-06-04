@@ -9,6 +9,6 @@ public interface ServicioJugador {
   void actualizar(Jugador jugador);
 
   List<Jugador> obtenerTodos();
-  
+
   Jugador buscarPorId(Long idJugador);
 }

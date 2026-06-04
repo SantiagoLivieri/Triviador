@@ -8,6 +8,7 @@ import com.tallerwebi.servicios.ServicioJuego;
 import com.tallerwebi.servicios.ServicioPregunta;
 import com.tallerwebi.servicios.ServicioProvincia;
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
@@ -28,6 +29,9 @@ public class ControladorJuego {
   private static final String REDIRECT_JUEGO = "redirect:/juego?id=";
   private static final String MENSAJE_RESULTADO = "mensajeResultado";
   private static final String ATRIBUTO_PARTIDA_ID = "partidaId";
+  public static final String REQUERIDAS_ATTR = "preguntasRequeridas";
+  public static final String RESPONDIDAS_ATTR = "preguntasRespondidasExito";
+  private static final int PREGUNTAS_PARA_CONQUISTA = 3;
 
   @Autowired
   public ControladorJuego(
@@ -80,7 +84,7 @@ public class ControladorJuego {
 
     Partida partida = servicioJuego.obtenerPartidaPorId(partidaId);
 
-    Provincia provinciaElegida = servicioProvincia.obtenerProvinciaPorId(idProvincia);
+    Provincia provinciaElegida = servicioProvincia.buscarPorId(idProvincia);
 
     if (
       provinciaElegida != null &&
@@ -99,6 +103,13 @@ public class ControladorJuego {
       request.getSession().setAttribute(MENSAJE_RESULTADO, e.getMessage());
       return new ModelAndView(REDIRECT_JUEGO + partidaId);
     }
+
+    if (provinciaElegida.getIdJugadorDuenio() == null) {
+      request.getSession().setAttribute(REQUERIDAS_ATTR, 1);
+    } else {
+      request.getSession().setAttribute(REQUERIDAS_ATTR, 3);
+    }
+    request.getSession().setAttribute(RESPONDIDAS_ATTR, 0);
 
     request.getSession().setAttribute("preguntaActual", pregunta);
     request
@@ -123,7 +134,7 @@ public class ControladorJuego {
     Long idProvinciaActual = (Long) request.getSession().getAttribute("idProvinciaActual");
 
     Provincia provincia = idProvinciaActual != null
-      ? servicioProvincia.obtenerProvinciaPorId(idProvinciaActual)
+      ? servicioProvincia.buscarPorId(idProvinciaActual)
       : pregunta.getProvincia();
 
     if (provincia == null) {
@@ -155,6 +166,8 @@ public class ControladorJuego {
     @RequestParam("respuesta") String respuesta,
     HttpServletRequest request
   ) {
+    HttpSession session = request.getSession();
+
     Boolean acerto = servicioJuego.procesarRespuestaYPasarTurno(
       partidaId,
       idProvincia,
@@ -162,17 +175,43 @@ public class ControladorJuego {
       respuesta
     );
 
-    if (acerto) {
-      request
-        .getSession()
-        .setAttribute(MENSAJE_RESULTADO, "¡Respuesta correcta! Provincia conquistada.");
-    } else {
-      request
-        .getSession()
-        .setAttribute(MENSAJE_RESULTADO, "Respuesta incorrecta. Fin de tu turno.");
+    if (!acerto) {
+      session.setAttribute(MENSAJE_RESULTADO, "Respuesta incorrecta. Fin de tu turno");
+      limpiarSesionDisputa(session);
+      return new ModelAndView((REDIRECT_JUEGO + partidaId));
     }
+    Integer respondidas = (Integer) session.getAttribute(RESPONDIDAS_ATTR);
+    Integer requeridas = (Integer) session.getAttribute(REQUERIDAS_ATTR);
 
-    return new ModelAndView(REDIRECT_JUEGO + partidaId);
+    session.setAttribute(RESPONDIDAS_ATTR, respondidas + 1);
+
+    if ((respondidas + 1) == requeridas) {
+      if (requeridas == PREGUNTAS_PARA_CONQUISTA) {
+        servicioJuego.concretarConquista(partidaId, idProvincia);
+        session.setAttribute(
+          MENSAJE_RESULTADO,
+          "Respondiste las 3 correctas y conquistaste la provincia"
+        );
+      } else {
+        session.setAttribute(MENSAJE_RESULTADO, "¡Respuesta correcta! Provincia colonizada");
+      }
+      limpiarSesionDisputa(session);
+      return new ModelAndView(REDIRECT_JUEGO + partidaId);
+    } else {
+      Pregunta proximaPregunta = servicioPregunta.obtenerPreguntaPorProvincia(idProvincia);
+      session.setAttribute("preguntaActual", proximaPregunta);
+      session.setAttribute(
+        "opcionesActuales",
+        servicioPregunta.obtenerOpcionesMezcladas(proximaPregunta)
+      );
+
+      return new ModelAndView("redirect:/juego/pregunta-actual?partidaId=" + partidaId);
+    }
+  }
+
+  private void limpiarSesionDisputa(HttpSession session) {
+    session.removeAttribute(REQUERIDAS_ATTR);
+    session.removeAttribute(RESPONDIDAS_ATTR);
   }
 
   @RequestMapping(path = "/juego/tiempo-agotado", method = RequestMethod.POST)
