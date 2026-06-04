@@ -6,4 +6,8 @@ public interface ServicioUsuario {
   Usuario buscarUsuarioPorId(Long id);
 
   void actualizarPerfil(Long id, String nombre, String nombreJugador);
+
+  void cargarRolesIniciales();
+
+  void cargarUsuarioAdminInicial();
 }

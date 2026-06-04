@@ -5,6 +5,8 @@ import com.tallerwebi.entidades.Partida;
 import com.tallerwebi.entidades.Pregunta;
 import com.tallerwebi.entidades.Provincia;
 import com.tallerwebi.servicios.ServicioJuego;
+import com.tallerwebi.servicios.ServicioPregunta;
+import com.tallerwebi.servicios.ServicioProvincia;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,6 +24,8 @@ import org.springframework.web.servlet.ModelAndView;
 public class ControladorJuego {
 
   private final ServicioJuego servicioJuego;
+  private final ServicioProvincia servicioProvincia;
+  private final ServicioPregunta servicioPregunta;
   private static final String REDIRECT_JUEGO = "redirect:/juego?id=";
   private static final String MENSAJE_RESULTADO = "mensajeResultado";
   private static final String ATRIBUTO_PARTIDA_ID = "partidaId";
@@ -30,8 +34,14 @@ public class ControladorJuego {
   private static final int PREGUNTAS_PARA_CONQUISTA = 3;
 
   @Autowired
-  public ControladorJuego(ServicioJuego servicioJuego) {
+  public ControladorJuego(
+    ServicioJuego servicioJuego,
+    ServicioProvincia servicioProvincia,
+    ServicioPregunta servicioPregunta
+  ) {
     this.servicioJuego = servicioJuego;
+    this.servicioProvincia = servicioProvincia;
+    this.servicioPregunta = servicioPregunta;
   }
 
   @PostMapping("/iniciar-partida")
@@ -48,7 +58,7 @@ public class ControladorJuego {
 
     modelo.put("partida", partida);
     modelo.put("jugadores", partida.getJugadores());
-    modelo.put("provincias", servicioJuego.obtenerProvincias());
+    modelo.put("provincias", servicioProvincia.obtenerProvincias());
     modelo.put("jugadorActual", partida.getJugadorEnTurno());
 
     String mensaje = (String) request.getSession().getAttribute(MENSAJE_RESULTADO);
@@ -66,14 +76,15 @@ public class ControladorJuego {
     @RequestParam(ATRIBUTO_PARTIDA_ID) Long partidaId,
     HttpServletRequest request
   ) {
-    Pregunta pregunta = servicioJuego.obtenerPreguntaPorProvincia(idProvincia);
+    Pregunta pregunta = servicioPregunta.obtenerPreguntaPorProvincia(idProvincia);
     if (pregunta == null) {
       request.getSession().setAttribute(MENSAJE_RESULTADO, "No hay preguntas cargadas.");
       return new ModelAndView(REDIRECT_JUEGO + partidaId);
     }
 
     Partida partida = servicioJuego.obtenerPartidaPorId(partidaId);
-    Provincia provinciaElegida = servicioJuego.obtenerProvinciaPorId(idProvincia);
+
+    Provincia provinciaElegida = servicioProvincia.buscarPorId(idProvincia);
 
     if (
       provinciaElegida != null &&
@@ -103,7 +114,7 @@ public class ControladorJuego {
     request.getSession().setAttribute("preguntaActual", pregunta);
     request
       .getSession()
-      .setAttribute("opcionesActuales", servicioJuego.obtenerOpcionesMezcladas(pregunta));
+      .setAttribute("opcionesActuales", servicioPregunta.obtenerOpcionesMezcladas(pregunta));
     request.getSession().setAttribute("idProvinciaActual", idProvincia);
 
     return new ModelAndView("redirect:/juego/pregunta-actual?partidaId=" + partidaId);
@@ -123,7 +134,7 @@ public class ControladorJuego {
     Long idProvinciaActual = (Long) request.getSession().getAttribute("idProvinciaActual");
 
     Provincia provincia = idProvinciaActual != null
-      ? servicioJuego.obtenerProvinciaPorId(idProvinciaActual)
+      ? servicioProvincia.buscarPorId(idProvinciaActual)
       : pregunta.getProvincia();
 
     if (provincia == null) {
@@ -187,11 +198,11 @@ public class ControladorJuego {
       limpiarSesionDisputa(session);
       return new ModelAndView(REDIRECT_JUEGO + partidaId);
     } else {
-      Pregunta proximaPregunta = servicioJuego.obtenerPreguntaPorProvincia(idProvincia);
+      Pregunta proximaPregunta = servicioPregunta.obtenerPreguntaPorProvincia(idProvincia);
       session.setAttribute("preguntaActual", proximaPregunta);
       session.setAttribute(
         "opcionesActuales",
-        servicioJuego.obtenerOpcionesMezcladas(proximaPregunta)
+        servicioPregunta.obtenerOpcionesMezcladas(proximaPregunta)
       );
 
       return new ModelAndView("redirect:/juego/pregunta-actual?partidaId=" + partidaId);
