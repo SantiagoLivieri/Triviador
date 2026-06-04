@@ -20,6 +20,8 @@ public interface ServicioJuego {
 
   List<String> obtenerOpcionesMezcladas(Pregunta pregunta);
 
+  void concretarConquista(Long partidaId, Long idProvincia);
+
   void procesarJugada(Long partidaId, Long jugadorId, Long provinciaSeleccionadaId)
     throws TiempoAgotadoException, TurnoInvalidoException;
 

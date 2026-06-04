@@ -4,26 +4,254 @@
 <head>
   <meta charset="UTF-8">
   <title>Pregunta - Triviador Argentina</title>
+  <!-- Google Fonts para darle un toque gamer/moderno -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      background: radial-gradient(circle at top, #1e293b, #0f172a);
+      color: #f8fafc;
+      font-family: 'Poppins', sans-serif;
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 20px;
+    }
+
+    .game-container {
+      background: rgba(30, 41, 59, 0.7);
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 20px;
+      padding: 40px;
+      width: 100%;
+      max-width: 700px;
+      box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.3), 0 10px 10px -5px rgba(0, 0, 0, 0.2);
+    }
+
+    .game-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 30px;
+      padding-bottom: 15px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .info-badge {
+      background: rgba(255, 255, 255, 0.05);
+      padding: 8px 16px;
+      border-radius: 30px;
+      font-size: 0.9rem;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .info-badge strong {
+      color: #38bdf8;
+    }
+
+    .timer-container {
+      text-align: center;
+      font-size: 1.2rem;
+      margin-bottom: 25px;
+      font-weight: 600;
+      color: #94a3b8;
+    }
+
+    #timer {
+      font-size: 2.5rem;
+      color: green;
+      font-weight: 700;
+      display: inline-block;
+      min-width: 60px;
+      transition: color 0.3s ease;
+    }
+
+    @keyframes pulse {
+      0% { transform: scale(1); }
+      50% { transform: scale(1.05); }
+      100% { transform: scale(1); }
+    }
+
+    .question {
+      font-size: 1.8rem;
+      text-align: center;
+      margin-bottom: 35px;
+      line-height: 1.4;
+      font-weight: 700;
+      color: #ffffff;
+    }
+
+    .options-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 15px;
+      margin-bottom: 30px;
+    }
+
+    .option-card {
+      position: relative;
+      background: rgba(255, 255, 255, 0.03);
+      border: 2px solid rgba(255, 255, 255, 0.1);
+      border-radius: 12px;
+      padding: 18px 20px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      transition: all 0.2s ease-in-out;
+    }
+
+    .option-card:hover {
+      background: rgba(255, 255, 255, 0.07);
+      border-color: rgba(255, 255, 255, 0.3);
+      transform: translateY(-2px);
+    }
+
+    .option-card input[type="radio"] {
+      display: none;
+    }
+
+    .option-text {
+      font-size: 1.1rem;
+      font-weight: 600;
+      color: #cbd5e1;
+      padding-left: 10px;
+    }
+
+    .option-card:has(input[type="radio"]:checked) {
+      background: linear-gradient(135deg, #1d4ed8, #1e40af);
+      border-color: #3b82f6;
+      box-shadow: 0 0 15px rgba(59, 130, 246, 0.5);
+    }
+
+    .option-card:has(input[type="radio"]:checked) .option-text {
+      color: #ffffff;
+    }
+
+    .timer-critical{
+      color: red;
+    }
+
+    .submit-btn {
+      width: 100%;
+      background: linear-gradient(135deg, #10b981, #059669);
+      color: white;
+      border: none;
+      padding: 16px;
+      font-size: 1.2rem;
+      font-weight: 700;
+      border-radius: 12px;
+      cursor: pointer;
+      box-shadow: 0 4px 6px -1px rgba(16, 185, 129, 0.3);
+      transition: all 0.2s ease;
+    }
+
+    .submit-btn:hover {
+      background: linear-gradient(135deg, #059669, #047857);
+      transform: translateY(-1px);
+      box-shadow: 0 10px 15px -3px rgba(16, 185, 129, 0.4);
+    }
+
+    .submit-btn:active {
+      transform: translateY(1px);
+    }
+    .jokers-section {
+      border-top: 1px solid rgba(255, 255, 255, 0.1);
+      padding-top: 25px;
+    }
+
+    .jokers-title {
+      font-size: 0.9rem;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: #64748b;
+      text-align: center;
+      margin-bottom: 15px;
+      font-weight: 600;
+    }
+
+    .jokers-container {
+      display: flex;
+      gap: 12px;
+      justify-content: space-between;
+    }
+
+    .joker-btn {
+      flex: 1;
+      background: rgba(15, 23, 42, 0.6);
+      border: 1px solid rgba(148, 163, 184, 0.2);
+      color: #e2e8f0;
+      padding: 12px 8px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      border-radius: 10px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 5px;
+      text-align: center;
+    }
+
+    .joker-btn:hover {
+      background: rgba(30, 41, 59, 0.8);
+      transform: translateY(-3px);
+    }
+
+    .joker-5050:hover {
+      border-color: #f59e0b;
+      color: #f59e0b;
+      box-shadow: 0 4px 12px rgba(245, 158, 11, 0.15);
+    }
+
+    .joker-double:hover {
+      border-color: #a855f7;
+      color: #a855f7;
+      box-shadow: 0 4px 12px rgba(168, 85, 247, 0.15);
+    }
+
+    .joker-skip:hover {
+      border-color: #3b82f6;
+      color: #3b82f6;
+      box-shadow: 0 4px 12px rgba(59, 130, 246, 0.15);
+    }
+
+    .joker-icon {
+      font-size: 1.2rem;
+    }
+  </style>
 </head>
 
-<body style="background:#111827; color:white; font-family:Arial; padding:40px;">
+<body>
 
-  <h1>Pantalla de pregunta</h1>
+<div class="game-container">
 
-  <p>
-    Provincia seleccionada:
-    <strong th:text="${provincia.nombre}"></strong>
-  </p>
+  <div class="game-header">
+    <div class="info-badge">
+      Provincia: <strong th:text="${provincia.nombre}">La Pampa</strong>
+    </div>
+    <div class="info-badge">
+      Jugador: <strong th:text="${jugadorActual != null ? jugadorActual.nombre : 'Sin jugador'}">Jugador</strong>
+    </div>
+  </div>
 
-  <p>
-    Jugador actual:
-    <strong th:text="${jugadorActual != null ? jugadorActual.nombre : 'Sin jugador'}">
-      Jugador
-    </strong>
-  </p>
+  <div class="timer-container">
+    Tiempo restante<br>
+    <span id="timer">30</span>s
+  </div>
 
-  <h2 th:text="${pregunta != null ? pregunta.enunciado : 'No llegó pregunta'}">
-    Enunciado
+  <h2 class="question" th:text="${pregunta != null ? pregunta.enunciado : 'No llegó pregunta'}">
   </h2>
 
   <form th:action="@{/responder-provincia}" method="post">
@@ -31,62 +259,83 @@
     <input type="hidden" name="idProvincia" th:value="${provincia.id}">
     <input type="hidden" name="idPregunta" th:value="${pregunta.id}">
 
-    <div th:each="opcion : ${opciones}">
-      <label>
+    <div class="options-grid">
+      <label class="option-card" th:each="opcion : ${opciones}">
         <input type="radio" name="respuesta" th:value="${opcion}" required>
-        <span th:text="${opcion}">Opción</span>
+        <span class="option-text" th:text="${opcion}">Opción de muestra</span>
       </label>
     </div>
 
-    <br>
-
-    <button type="submit">
+    <button type="submit" class="submit-btn">
       Responder
     </button>
   </form>
-  <div style="text-align: center; font-size: 1.5rem; margin-bottom: 20px; color: #ff7675; font-weight: bold;">
-    Tiempo para responder: <span id="timer">30</span>s
+  <div class="jokers-section">
+    <div class="jokers-title">Comodines Disponibles</div>
+    <div class="jokers-container">
+
+      <button type="button" class="joker-btn joker-5050" onclick="usarComodin('50-50')">
+        <span class="joker-icon">❌</span>
+        Eliminar dos respuestas incorrectas
+      </button>
+
+      <button type="button" class="joker-btn joker-double" onclick="usarComodin('doble-chance')">
+        <span class="joker-icon">🛡️</span>
+        Doble chance
+      </button>
+
+      <button type="button" class="joker-btn joker-skip" onclick="usarComodin('pasar')">
+        <span class="joker-icon">⏩</span>
+        Pasar pregunta
+      </button>
+
+    </div>
   </div>
+</div>
 
-  <script th:inline="javascript">
-    const partidaId = /*[[${partidaId}]]*/ 0;
-    const inicioEtapaStr = /*[[${partida.inicioEtapa.toString()}]]*/ '';
-    const inicioTurno = new Date(inicioEtapaStr).getTime();
-    const DURACION_TURNO_MS = 30 * 1000;
-    const display = document.getElementById('timer');
+<script th:inline="javascript">
+  const partidaId = /*[[${partidaId}]]*/ 0;
+  const inicioEtapaStr = /*[[${partida.inicioEtapa.toString()}]]*/ '';
+  const inicioTurno = new Date(inicioEtapaStr).getTime();
+  const DURACION_TURNO_MS = 30 * 1000;
+  const display = document.getElementById('timer');
 
-    function actualizarCronometro() {
-      const ahora = new Date().getTime();
-      const tiempoTranscurrido = ahora - inicioTurno;
-      const tiempoRestante = Math.max(0, Math.round((DURACION_TURNO_MS - tiempoTranscurrido) / 1000));
+  function actualizarCronometro() {
+    const ahora = new Date().getTime();
+    const tiempoTranscurrido = ahora - inicioTurno;
+    const tiempoRestante = Math.max(0, Math.round((DURACION_TURNO_MS - tiempoTranscurrido) / 1000));
 
-      if (display) {
-        display.textContent = tiempoRestante;
-      }
-      if (tiempoRestante <= 0) {
-        clearInterval(cronometro);
-        forzarTiempoAgotado();
+    if (display) {
+      display.textContent = tiempoRestante;
+
+      if (tiempoRestante <= 10) {
+        display.classList.add('timer-critical');
       }
     }
-    actualizarCronometro();
-    
-    const cronometro = setInterval(actualizarCronometro, 1000);
-
-    function forzarTiempoAgotado() {
-      const form = document.createElement('form');
-      form.method = 'POST';
-      form.action = '/spring/juego/tiempo-agotado';
-
-      const input = document.createElement('input');
-      input.type = 'hidden';
-      input.name = 'partidaId';
-      input.value = partidaId;
-
-      form.appendChild(input);
-      document.body.appendChild(form);
-      form.submit();
+    if (tiempoRestante <= 0) {
+      clearInterval(cronometro);
+      forzarTiempoAgotado();
     }
-  </script>
+  }
+  actualizarCronometro();
+
+  const cronometro = setInterval(actualizarCronometro, 1000);
+
+  function forzarTiempoAgotado() {
+    const form = document.createElement('form');
+    form.method = 'POST';
+    form.action = '/spring/juego/tiempo-agotado';
+
+    const input = document.createElement('input');
+    input.type = 'hidden';
+    input.name = 'partidaId';
+    input.value = partidaId;
+
+    form.appendChild(input);
+    document.body.appendChild(form);
+    form.submit();
+  }
+</script>
 </body>
 
 </html>
