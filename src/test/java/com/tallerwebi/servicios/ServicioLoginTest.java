@@ -10,6 +10,7 @@ import com.tallerwebi.controladores.clasesAuxiliares.DatosRegistro;
 import com.tallerwebi.entidades.Usuario;
 import com.tallerwebi.repositorios.RepositorioRol;
 import com.tallerwebi.repositorios.RepositorioUsuario;
+import com.tallerwebi.servicios.Impl.ServicioLoginImpl;
 import com.tallerwebi.servicios.excepcion.UsuarioExistenteException;
 import com.tallerwebi.servicios.excepcion.UsuarioInexistenteException;
 import org.junit.jupiter.api.BeforeEach;

@@ -6,9 +6,6 @@ import org.hibernate.SessionFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
-/**
- * Implementacion del repositorio de provincias.
- */
 @Repository
 public class RepositorioProvinciaImpl implements RepositorioProvincia {
 

@@ -1,4 +1,4 @@
-package com.tallerwebi.servicios;
+package com.tallerwebi.servicios.Impl;
 
 import com.tallerwebi.controladores.clasesAuxiliares.DatosLogin;
 import com.tallerwebi.controladores.clasesAuxiliares.DatosRegistro;
@@ -6,6 +6,7 @@ import com.tallerwebi.entidades.Rol;
 import com.tallerwebi.entidades.Usuario;
 import com.tallerwebi.repositorios.RepositorioRol;
 import com.tallerwebi.repositorios.RepositorioUsuario;
+import com.tallerwebi.servicios.ServicioLogin;
 import com.tallerwebi.servicios.excepcion.PasswordsDiferentesException;
 import com.tallerwebi.servicios.excepcion.UsuarioExistenteException;
 import com.tallerwebi.servicios.excepcion.UsuarioInexistenteException;

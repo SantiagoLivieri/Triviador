@@ -4,164 +4,10 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
    <link rel="stylesheet" th:href="@{/css/main.css}">
+   <link rel="stylesheet" th:href="@{/css/lobby.css}">
   <title>Triviador Argentina - Lobby</title>
 
-  <style>
-    body {
-      margin: 0;
-      padding: 0;
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      color: #fff;
-      min-height: 100vh;
-      background: radial-gradient(circle at top, #263b63, #111827 55%, #05070c);
-      display: flex;
-      flex-direction: column;
-    }
-
-    .game-title {
-      font-size: 2.5rem;
-      font-weight: 900;
-      text-transform: uppercase;
-      letter-spacing: 2px;
-      text-shadow: 0 0 10px #74b9ff, 0 0 20px #74b9ff;
-      color: #ffffff;
-      margin: 0;
-    }
-
-    .game-title span {
-      color: #74b9ff;
-    }
-
-    main {
-      flex-grow: 1;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      padding: 40px 20px;
-    }
-
-    .lobby-card {
-      width: 100%;
-      max-width: 1000px;
-      background: rgba(0, 0, 0, 0.45);
-      border: 1px solid rgba(255, 255, 255, 0.18);
-      border-radius: 24px;
-      padding: 36px;
-      box-shadow: 0 15px 40px rgba(0, 0, 0, 0.45);
-    }
-
-    .lobby-card h2 {
-      text-align: center;
-      font-size: 2rem;
-      margin-top: 0;
-      margin-bottom: 8px;
-      color: #ffffff;
-    }
-
-    .lobby-card p {
-      text-align: center;
-      color: #dfe6e9;
-      margin-bottom: 32px;
-    }
-
-    .jugadores-grid {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 24px;
-    }
-
-    .jugador {
-      background: rgba(255, 255, 255, 0.10);
-      border: 1px solid rgba(255, 255, 255, 0.20);
-      border-radius: 18px;
-      padding: 22px;
-    }
-
-    .jugador h3 {
-      margin-top: 0;
-      margin-bottom: 18px;
-      color: #74b9ff;
-      font-size: 1.4rem;
-    }
-
-    label {
-      display: block;
-      margin-bottom: 8px;
-      font-weight: bold;
-      color: #ffffff;
-    }
-
-    input,
-    select {
-      width: 100%;
-      box-sizing: border-box;
-      padding: 12px;
-      margin-bottom: 18px;
-      border: none;
-      border-radius: 10px;
-      font-size: 1rem;
-      outline: none;
-    }
-
-    input:focus,
-    select:focus {
-      box-shadow: 0 0 0 3px rgba(116, 185, 255, 0.45);
-    }
-
-    .acciones {
-      text-align: center;
-      margin-top: 32px;
-    }
-
-    .start-btn {
-      background: linear-gradient(135deg, #74b9ff 0%, #0984e3 100%);
-      color: white;
-      font-size: 1.5rem;
-      font-weight: bold;
-      padding: 18px 55px;
-      border: none;
-      border-radius: 50px;
-      cursor: pointer;
-      text-transform: uppercase;
-      letter-spacing: 1px;
-      box-shadow: 0 8px 25px rgba(9, 132, 227, 0.6);
-      transition: all 0.3s ease;
-    }
-
-    .start-btn:hover {
-      transform: translateY(-4px) scale(1.03);
-      box-shadow: 0 15px 35px rgba(9, 132, 227, 0.8), 0 0 15px #fff;
-    }
-
-    .volver {
-      display: inline-block;
-      margin-top: 18px;
-      color: #dfe6e9;
-      text-decoration: none;
-    }
-
-    .volver:hover {
-      color: #74b9ff;
-    }
-
-    footer {
-      text-align: center;
-      padding: 15px;
-      background: rgba(0, 0, 0, 0.25);
-      font-size: 0.9rem;
-      color: rgba(255, 255, 255, 0.6);
-    }
-
-    @media (max-width: 900px) {
-      .jugadores-grid {
-        grid-template-columns: 1fr;
-      }
-
-      .game-title {
-        font-size: 2rem;
-      }
-    }
-  </style>
+  
 </head>
 
 <body>
@@ -178,42 +24,42 @@
     <form th:action="@{/iniciar-partida}" th:object="${datosLobby}" method="post">
       <div class="jugadores-grid">
 
-        <article class="jugador">
+        <article class="jugador" id="cardPlayer1">
           <h3>Jugador 1</h3>
 
           <label for="nombreJugadorUno">Nombre</label>
           <input type="text" id="nombreJugadorUno" th:field="*{nombreJugadorUno}" required>
 
-          <label for="colorJugadorUno">Color</label>
-          <select id="colorJugadorUno" th:field="*{colorJugadorUno}" required>
+          <label class="colorJugadorTitle" for="colorJugadorUno">Color</label>
+          <select class="colorJugador" th:field="*{colorJugadorUno}" required>
             <option value="ROJO">Rojo</option>
             <option value="AZUL">Azul</option>
             <option value="VERDE">Verde</option>
           </select>
         </article>
 
-        <article class="jugador">
+        <article class="jugador" id="cardPlayer2">
           <h3>Jugador 2</h3>
 
           <label for="nombreJugadorDos">Nombre</label>
           <input type="text" id="nombreJugadorDos" th:field="*{nombreJugadorDos}" required>
 
-          <label for="colorJugadorDos">Color</label>
-          <select id="colorJugadorDos" th:field="*{colorJugadorDos}" required>
+          <label class="colorJugadorTitle" for="colorJugadorDos">Color</label>
+          <select class="colorJugador" th:field="*{colorJugadorDos}" required>
             <option value="AZUL">Azul</option>
             <option value="ROJO">Rojo</option>
             <option value="VERDE">Verde</option>
           </select>
         </article>
 
-        <article class="jugador">
+        <article class="jugador" id="cardPlayer3">
           <h3>Jugador 3</h3>
 
           <label for="nombreJugadorTres">Nombre</label>
           <input type="text" id="nombreJugadorTres" th:field="*{nombreJugadorTres}" required>
 
-          <label for="colorJugadorTres">Color</label>
-          <select id="colorJugadorTres" th:field="*{colorJugadorTres}" required>
+          <label class="colorJugadorTitle" for="colorJugadorTres">Color</label>
+          <select class="colorJugador" th:field="*{colorJugadorTres}" required>
             <option value="VERDE">Verde</option>
             <option value="ROJO">Rojo</option>
             <option value="AZUL">Azul</option>

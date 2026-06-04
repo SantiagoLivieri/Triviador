@@ -13,20 +13,25 @@ const CONFIG_MAPA = {
 
 const map = L.map('map', {
     minZoom: CONFIG_MAPA.zoomMin,
-    maxZoom: CONFIG_MAPA.zoomMax
+    maxZoom: CONFIG_MAPA.zoomMax,
+    zoomControl: false
 }).setView(CONFIG_MAPA.centro, CONFIG_MAPA.zoomInicial);
+
+L.control.zoom({
+    position: 'bottomright'
+}).addTo(map);
 
 map.setMaxBounds(CONFIG_MAPA.limites);
 
 //mapa de fondo (después podemos cambiarlo)
 
-L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
-    attribution: '&copy; OpenStreetMap'
+L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager_nolabels/{z}/{x}/{y}{r}.png', {
+    attribution: '&copy; OpenStreetMap &copy; CARTO'
 }).addTo(map);
 
 //hago que lea el geoJSON
-
-fetch('/spring/js/ProvinciasArgentinas.json')
+//agregué date.now para que el navegador descargue el json y no use cargas viejas
+fetch('/spring/js/ProvinciasArgentinas.json?v=' + Date.now())
     .then(response => response.json())
     .then(data => {
 
@@ -49,6 +54,24 @@ fetch('/spring/js/ProvinciasArgentinas.json')
 
                     ocultarInfoProvincia();
                 });
+
+                layer.on('click', function(e) {
+
+                console.log(feature);
+                console.log(feature.properties);
+
+                const idProvincia = feature.properties.id;
+
+                console.log("Provincia clickeada:", idProvincia);
+
+                const boton = document.querySelector(`.provincia[data-id="${idProvincia}"]`);
+
+                if (boton) {
+                    boton.click();
+                } else {
+                console.error("No se encontró botón");
+                }
+                });
             }
 
         });
@@ -61,24 +84,44 @@ fetch('/spring/js/ProvinciasArgentinas.json')
     //estilo de provincias
 function estiloProvincia(feature) {
 
+    const idProvincia = feature.properties.id;
+
+    const boton = document.querySelector(
+        `.provincia[data-id="${idProvincia}"]`
+    );
+
+    let color = '#e0d8b0';
+
+    if (boton) {
+
+        if (boton.classList.contains('provincia-rojo')) {
+            color = '#dc2626';
+        }
+
+        else if (boton.classList.contains('provincia-azul')) {
+            color = '#2563eb';
+        }
+
+        else if (boton.classList.contains('provincia-verde')) {
+            color = '#16a34a';
+        }
+    }
+
     return {
         color: '#333',
         weight: 1,
-        fillColor: '#e0d8b0',
+        fillColor: color,
         fillOpacity: 1
     };
 }
 
 //FUNCIONES
-    //al hacer hover cambia color y agranda
+    //al hacer hover agranda
 function hoverProvincia(layer) {
 
     layer.setStyle({
-        fillColor: '#d63535',
         weight: 3
     });
-
-    layer.bringToFront();
 }
 
     //cuando dejas de hacer hover la provincia vuelve a la normalidad
@@ -92,10 +135,16 @@ function salirProvincia(layer) {
 function mostrarInfoProvincia(feature) {
 
     const panel = document.getElementById('info-provincia');
+    
+    const boton = document.querySelector(
+        `.provincia[data-id="${feature.properties.id}"]`
+    );
+
+    if (boton) {
+        panel.innerText = boton.dataset.nombre;
+    }
 
     panel.style.display = 'block';
-
-    panel.innerText = feature.properties.NAME_1;
 }
 
     //desaparece nombre sin hover

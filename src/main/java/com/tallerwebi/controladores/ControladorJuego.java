@@ -5,6 +5,8 @@ import com.tallerwebi.entidades.Partida;
 import com.tallerwebi.entidades.Pregunta;
 import com.tallerwebi.entidades.Provincia;
 import com.tallerwebi.servicios.ServicioJuego;
+import com.tallerwebi.servicios.ServicioPregunta;
+import com.tallerwebi.servicios.ServicioProvincia;
 import javax.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -21,13 +23,21 @@ import org.springframework.web.servlet.ModelAndView;
 public class ControladorJuego {
 
   private final ServicioJuego servicioJuego;
+  private final ServicioProvincia servicioProvincia;
+  private final ServicioPregunta servicioPregunta;
   private static final String REDIRECT_JUEGO = "redirect:/juego?id=";
   private static final String MENSAJE_RESULTADO = "mensajeResultado";
   private static final String ATRIBUTO_PARTIDA_ID = "partidaId";
 
   @Autowired
-  public ControladorJuego(ServicioJuego servicioJuego) {
+  public ControladorJuego(
+    ServicioJuego servicioJuego,
+    ServicioProvincia servicioProvincia,
+    ServicioPregunta servicioPregunta
+  ) {
     this.servicioJuego = servicioJuego;
+    this.servicioProvincia = servicioProvincia;
+    this.servicioPregunta = servicioPregunta;
   }
 
   @PostMapping("/iniciar-partida")
@@ -44,7 +54,7 @@ public class ControladorJuego {
 
     modelo.put("partida", partida);
     modelo.put("jugadores", partida.getJugadores());
-    modelo.put("provincias", servicioJuego.obtenerProvincias());
+    modelo.put("provincias", servicioProvincia.obtenerProvincias());
     modelo.put("jugadorActual", partida.getJugadorEnTurno());
 
     String mensaje = (String) request.getSession().getAttribute(MENSAJE_RESULTADO);
@@ -62,7 +72,7 @@ public class ControladorJuego {
     @RequestParam(ATRIBUTO_PARTIDA_ID) Long partidaId,
     HttpServletRequest request
   ) {
-    Pregunta pregunta = servicioJuego.obtenerPreguntaPorProvincia(idProvincia);
+    Pregunta pregunta = servicioPregunta.obtenerPreguntaPorProvincia(idProvincia);
     if (pregunta == null) {
       request.getSession().setAttribute(MENSAJE_RESULTADO, "No hay preguntas cargadas.");
       return new ModelAndView(REDIRECT_JUEGO + partidaId);
@@ -70,8 +80,7 @@ public class ControladorJuego {
 
     Partida partida = servicioJuego.obtenerPartidaPorId(partidaId);
 
-
-    Provincia provinciaElegida = servicioJuego.obtenerProvinciaPorId(idProvincia);
+    Provincia provinciaElegida = servicioProvincia.obtenerProvinciaPorId(idProvincia);
 
     if (
       provinciaElegida != null &&
@@ -83,7 +92,7 @@ public class ControladorJuego {
         .setAttribute(MENSAJE_RESULTADO, "No podes atacar tu propia provincia, ¡Ataca otra!");
       return new ModelAndView(REDIRECT_JUEGO + partidaId);
     }
-    
+
     try {
       servicioJuego.procesarJugada(partidaId, partida.getJugadorEnTurno().getId(), idProvincia);
     } catch (Exception e) {
@@ -94,7 +103,7 @@ public class ControladorJuego {
     request.getSession().setAttribute("preguntaActual", pregunta);
     request
       .getSession()
-      .setAttribute("opcionesActuales", servicioJuego.obtenerOpcionesMezcladas(pregunta));
+      .setAttribute("opcionesActuales", servicioPregunta.obtenerOpcionesMezcladas(pregunta));
     request.getSession().setAttribute("idProvinciaActual", idProvincia);
 
     return new ModelAndView("redirect:/juego/pregunta-actual?partidaId=" + partidaId);
@@ -111,6 +120,19 @@ public class ControladorJuego {
       return new ModelAndView(REDIRECT_JUEGO + partidaId);
     }
 
+    Long idProvinciaActual = (Long) request.getSession().getAttribute("idProvinciaActual");
+
+    Provincia provincia = idProvinciaActual != null
+      ? servicioProvincia.obtenerProvinciaPorId(idProvinciaActual)
+      : pregunta.getProvincia();
+
+    if (provincia == null) {
+      request
+        .getSession()
+        .setAttribute(MENSAJE_RESULTADO, "No se encontro la provincia seleccionada.");
+      return new ModelAndView(REDIRECT_JUEGO + partidaId);
+    }
+
     Partida partidaActualizada = servicioJuego.obtenerPartidaPorId(partidaId);
 
     ModelMap modelo = new ModelMap();
@@ -118,8 +140,9 @@ public class ControladorJuego {
     modelo.put(ATRIBUTO_PARTIDA_ID, partidaId);
     modelo.put("pregunta", pregunta);
     modelo.put("jugadorActual", partidaActualizada.getJugadorEnTurno());
-    modelo.put("idProvincia", request.getSession().getAttribute("idProvinciaActual"));
+    modelo.put("idProvincia", provincia.getId());
     modelo.put("opciones", request.getSession().getAttribute("opcionesActuales"));
+    modelo.put("provincia", provincia);
 
     return new ModelAndView("pregunta", modelo);
   }
