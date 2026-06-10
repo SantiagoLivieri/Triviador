@@ -76,7 +76,7 @@ describe("Mapa Funciones", function() {
     describe("crearEstiloProvincia", function() {
 
         /*Defino el 1er caso */
-        it("Debe crear el estilo con color azul", function() {
+        it("Debe crear el estilo con color rojo", function() {
 
             const color = '#dc2626';
 

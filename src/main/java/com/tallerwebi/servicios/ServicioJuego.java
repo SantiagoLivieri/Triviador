@@ -22,5 +22,9 @@ public interface ServicioJuego {
 
   void forzarSaltoPorTiempo(Long partidaId);
 
+  Integer obtenerCantidadPreguntasRequeridas(Long idProvincia);
+
+  void validarAtaque(Long partidaId, Long jugadorId, Long idProvincia);
+
   void concretarConquista(Long partidaId, Long idProvincia);
 }

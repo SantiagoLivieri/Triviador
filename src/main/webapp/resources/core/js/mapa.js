@@ -1,6 +1,4 @@
 import {
-    crearEstiloProvincia,
-    obtenerColorProvincia,
     estiloProvincia,
     hoverProvincia,
     salirProvincia,

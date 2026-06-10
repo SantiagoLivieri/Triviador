@@ -84,31 +84,17 @@ public class ControladorJuego {
 
     Partida partida = servicioJuego.obtenerPartidaPorId(partidaId);
 
-    Provincia provinciaElegida = servicioProvincia.buscarPorId(idProvincia);
-
-    if (
-      provinciaElegida != null &&
-      provinciaElegida.getIdJugadorDuenio() != null &&
-      provinciaElegida.getIdJugadorDuenio().equals(partida.getJugadorEnTurno().getId())
-    ) {
-      request
-        .getSession()
-        .setAttribute(MENSAJE_RESULTADO, "No podes atacar tu propia provincia, ¡Ataca otra!");
-      return new ModelAndView(REDIRECT_JUEGO + partidaId);
-    }
-
     try {
+      servicioJuego.validarAtaque(partidaId, partida.getJugadorEnTurno().getId(), idProvincia);
       servicioJuego.procesarJugada(partidaId, partida.getJugadorEnTurno().getId(), idProvincia);
     } catch (Exception e) {
       request.getSession().setAttribute(MENSAJE_RESULTADO, e.getMessage());
       return new ModelAndView(REDIRECT_JUEGO + partidaId);
     }
 
-    if (provinciaElegida.getIdJugadorDuenio() == null) {
-      request.getSession().setAttribute(REQUERIDAS_ATTR, 1);
-    } else {
-      request.getSession().setAttribute(REQUERIDAS_ATTR, 3);
-    }
+    Integer requeridas = servicioJuego.obtenerCantidadPreguntasRequeridas(idProvincia);
+    request.getSession().setAttribute(REQUERIDAS_ATTR, requeridas);
+
     request.getSession().setAttribute(RESPONDIDAS_ATTR, 0);
 
     request.getSession().setAttribute("preguntaActual", pregunta);
