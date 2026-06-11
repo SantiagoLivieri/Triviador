@@ -86,6 +86,9 @@ public class ServicioJuegoImpl implements ServicioJuego {
       Jugador jugadorActual = partida.getJugadorEnTurno();
       Provincia provincia = servicioProvincia.buscarPorId(idProvincia);
 
+      // Asignación de dueño y puntaje SOLO para provincias neutrales
+      // La asignación para conquistas ahora se hace en concretarConquista()
+      // Cambio hecho para evitar bugs por lógica duplicada
       boolean provinciaNeutral = provincia.getIdJugadorDuenio() == null;
       if (provinciaNeutral) {
         Integer puntajeActual = (jugadorActual.getPuntaje() != null)
@@ -115,10 +118,10 @@ public class ServicioJuegoImpl implements ServicioJuego {
     return 3;
   }
 
+  //Impide atacar provincias propias
   @Override
-  public void validarAtaque(Long partidaId, Long jugadorId, Long idProvincia) {
+  public void validarAtaque(Long jugadorId, Long idProvincia) {
     Provincia provincia = servicioProvincia.buscarPorId(idProvincia);
-
     if (
       provincia != null &&
       provincia.getIdJugadorDuenio() != null &&
@@ -128,6 +131,19 @@ public class ServicioJuegoImpl implements ServicioJuego {
     }
   }
 
+  //Determina si se respondieron la cantidad de preguntas necesarias
+  @Override
+  public boolean disputaFinalizada(Integer respondidas, Integer requeridas) {
+    return respondidas >= requeridas;
+  }
+
+  
+  @Override
+  public boolean esConquista(Integer preguntasRequeridas) {
+    return preguntasRequeridas == 3;
+  }
+
+  //Se ocupa de cambio de dueño y puntaje en conquistas
   @Override
   public void concretarConquista(Long partidaId, Long idProvincia) {
     Partida partida = repositorioPartida.buscarPorId(partidaId);

@@ -24,7 +24,11 @@ public interface ServicioJuego {
 
   Integer obtenerCantidadPreguntasRequeridas(Long idProvincia);
 
-  void validarAtaque(Long partidaId, Long jugadorId, Long idProvincia);
+  void validarAtaque(Long jugadorId, Long idProvincia);
+
+  boolean disputaFinalizada(Integer respondidas, Integer requeridas);
+
+  boolean esConquista(Integer preguntasrequeridas);
 
   void concretarConquista(Long partidaId, Long idProvincia);
 }
