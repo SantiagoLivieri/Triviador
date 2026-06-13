@@ -1,6 +1,7 @@
 package com.tallerwebi.entidades;
 
 import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
 import java.util.List;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
@@ -61,5 +62,33 @@ public class Partida {
 
   public void setJugadores(List<Jugador> jugadores) {
     this.jugadores = jugadores;
+  }
+
+  public void avanzarTurno() {
+    if (this.jugadores == null || this.jugadores.isEmpty()) {
+      return;
+    }
+    int indiceActual = this.jugadores.indexOf(this.jugadorEnTurno);
+    int siguienteIndice = (indiceActual + 1) % this.jugadores.size();
+
+    this.jugadorEnTurno = this.jugadores.get(siguienteIndice);
+    this.etapaActual = 1;
+    this.inicioEtapa = LocalDateTime.now();
+  }
+
+  public boolean tieneTiempoAgotado(int tiempoMaximoSegundos) {
+    if (this.inicioEtapa == null) {
+      return false;
+    }
+    long segundosTranscurridos = ChronoUnit.SECONDS.between(this.inicioEtapa, LocalDateTime.now());
+    return segundosTranscurridos > tiempoMaximoSegundos;
+  }
+
+  public boolean esTurnoDe(Long jugadorId) {
+    if (this.jugadorEnTurno == null || jugadorId == null) {
+      return false;
+    }
+
+    return this.jugadorEnTurno.getId().equals(jugadorId);
   }
 }

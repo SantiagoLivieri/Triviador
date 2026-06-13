@@ -34,7 +34,22 @@ public class ServicioProvinciaImpl implements ServicioProvincia {
 
   @Override
   public void actualizar(Provincia provincia) {
-    // TODO Auto-generated method stub
+    if (provincia == null || provincia.getId() == null) {
+      throw new IllegalArgumentException(
+        "No se puede actualizar una provincia nula o sin ID asignado."
+      );
+    }
     repositorioProvincia.actualizar(provincia);
+  }
+
+  @Override
+  public Integer obtenerCantidadPreguntasRequeridas(Long idProvincia) {
+    Provincia provincia = buscarPorId(idProvincia);
+
+    if (provincia == null) {
+      throw new IllegalArgumentException("La provincia solicitada no existe");
+    }
+
+    return provincia.getCantidadPreguntasRequeridas();
   }
 }

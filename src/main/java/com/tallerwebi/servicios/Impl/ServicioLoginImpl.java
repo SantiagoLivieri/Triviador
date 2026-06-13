@@ -18,8 +18,8 @@ import org.springframework.stereotype.Service;
 @Transactional
 public class ServicioLoginImpl implements ServicioLogin {
 
-  private RepositorioUsuario repositorioUsuario;
-  private RepositorioRol repositorioRol;
+  private final RepositorioUsuario repositorioUsuario;
+  private final RepositorioRol repositorioRol;
 
   @Autowired
   public ServicioLoginImpl(RepositorioUsuario repositorioUsuario, RepositorioRol repositorioRol) {
@@ -29,6 +29,11 @@ public class ServicioLoginImpl implements ServicioLogin {
 
   @Override
   public Usuario validarDatos(DatosLogin datosLogin) throws UsuarioInexistenteException {
+    if (
+      datosLogin == null || estaVacio(datosLogin.getEmail()) || estaVacio(datosLogin.getPassword())
+    ) {
+      throw new UsuarioInexistenteException("Los datos de acceso no pueden estar vacíos.");
+    }
     Usuario usuario = repositorioUsuario.buscarUsuario(
       datosLogin.getEmail(),
       datosLogin.getPassword()
@@ -41,24 +46,33 @@ public class ServicioLoginImpl implements ServicioLogin {
 
   @Override
   public void validarEmail(String email) throws UsuarioExistenteException {
-    Usuario usuario = repositorioUsuario.buscarUsuarioPorEmail(email);
+    if (estaVacio(email)) {
+      throw new IllegalArgumentException("El email no puede ser vacío.");
+    }
+    Usuario usuario = repositorioUsuario.buscarUsuarioPorEmail(email.trim());
     if (usuario != null) {
-      throw new UsuarioExistenteException("Hay un usuario con este email");
+      throw new UsuarioExistenteException("Ya existe un usuario registrado con este email.");
     }
   }
 
   @Override
   public void validarPassword(String password, String rePassword)
     throws PasswordsDiferentesException {
-    if (!password.equals(rePassword)) {
-      throw new PasswordsDiferentesException("Las contraseñas son diferentes");
+    if (estaVacio(password) || !password.equals(rePassword)) {
+      throw new PasswordsDiferentesException(
+        "Las contraseñas introducidas no coinciden o son inválidas."
+      );
     }
   }
 
   @Override
   public void crearUsuario(DatosRegistro datosRegistro) {
-    //Rol rolUser = repositorioRol.buscarRolPorId(2L);
+    // Rol rolUser = repositorioRol.buscarRolPorId(2L);
     Rol rolUser = repositorioRol.buscarPorDescripcion("JUGADOR");
     repositorioUsuario.crearUsuario(new Usuario(datosRegistro, rolUser));
+  }
+
+  private boolean estaVacio(String texto) {
+    return texto == null || texto.trim().isEmpty();
   }
 }

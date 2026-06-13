@@ -1,5 +1,8 @@
 package com.tallerwebi.entidades;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
@@ -91,5 +94,16 @@ public class Pregunta {
     this.categoriaPregunta = cat;
     this.provincia = prov;
     //TODO Auto-generated constructor stub
+  }
+
+  public List<String> getOpcionesMezcladas() {
+    List<String> opciones = new ArrayList<>();
+    opciones.add(this.respuestaCorrecta);
+    opciones.add(this.opcionIncorrectaUno);
+    opciones.add(this.opcionIncorrectaDos);
+    opciones.add(this.opcionIncorrectaTres);
+
+    Collections.shuffle(opciones);
+    return opciones;
   }
 }
