@@ -86,32 +86,21 @@ public class ServicioJuegoImpl implements ServicioJuego {
       Jugador jugadorActual = partida.getJugadorEnTurno();
       Provincia provincia = servicioProvincia.buscarPorId(idProvincia);
 
-      if (
-        provincia.getIdJugadorDuenio() != null &&
-        !provincia.getIdJugadorDuenio().equals(jugadorActual.getId())
-      ) {
-        Jugador exduenio = servicioJugador.buscarPorId(provincia.getIdJugadorDuenio());
-
-        Integer puntajeExDuenio = (exduenio.getPuntaje() != null) ? exduenio.getPuntaje() : 0;
-        exduenio.setPuntaje(Math.max(0, puntajeExDuenio - 10));
-        servicioJugador.actualizar(exduenio);
-
-        Integer puntajeInvasor = (jugadorActual.getPuntaje() != null)
-          ? jugadorActual.getPuntaje()
-          : 0;
-        jugadorActual.setPuntaje(puntajeInvasor + 50);
-
-        provincia.setPuntos(50);
-      } else {
+      // Asignación de dueño y puntaje SOLO para provincias neutrales
+      // La asignación para conquistas ahora se hace en concretarConquista()
+      // Cambio hecho para evitar bugs por lógica duplicada
+      boolean provinciaNeutral = provincia.getIdJugadorDuenio() == null;
+      if (provinciaNeutral) {
         Integer puntajeActual = (jugadorActual.getPuntaje() != null)
           ? jugadorActual.getPuntaje()
           : 0;
+
         jugadorActual.setPuntaje(puntajeActual + 20);
         provincia.setPuntos(20);
-      }
 
-      provincia.setIdJugadorDuenio(jugadorActual.getId());
-      servicioProvincia.actualizar(provincia);
+        provincia.setIdJugadorDuenio(jugadorActual.getId());
+        servicioProvincia.actualizar(provincia);
+      }
       servicioJugador.actualizar(jugadorActual);
     } else {
       avanzarTurno(partida);
@@ -119,6 +108,42 @@ public class ServicioJuegoImpl implements ServicioJuego {
     return acerto;
   }
 
+  /*Checa si la prov atacada tiene dueño. Si tiene: 3 preguntas / No tiene: 1pregunta */
+  @Override
+  public Integer obtenerCantidadPreguntasRequeridas(Long idProvincia) {
+    Provincia provincia = servicioProvincia.buscarPorId(idProvincia);
+    if (provincia.getIdJugadorDuenio() == null) {
+      return 1;
+    }
+    return 3;
+  }
+
+  //Impide atacar provincias propias
+  @Override
+  public void validarAtaque(Long jugadorId, Long idProvincia) {
+    Provincia provincia = servicioProvincia.buscarPorId(idProvincia);
+    if (
+      provincia != null &&
+      provincia.getIdJugadorDuenio() != null &&
+      provincia.getIdJugadorDuenio().equals(jugadorId)
+    ) {
+      throw new IllegalArgumentException("No podes atacar tu propia provincia, ¡Ataca otra!");
+    }
+  }
+
+  //Determina si se respondieron la cantidad de preguntas necesarias
+  @Override
+  public boolean disputaFinalizada(Integer respondidas, Integer requeridas) {
+    return respondidas >= requeridas;
+  }
+
+  
+  @Override
+  public boolean esConquista(Integer preguntasRequeridas) {
+    return preguntasRequeridas == 3;
+  }
+
+  //Se ocupa de cambio de dueño y puntaje en conquistas
   @Override
   public void concretarConquista(Long partidaId, Long idProvincia) {
     Partida partida = repositorioPartida.buscarPorId(partidaId);

@@ -31,7 +31,6 @@ public class ControladorJuego {
   private static final String ATRIBUTO_PARTIDA_ID = "partidaId";
   public static final String REQUERIDAS_ATTR = "preguntasRequeridas";
   public static final String RESPONDIDAS_ATTR = "preguntasRespondidasExito";
-  private static final int PREGUNTAS_PARA_CONQUISTA = 3;
 
   @Autowired
   public ControladorJuego(
@@ -84,31 +83,17 @@ public class ControladorJuego {
 
     Partida partida = servicioJuego.obtenerPartidaPorId(partidaId);
 
-    Provincia provinciaElegida = servicioProvincia.buscarPorId(idProvincia);
-
-    if (
-      provinciaElegida != null &&
-      provinciaElegida.getIdJugadorDuenio() != null &&
-      provinciaElegida.getIdJugadorDuenio().equals(partida.getJugadorEnTurno().getId())
-    ) {
-      request
-        .getSession()
-        .setAttribute(MENSAJE_RESULTADO, "No podes atacar tu propia provincia, ¡Ataca otra!");
-      return new ModelAndView(REDIRECT_JUEGO + partidaId);
-    }
-
     try {
+      servicioJuego.validarAtaque(partida.getJugadorEnTurno().getId(), idProvincia);
       servicioJuego.procesarJugada(partidaId, partida.getJugadorEnTurno().getId(), idProvincia);
     } catch (Exception e) {
       request.getSession().setAttribute(MENSAJE_RESULTADO, e.getMessage());
       return new ModelAndView(REDIRECT_JUEGO + partidaId);
     }
 
-    if (provinciaElegida.getIdJugadorDuenio() == null) {
-      request.getSession().setAttribute(REQUERIDAS_ATTR, 1);
-    } else {
-      request.getSession().setAttribute(REQUERIDAS_ATTR, 3);
-    }
+    Integer requeridas = servicioJuego.obtenerCantidadPreguntasRequeridas(idProvincia);
+    request.getSession().setAttribute(REQUERIDAS_ATTR, requeridas);
+
     request.getSession().setAttribute(RESPONDIDAS_ATTR, 0);
 
     request.getSession().setAttribute("preguntaActual", pregunta);
@@ -182,11 +167,11 @@ public class ControladorJuego {
     }
     Integer respondidas = (Integer) session.getAttribute(RESPONDIDAS_ATTR);
     Integer requeridas = (Integer) session.getAttribute(REQUERIDAS_ATTR);
+    Integer nuevasRespondidas = respondidas + 1;
+    session.setAttribute(RESPONDIDAS_ATTR, nuevasRespondidas);
 
-    session.setAttribute(RESPONDIDAS_ATTR, respondidas + 1);
-
-    if ((respondidas + 1) == requeridas) {
-      if (requeridas == PREGUNTAS_PARA_CONQUISTA) {
+    if (servicioJuego.disputaFinalizada(nuevasRespondidas, requeridas)) {
+      if (servicioJuego.esConquista(requeridas)) {
         servicioJuego.concretarConquista(partidaId, idProvincia);
         session.setAttribute(
           MENSAJE_RESULTADO,

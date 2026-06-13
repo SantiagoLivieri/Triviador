@@ -31,9 +31,7 @@ export function obtenerColorProvincia(boton) {
         }
     }
 
-    return {
-        color
-    };
+    return color;
 }
 
 //crear estilo de provincia
