@@ -38,4 +38,13 @@ public class ServicioJugadorImpl implements ServicioJugador {
   public Jugador buscarPorId(Long idJugador) {
     return repositorioJugador.buscarPorId(idJugador);
   }
+
+  @Override
+  public Jugador crearJugador(String nombre, String color) {
+    Jugador jugador = new Jugador(nombre, color);
+
+    repositorioJugador.guardar(jugador);
+
+    return jugador;
+  }
 }

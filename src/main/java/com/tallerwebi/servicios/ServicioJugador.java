@@ -11,4 +11,5 @@ public interface ServicioJugador {
   List<Jugador> obtenerTodos();
 
   Jugador buscarPorId(Long idJugador);
+  Jugador crearJugador(String nombre, String color);
 }

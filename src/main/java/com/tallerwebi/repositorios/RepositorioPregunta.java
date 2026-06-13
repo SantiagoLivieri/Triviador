@@ -11,4 +11,6 @@ public interface RepositorioPregunta {
   List<Pregunta> buscarTodas();
 
   Long contar();
+
+  List<Pregunta> buscarPorProvincia(Long idProvincia);
 }

@@ -64,4 +64,18 @@ public class Provincia {
   public void setIdJugadorDuenio(Long idJugadorDuenio) {
     this.idJugadorDuenio = idJugadorDuenio;
   }
+
+  public boolean esNeutral() {
+    return this.idJugadorDuenio == null;
+  }
+
+  public void validarAtaque(Long jugadorId) {
+    if (this.idJugadorDuenio != null && this.idJugadorDuenio.equals(jugadorId)) {
+      throw new IllegalArgumentException("No podes atacar tu propia provincia, ¡Ataca otra!");
+    }
+  }
+
+  public int getCantidadPreguntasRequeridas() {
+    return this.esNeutral() ? 1 : 3;
+  }
 }
