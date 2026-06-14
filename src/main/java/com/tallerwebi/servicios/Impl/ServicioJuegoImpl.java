@@ -138,10 +138,10 @@ public class ServicioJuegoImpl implements ServicioJuego {
 
     Jugador exduenio = servicioJugador.buscarPorId(provincia.getIdJugadorDuenio());
 
-    exduenio.restarPuntos(10);
-    jugadorActual.sumarPuntos(50);
+    exduenio.restarPuntos(5);
+    jugadorActual.sumarPuntos(75);
 
-    provincia.setPuntos(50);
+    provincia.setPuntos(75);
     provincia.setIdJugadorDuenio(jugadorActual.getId());
 
     servicioJugador.actualizar(exduenio);

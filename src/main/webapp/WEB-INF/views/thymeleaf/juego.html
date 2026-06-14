@@ -45,6 +45,10 @@
               <div id="timerBox">
                 Tiempo restante: <span id="timer">30</span>s
               </div>
+
+              <div id="rondaBox" style="margin-top: 5px; padding-top: 8px; font-size: 1.1rem;">
+                Ronda: <strong style="color: white;" th:text="${partida.rondaActual ?: 1}">1</strong> / 12
+              </div>
             </article>
             <div
             class="mensaje"

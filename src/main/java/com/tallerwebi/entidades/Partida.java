@@ -25,7 +25,7 @@ public class Partida {
   private Jugador jugadorEnTurno;
 
   private Integer etapaActual;
-
+  private Integer rondaActual;
   private LocalDateTime inicioEtapa;
 
   public Long getId() {
@@ -71,6 +71,12 @@ public class Partida {
     int indiceActual = this.jugadores.indexOf(this.jugadorEnTurno);
     int siguienteIndice = (indiceActual + 1) % this.jugadores.size();
 
+    if (siguienteIndice == 0) {
+      if (this.rondaActual == null) {
+        this.rondaActual = 1;
+      }
+      this.rondaActual++;
+    }
     this.jugadorEnTurno = this.jugadores.get(siguienteIndice);
     this.etapaActual = 1;
     this.inicioEtapa = LocalDateTime.now();
@@ -90,5 +96,13 @@ public class Partida {
     }
 
     return this.jugadorEnTurno.getId().equals(jugadorId);
+  }
+
+  public Integer getRondaActual() {
+    return rondaActual;
+  }
+
+  public void setRondaActual(Integer rondaActual) {
+    this.rondaActual = rondaActual;
   }
 }
