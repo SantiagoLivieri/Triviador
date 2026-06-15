@@ -31,4 +31,6 @@ public interface ServicioJuego {
   boolean esConquista(Integer preguntasrequeridas);
 
   void concretarConquista(Long partidaId, Long idProvincia);
+
+  void concretarColonizacion(Long partidaId, Long idProvincia);
 }

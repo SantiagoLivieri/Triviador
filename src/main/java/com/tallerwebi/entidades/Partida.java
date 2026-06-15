@@ -2,6 +2,7 @@ package com.tallerwebi.entidades;
 
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
+import java.util.ArrayList;
 import java.util.List;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
@@ -25,7 +26,10 @@ public class Partida {
   private Jugador jugadorEnTurno;
 
   private Integer etapaActual;
-  private Integer rondaActual;
+  private Integer rondaActual = 1;
+  private static final Integer CANTIDAD_MAX_RONDAS = 12;
+  private Integer conquistasEnEsteTurno = 0;
+  private static final int MAX_CONQUISTAS_POR_TURNO = 3;
   private LocalDateTime inicioEtapa;
 
   public Long getId() {
@@ -68,18 +72,24 @@ public class Partida {
     if (this.jugadores == null || this.jugadores.isEmpty()) {
       return;
     }
-    int indiceActual = this.jugadores.indexOf(this.jugadorEnTurno);
-    int siguienteIndice = (indiceActual + 1) % this.jugadores.size();
 
-    if (siguienteIndice == 0) {
-      if (this.rondaActual == null) {
-        this.rondaActual = 1;
+    if (!estaFinalizada()) {
+      int indiceActual = this.jugadores.indexOf(this.jugadorEnTurno);
+
+      if (indiceActual == this.jugadores.size() - 1) {
+        this.rondaActual++;
       }
-      this.rondaActual++;
+
+      if (estaFinalizada()) {
+        return;
+      }
+      int siguienteIndice = (indiceActual + 1) % this.jugadores.size();
+
+      this.jugadorEnTurno = this.jugadores.get(siguienteIndice);
+      this.etapaActual = 1;
+      this.inicioEtapa = LocalDateTime.now();
+      this.conquistasEnEsteTurno = 0;
     }
-    this.jugadorEnTurno = this.jugadores.get(siguienteIndice);
-    this.etapaActual = 1;
-    this.inicioEtapa = LocalDateTime.now();
   }
 
   public boolean tieneTiempoAgotado(int tiempoMaximoSegundos) {
@@ -99,10 +109,36 @@ public class Partida {
   }
 
   public Integer getRondaActual() {
-    return rondaActual;
+    return rondaActual != null ? rondaActual : 1;
   }
 
   public void setRondaActual(Integer rondaActual) {
     this.rondaActual = rondaActual;
+  }
+
+  public boolean estaFinalizada() {
+    if (this.rondaActual == null) {
+      this.rondaActual = 0;
+    }
+    return this.getRondaActual() > CANTIDAD_MAX_RONDAS;
+  }
+
+  public List<Jugador> obtenerRanking() {
+    List<Jugador> ranking = new ArrayList<>(this.jugadores);
+    ranking.sort((j1, j2) -> Integer.compare(j2.getPuntaje(), j1.getPuntaje()));
+    return ranking;
+  }
+
+  public void registrarConquista() {
+    if (this.conquistasEnEsteTurno == null) {
+      this.conquistasEnEsteTurno = 0;
+    }
+    this.conquistasEnEsteTurno++;
+  }
+
+  public boolean alcanzoLimiteConquistas() {
+    return (
+      this.conquistasEnEsteTurno != null && this.conquistasEnEsteTurno >= MAX_CONQUISTAS_POR_TURNO
+    );
   }
 }

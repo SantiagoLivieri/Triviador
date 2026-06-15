@@ -7,9 +7,6 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Table;
 
-/**
- * Representa un jugador dentro de una partida local.
- */
 @Entity
 @Table(name = "Jugador")
 public class Jugador {
