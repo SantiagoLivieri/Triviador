@@ -3,7 +3,6 @@ package com.tallerwebi.servicios.Impl;
 import com.tallerwebi.entidades.Pregunta;
 import com.tallerwebi.repositorios.RepositorioPregunta;
 import com.tallerwebi.servicios.ServicioPregunta;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import org.springframework.stereotype.Service;
@@ -21,19 +20,14 @@ public class ServicioPreguntaImpl implements ServicioPregunta {
 
   @Override
   public Pregunta obtenerPreguntaPorProvincia(Long idProvincia) {
-    List<Pregunta> preguntas = repositorioPregunta.buscarTodas();
-    List<Pregunta> preguntasFiltradas = new ArrayList<>();
-    for (Pregunta pregunta : preguntas) {
-      if (pregunta.getProvincia() != null && pregunta.getProvincia().getId().equals(idProvincia)) {
-        preguntasFiltradas.add(pregunta);
-      }
-    }
+    List<Pregunta> preguntasFiltradas = repositorioPregunta.buscarPorProvincia(idProvincia);
     if (preguntasFiltradas.isEmpty()) {
-      if (preguntas.isEmpty()) {
-        return null;
+      List<Pregunta> todasLasPreguntas = repositorioPregunta.buscarTodas();
+      if (todasLasPreguntas.isEmpty()) {
+        throw new IllegalArgumentException("No se encontraron preguntas existentes");
       }
-      Collections.shuffle(preguntas);
-      return preguntas.get(0);
+      Collections.shuffle(todasLasPreguntas);
+      return todasLasPreguntas.get(0);
     }
     Collections.shuffle(preguntasFiltradas);
     return preguntasFiltradas.get(0);
@@ -41,13 +35,12 @@ public class ServicioPreguntaImpl implements ServicioPregunta {
 
   @Override
   public List<String> obtenerOpcionesMezcladas(Pregunta pregunta) {
-    List<String> opciones = new ArrayList<>();
-    opciones.add(pregunta.getRespuestaCorrecta());
-    opciones.add(pregunta.getOpcionIncorrectaUno());
-    opciones.add(pregunta.getOpcionIncorrectaDos());
-    opciones.add(pregunta.getOpcionIncorrectaTres());
-    Collections.shuffle(opciones);
-    return opciones;
+    if (pregunta == null) {
+      throw new IllegalArgumentException(
+        "No se puede mezclar opciones de una pregunta inexistente"
+      );
+    }
+    return pregunta.getOpcionesMezcladas();
   }
 
   @Override

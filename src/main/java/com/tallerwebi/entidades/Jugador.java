@@ -7,9 +7,6 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Table;
 
-/**
- * Representa un jugador dentro de una partida local.
- */
 @Entity
 @Table(name = "Jugador")
 public class Jugador {
@@ -61,5 +58,16 @@ public class Jugador {
 
   public void setPuntaje(Integer puntaje) {
     this.puntaje = puntaje;
+  }
+
+  public void sumarPuntos(Integer puntos) {
+    if (this.puntaje == null) {
+      this.puntaje = 0;
+    }
+    this.puntaje += puntos;
+  }
+
+  public void restarPuntos(Integer puntos) {
+    this.puntaje = Math.max(0, this.puntaje - puntos);
   }
 }

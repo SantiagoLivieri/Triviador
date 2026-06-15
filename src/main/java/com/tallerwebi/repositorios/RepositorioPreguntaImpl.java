@@ -41,4 +41,13 @@ public class RepositorioPreguntaImpl implements RepositorioPregunta {
       .createQuery("select count(p) from Pregunta p", Long.class)
       .getSingleResult();
   }
+
+  @Override
+  public List<Pregunta> buscarPorProvincia(Long idProvincia) {
+    return sessionFactory
+      .getCurrentSession()
+      .createQuery("FROM Pregunta p WHERE p.provincia.id = :idProvincia", Pregunta.class)
+      .setParameter("idProvincia", idProvincia)
+      .getResultList();
+  }
 }

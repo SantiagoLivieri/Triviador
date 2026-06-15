@@ -1,3 +1,11 @@
+import {
+    estiloProvincia,
+    hoverProvincia,
+    salirProvincia,
+    mostrarInfoProvincia,
+    ocultarInfoProvincia
+} from "./mapa_funciones.js";
+
 //cargo y delimito el mapa
 const CONFIG_MAPA = {
     centro: [-38.4161, -63.6167],
@@ -79,76 +87,3 @@ fetch('/spring/js/ProvinciasArgentinas.json?v=' + Date.now())
         provinciasLayer.addTo(map);
 
     });
-
-//funciones
-    //estilo de provincias
-function estiloProvincia(feature) {
-
-    const idProvincia = feature.properties.id;
-
-    const boton = document.querySelector(
-        `.provincia[data-id="${idProvincia}"]`
-    );
-
-    let color = '#e0d8b0';
-
-    if (boton) {
-
-        if (boton.classList.contains('provincia-rojo')) {
-            color = '#dc2626';
-        }
-
-        else if (boton.classList.contains('provincia-azul')) {
-            color = '#2563eb';
-        }
-
-        else if (boton.classList.contains('provincia-verde')) {
-            color = '#16a34a';
-        }
-    }
-
-    return {
-        color: '#333',
-        weight: 1,
-        fillColor: color,
-        fillOpacity: 1
-    };
-}
-
-//FUNCIONES
-    //al hacer hover agranda
-function hoverProvincia(layer) {
-
-    layer.setStyle({
-        weight: 3
-    });
-}
-
-    //cuando dejas de hacer hover la provincia vuelve a la normalidad
-function salirProvincia(layer) {
-
-    layer.setStyle(estiloProvincia(layer.feature));
-
-}
-
-    //aparece nombre en hover
-function mostrarInfoProvincia(feature) {
-
-    const panel = document.getElementById('info-provincia');
-    
-    const boton = document.querySelector(
-        `.provincia[data-id="${feature.properties.id}"]`
-    );
-
-    if (boton) {
-        panel.innerText = boton.dataset.nombre;
-    }
-
-    panel.style.display = 'block';
-}
-
-    //desaparece nombre sin hover
-function ocultarInfoProvincia() {
-
-    document.getElementById('info-provincia').style.display = 'none';
-}

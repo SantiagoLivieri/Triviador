@@ -1,12 +1,14 @@
 package com.tallerwebi.controladores;
 
 import com.tallerwebi.controladores.clasesAuxiliares.DatosLobby;
+import com.tallerwebi.entidades.Jugador;
 import com.tallerwebi.entidades.Partida;
 import com.tallerwebi.entidades.Pregunta;
 import com.tallerwebi.entidades.Provincia;
 import com.tallerwebi.servicios.ServicioJuego;
 import com.tallerwebi.servicios.ServicioPregunta;
 import com.tallerwebi.servicios.ServicioProvincia;
+import java.util.List;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,6 +16,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -31,7 +34,6 @@ public class ControladorJuego {
   private static final String ATRIBUTO_PARTIDA_ID = "partidaId";
   public static final String REQUERIDAS_ATTR = "preguntasRequeridas";
   public static final String RESPONDIDAS_ATTR = "preguntasRespondidasExito";
-  private static final int PREGUNTAS_PARA_CONQUISTA = 3;
 
   @Autowired
   public ControladorJuego(
@@ -84,31 +86,17 @@ public class ControladorJuego {
 
     Partida partida = servicioJuego.obtenerPartidaPorId(partidaId);
 
-    Provincia provinciaElegida = servicioProvincia.buscarPorId(idProvincia);
-
-    if (
-      provinciaElegida != null &&
-      provinciaElegida.getIdJugadorDuenio() != null &&
-      provinciaElegida.getIdJugadorDuenio().equals(partida.getJugadorEnTurno().getId())
-    ) {
-      request
-        .getSession()
-        .setAttribute(MENSAJE_RESULTADO, "No podes atacar tu propia provincia, ¡Ataca otra!");
-      return new ModelAndView(REDIRECT_JUEGO + partidaId);
-    }
-
     try {
+      servicioJuego.validarAtaque(partida.getJugadorEnTurno().getId(), idProvincia);
       servicioJuego.procesarJugada(partidaId, partida.getJugadorEnTurno().getId(), idProvincia);
     } catch (Exception e) {
       request.getSession().setAttribute(MENSAJE_RESULTADO, e.getMessage());
       return new ModelAndView(REDIRECT_JUEGO + partidaId);
     }
 
-    if (provinciaElegida.getIdJugadorDuenio() == null) {
-      request.getSession().setAttribute(REQUERIDAS_ATTR, 1);
-    } else {
-      request.getSession().setAttribute(REQUERIDAS_ATTR, 3);
-    }
+    Integer requeridas = servicioJuego.obtenerCantidadPreguntasRequeridas(idProvincia);
+    request.getSession().setAttribute(REQUERIDAS_ATTR, requeridas);
+
     request.getSession().setAttribute(RESPONDIDAS_ATTR, 0);
 
     request.getSession().setAttribute("preguntaActual", pregunta);
@@ -178,24 +166,51 @@ public class ControladorJuego {
     if (!acerto) {
       session.setAttribute(MENSAJE_RESULTADO, "Respuesta incorrecta. Fin de tu turno");
       limpiarSesionDisputa(session);
+
+      Partida partida = servicioJuego.obtenerPartidaPorId(partidaId);
+      if (partida.estaFinalizada()) {
+        return new ModelAndView("redirect:/partida/resultados/" + partidaId);
+      }
+
       return new ModelAndView((REDIRECT_JUEGO + partidaId));
     }
     Integer respondidas = (Integer) session.getAttribute(RESPONDIDAS_ATTR);
     Integer requeridas = (Integer) session.getAttribute(REQUERIDAS_ATTR);
+    Integer nuevasRespondidas = respondidas + 1;
+    session.setAttribute(RESPONDIDAS_ATTR, nuevasRespondidas);
 
-    session.setAttribute(RESPONDIDAS_ATTR, respondidas + 1);
+    if (servicioJuego.disputaFinalizada(nuevasRespondidas, requeridas)) {
+      Partida partidaAntesDeJugar = servicioJuego.obtenerPartidaPorId(partidaId);
+      Jugador jugadorQueRespondio = partidaAntesDeJugar.getJugadorEnTurno();
 
-    if ((respondidas + 1) == requeridas) {
-      if (requeridas == PREGUNTAS_PARA_CONQUISTA) {
+      String mensajeFinal;
+      if (servicioJuego.esConquista(requeridas)) {
         servicioJuego.concretarConquista(partidaId, idProvincia);
-        session.setAttribute(
-          MENSAJE_RESULTADO,
-          "Respondiste las 3 correctas y conquistaste la provincia"
-        );
+        mensajeFinal = "¡Respondiste las 3 correctas y conquistaste la provincia!";
       } else {
-        session.setAttribute(MENSAJE_RESULTADO, "¡Respuesta correcta! Provincia colonizada");
+        servicioJuego.concretarColonizacion(partidaId, idProvincia);
+        mensajeFinal = "¡Respuesta correcta! Provincia colonizada.";
       }
       limpiarSesionDisputa(session);
+
+      Partida partidaDespuesDeJugar = servicioJuego.obtenerPartidaPorId(partidaId);
+      Jugador jugadorActual = partidaDespuesDeJugar.getJugadorEnTurno();
+
+      if (
+        jugadorQueRespondio != null &&
+        jugadorActual != null &&
+        !jugadorQueRespondio.getId().equals(jugadorActual.getId())
+      ) {
+        mensajeFinal += "\n\nAlcanzaste el límite máximo de 3 conquistas. Fin de tu turno.";
+      }
+
+      session.setAttribute(MENSAJE_RESULTADO, mensajeFinal);
+      session.setAttribute("jugadorActual", jugadorActual);
+
+      if (partidaDespuesDeJugar.estaFinalizada()) {
+        return new ModelAndView("redirect:/partida/resultados/" + partidaId);
+      }
+
       return new ModelAndView(REDIRECT_JUEGO + partidaId);
     } else {
       Pregunta proximaPregunta = servicioPregunta.obtenerPreguntaPorProvincia(idProvincia);
@@ -217,6 +232,30 @@ public class ControladorJuego {
   @RequestMapping(path = "/juego/tiempo-agotado", method = RequestMethod.POST)
   public ModelAndView tiempoAgotado(@RequestParam(ATRIBUTO_PARTIDA_ID) Long partidaId) {
     servicioJuego.forzarSaltoPorTiempo(partidaId);
+
+    Partida partida = servicioJuego.obtenerPartidaPorId(partidaId);
+
+    if (partida.estaFinalizada()) {
+      return new ModelAndView("redirect:/partida/resultados/" + partidaId);
+    }
+
     return new ModelAndView(REDIRECT_JUEGO + partidaId);
+  }
+
+  @GetMapping("/partida/resultados/{partidaId}")
+  public ModelAndView mostrarResultados(@PathVariable Long partidaId) {
+    Partida partida = servicioJuego.obtenerPartidaPorId(partidaId);
+
+    if (!partida.estaFinalizada()) {
+      return new ModelAndView("redirect:/partida/tablero/" + partidaId);
+    }
+
+    ModelMap modelo = new ModelMap();
+    List<Jugador> ranking = partida.obtenerRanking();
+
+    modelo.put("ranking", ranking);
+    modelo.put("ganador", ranking.get(0));
+
+    return new ModelAndView("resultados", modelo);
   }
 }

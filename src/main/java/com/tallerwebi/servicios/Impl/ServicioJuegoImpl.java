@@ -5,18 +5,15 @@ import com.tallerwebi.entidades.Jugador;
 import com.tallerwebi.entidades.Partida;
 import com.tallerwebi.entidades.Pregunta;
 import com.tallerwebi.entidades.Provincia;
-import com.tallerwebi.repositorios.RepositorioPartida;
 import com.tallerwebi.servicios.ServicioJuego;
 import com.tallerwebi.servicios.ServicioJugador;
+import com.tallerwebi.servicios.ServicioPartida;
 import com.tallerwebi.servicios.ServicioPregunta;
 import com.tallerwebi.servicios.ServicioProvincia;
 import com.tallerwebi.servicios.excepcion.TiempoAgotadoException;
 import com.tallerwebi.servicios.excepcion.TurnoInvalidoException;
 import java.time.LocalDateTime;
-import java.time.temporal.ChronoUnit;
-import java.util.Arrays;
 import java.util.List;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -27,47 +24,48 @@ public class ServicioJuegoImpl implements ServicioJuego {
   private final ServicioJugador servicioJugador;
   private final ServicioProvincia servicioProvincia;
   private final ServicioPregunta servicioPregunta;
-  private final RepositorioPartida repositorioPartida;
+  private final ServicioPartida servicioPartida;
   private static final int TIEMPO_MAXIMO_TURNO = 30;
 
-  @Autowired
   public ServicioJuegoImpl(
     ServicioJugador servicioJugador,
-    RepositorioPartida repositorioPartida,
     ServicioProvincia servicioProvincia,
-    ServicioPregunta servicioPregunta
+    ServicioPregunta servicioPregunta,
+    ServicioPartida servicioPartida
   ) {
     this.servicioJugador = servicioJugador;
-    this.repositorioPartida = repositorioPartida;
     this.servicioPregunta = servicioPregunta;
     this.servicioProvincia = servicioProvincia;
+    this.servicioPartida = servicioPartida;
   }
 
   @Override
   public Long inicializarPartida(DatosLobby datosLobby) {
     servicioProvincia.resetearProvincias();
 
-    Jugador j1 = new Jugador(datosLobby.getNombreJugadorUno(), datosLobby.getColorJugadorUno());
-    Jugador j2 = new Jugador(datosLobby.getNombreJugadorDos(), datosLobby.getColorJugadorDos());
-    Jugador j3 = new Jugador(datosLobby.getNombreJugadorTres(), datosLobby.getColorJugadorTres());
+    List<Jugador> jugadores = List.of(
+      servicioJugador.crearJugador(
+        datosLobby.getNombreJugadorUno(),
+        datosLobby.getColorJugadorUno()
+      ),
+      servicioJugador.crearJugador(
+        datosLobby.getNombreJugadorDos(),
+        datosLobby.getColorJugadorDos()
+      ),
+      servicioJugador.crearJugador(
+        datosLobby.getNombreJugadorTres(),
+        datosLobby.getColorJugadorTres()
+      )
+    );
 
-    servicioJugador.guardar(j1);
-    servicioJugador.guardar(j2);
-    servicioJugador.guardar(j3);
+    Partida partida = servicioPartida.crearPartida(jugadores);
 
-    Partida partida = new Partida();
-    partida.setJugadores(Arrays.asList(j1, j2, j3));
-    partida.setJugadorEnTurno(j1);
-    partida.setEtapaActual(1);
-    partida.setInicioEtapa(LocalDateTime.now());
-
-    repositorioPartida.guardar(partida);
     return partida.getId();
   }
 
   @Override
   public Partida obtenerPartidaPorId(Long partidaId) {
-    return repositorioPartida.buscarPorId(partidaId);
+    return servicioPartida.buscarPorId(partidaId);
   }
 
   @Override
@@ -77,120 +75,123 @@ public class ServicioJuegoImpl implements ServicioJuego {
     Long idPregunta,
     String respuesta
   ) {
-    Partida partida = repositorioPartida.buscarPorId(partidaId);
     Pregunta pregunta = servicioPregunta.buscarPorId(idPregunta);
-
+    if (pregunta == null) {
+      throw new IllegalArgumentException("La pregunta con ID " + idPregunta + " no existe.");
+    }
     boolean acerto = pregunta.getRespuestaCorrecta().trim().equalsIgnoreCase(respuesta.trim());
 
-    if (acerto) {
-      Jugador jugadorActual = partida.getJugadorEnTurno();
-      Provincia provincia = servicioProvincia.buscarPorId(idProvincia);
-
-      if (
-        provincia.getIdJugadorDuenio() != null &&
-        !provincia.getIdJugadorDuenio().equals(jugadorActual.getId())
-      ) {
-        Jugador exduenio = servicioJugador.buscarPorId(provincia.getIdJugadorDuenio());
-
-        Integer puntajeExDuenio = (exduenio.getPuntaje() != null) ? exduenio.getPuntaje() : 0;
-        exduenio.setPuntaje(Math.max(0, puntajeExDuenio - 10));
-        servicioJugador.actualizar(exduenio);
-
-        Integer puntajeInvasor = (jugadorActual.getPuntaje() != null)
-          ? jugadorActual.getPuntaje()
-          : 0;
-        jugadorActual.setPuntaje(puntajeInvasor + 50);
-
-        provincia.setPuntos(50);
-      } else {
-        Integer puntajeActual = (jugadorActual.getPuntaje() != null)
-          ? jugadorActual.getPuntaje()
-          : 0;
-        jugadorActual.setPuntaje(puntajeActual + 20);
-        provincia.setPuntos(20);
-      }
-
-      provincia.setIdJugadorDuenio(jugadorActual.getId());
-      servicioProvincia.actualizar(provincia);
-      servicioJugador.actualizar(jugadorActual);
-    } else {
-      avanzarTurno(partida);
+    if (!acerto) {
+      Partida partida = servicioPartida.buscarPorId(partidaId);
+      partida.avanzarTurno();
+      servicioPartida.actualizar(partida);
     }
+
     return acerto;
   }
 
   @Override
+  public Integer obtenerCantidadPreguntasRequeridas(Long idProvincia) {
+    return servicioProvincia.obtenerCantidadPreguntasRequeridas(idProvincia);
+  }
+
+  // Impide atacar provincias propias
+  @Override
+  public void validarAtaque(Long jugadorId, Long idProvincia) {
+    Provincia provincia = servicioProvincia.buscarPorId(idProvincia);
+
+    if (provincia != null) {
+      provincia.validarAtaque(jugadorId);
+    }
+  }
+
+  // Determina si se respondieron la cantidad de preguntas necesarias
+  @Override
+  public boolean disputaFinalizada(Integer respondidas, Integer requeridas) {
+    return respondidas >= requeridas;
+  }
+
+  @Override
+  public boolean esConquista(Integer preguntasRequeridas) {
+    return preguntasRequeridas == 3;
+  }
+
+  // Se ocupa de cambio de dueño y puntaje en conquistas
+  @Override
   public void concretarConquista(Long partidaId, Long idProvincia) {
-    Partida partida = repositorioPartida.buscarPorId(partidaId);
+    Partida partida = servicioPartida.buscarPorId(partidaId);
     Jugador jugadorActual = partida.getJugadorEnTurno();
     Provincia provincia = servicioProvincia.buscarPorId(idProvincia);
 
     Jugador exduenio = servicioJugador.buscarPorId(provincia.getIdJugadorDuenio());
 
-    Integer puntajeExDuenio = (exduenio.getPuntaje() != null) ? exduenio.getPuntaje() : 0;
-    exduenio.setPuntaje(Math.max(0, puntajeExDuenio - 10));
-    servicioJugador.actualizar(exduenio);
+    if (exduenio != null) {
+      exduenio.restarPuntos(5);
+      servicioJugador.actualizar(exduenio);
+    }
 
-    Integer puntajeInvasor = (jugadorActual.getPuntaje() != null) ? jugadorActual.getPuntaje() : 0;
-    jugadorActual.setPuntaje(puntajeInvasor + 50);
-
-    provincia.setPuntos(50);
+    jugadorActual.sumarPuntos(75);
+    provincia.setPuntos(75);
     provincia.setIdJugadorDuenio(jugadorActual.getId());
 
-    servicioProvincia.actualizar(provincia);
+    partida.registrarConquista();
+    if (partida.alcanzoLimiteConquistas()) {
+      partida.avanzarTurno();
+    }
+
     servicioJugador.actualizar(jugadorActual);
+    servicioProvincia.actualizar(provincia);
+    servicioPartida.actualizar(partida);
+  }
+
+  @Override
+  public void concretarColonizacion(Long partidaId, Long idProvincia) {
+    Partida partida = servicioPartida.buscarPorId(partidaId);
+    Jugador jugadorActual = partida.getJugadorEnTurno();
+    Provincia provincia = servicioProvincia.buscarPorId(idProvincia);
+
+    jugadorActual.sumarPuntos(20);
+    provincia.setPuntos(20);
+    provincia.setIdJugadorDuenio(jugadorActual.getId());
+
+    partida.registrarConquista();
+    if (partida.alcanzoLimiteConquistas()) {
+      partida.avanzarTurno();
+    }
+
+    servicioJugador.actualizar(jugadorActual);
+    servicioProvincia.actualizar(provincia);
+    servicioPartida.actualizar(partida);
   }
 
   @Override
   public void procesarJugada(Long partidaId, Long jugadorId, Long provinciaSeleccionadaId)
     throws TiempoAgotadoException, TurnoInvalidoException {
-    Partida partida = repositorioPartida.buscarPorId(partidaId);
+    Partida partida = servicioPartida.buscarPorId(partidaId);
 
-    if (!partida.getJugadorEnTurno().getId().equals(jugadorId)) {
+    if (!partida.esTurnoDe(jugadorId)) {
       throw new TurnoInvalidoException("No es tu turno");
     }
 
-    long segundosTranscurridos = ChronoUnit.SECONDS.between(
-      partida.getInicioEtapa(),
-      LocalDateTime.now()
-    );
-    if (segundosTranscurridos > TIEMPO_MAXIMO_TURNO) {
-      avanzarTurno(partida);
+    if (partida.tieneTiempoAgotado(TIEMPO_MAXIMO_TURNO)) {
+      partida.avanzarTurno();
+      servicioPartida.actualizar(partida);
       throw new TiempoAgotadoException("Se te acabó el tiempo");
     }
 
     partida.setEtapaActual(2);
     partida.setInicioEtapa(LocalDateTime.now());
-    repositorioPartida.actualizar(partida);
+    servicioPartida.actualizar(partida);
   }
 
   @Override
   public void forzarSaltoPorTiempo(Long partidaId) {
-    Partida partida = repositorioPartida.buscarPorId(partidaId);
-    if (partida == null || partida.getInicioEtapa() == null) {
-      return;
+    Partida partida = servicioPartida.buscarPorId(partidaId);
+    if (partida == null) return;
+
+    if (partida.tieneTiempoAgotado(TIEMPO_MAXIMO_TURNO - 2)) {
+      partida.avanzarTurno();
+      servicioPartida.actualizar(partida);
     }
-    long segundosTranscurridos = ChronoUnit.SECONDS.between(
-      partida.getInicioEtapa(),
-      LocalDateTime.now()
-    );
-
-    if (segundosTranscurridos >= (TIEMPO_MAXIMO_TURNO - 2)) {
-      avanzarTurno(partida);
-    }
-  }
-
-  private void avanzarTurno(Partida partida) {
-    List<Jugador> jugadores = partida.getJugadores();
-    int indiceActual = jugadores.indexOf(partida.getJugadorEnTurno());
-
-    int siguienteIndice = (indiceActual + 1) % jugadores.size();
-    Jugador siguienteJugador = jugadores.get(siguienteIndice);
-
-    partida.setJugadorEnTurno(siguienteJugador);
-    partida.setEtapaActual(1);
-    partida.setInicioEtapa(LocalDateTime.now());
-
-    repositorioPartida.actualizar(partida);
   }
 }

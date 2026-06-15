@@ -8,4 +8,5 @@ public interface ServicioProvincia {
   List<Provincia> obtenerProvincias();
   void resetearProvincias();
   void actualizar(Provincia provincia);
+  Integer obtenerCantidadPreguntasRequeridas(Long idProvincia);
 }

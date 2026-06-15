@@ -13,7 +13,7 @@ import org.springframework.stereotype.Service;
 @Transactional
 public class ServicioUsuarioImpl implements ServicioUsuario {
 
-  private RepositorioUsuario repositorioUsuario;
+  private final RepositorioUsuario repositorioUsuario;
   private final RepositorioRol repositorioRol;
 
   @Autowired
@@ -30,6 +30,21 @@ public class ServicioUsuarioImpl implements ServicioUsuario {
   @Override
   public void actualizarPerfil(Long id, String nombre, String nombreJugador) {
     Usuario usuario = repositorioUsuario.buscarUsuarioPorId(id);
+
+    if (usuario == null) {
+      throw new IllegalArgumentException(
+        "No se puede actualizar el perfil: El usuario con ID " + id + " no existe"
+      );
+    }
+
+    if (
+      nombre == null ||
+      nombre.trim().isEmpty() ||
+      nombreJugador == null ||
+      nombreJugador.trim().isEmpty()
+    ) {
+      throw new IllegalArgumentException("El nombre y el nombre de jugador no pueden estar vacios");
+    }
 
     usuario.setNombre(nombre);
     usuario.setNombreJugador(nombreJugador);
@@ -52,6 +67,11 @@ public class ServicioUsuarioImpl implements ServicioUsuario {
     }
 
     Rol rolAdmin = repositorioRol.buscarPorDescripcion("ADMIN");
+    if (rolAdmin == null) {
+      throw new IllegalStateException(
+        "No se puede inicializar el Administrador: El rol ADMIN no existe"
+      );
+    }
 
     Usuario admin = new Usuario();
     admin.setEmail("admin@triviador.com");
