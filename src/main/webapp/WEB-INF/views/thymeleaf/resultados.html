@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>¡Partida Finalizada!</title>
+    <link rel="stylesheet" th:href="@{/css/resultados.css}">
+    </head>
+<body>
+    <div class="contenedor-resultados">
+        <h1>¡Juego Terminado!</h1>
+        
+        <div class="ganador-destacado">
+            <h2>🏆 Ganador: <span th:text="${ganador.nombre}">Nombre</span> 🏆</h2>
+            <p>Con un total de <strong th:text="${ganador.puntaje}">0</strong> puntos.</p>
+        </div>
+
+        <hr>
+
+        <h3>Ranking Final:</h3>
+        <ol>
+            <li th:each="jugador : ${ranking}">
+                <span th:text="${jugador.nombre}">Jugador</span> - 
+                <span th:text="${jugador.puntaje}">0</span> puntos
+            </li>
+        </ol>
+
+        <a th:href="@{/lobby}" class="btn btn-primary">Volver al Lobby</a>
+    </div>
+</body>
+</html>

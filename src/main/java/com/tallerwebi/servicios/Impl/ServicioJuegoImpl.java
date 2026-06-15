@@ -79,27 +79,14 @@ public class ServicioJuegoImpl implements ServicioJuego {
     if (pregunta == null) {
       throw new IllegalArgumentException("La pregunta con ID " + idPregunta + " no existe.");
     }
-
-    Partida partida = servicioPartida.buscarPorId(partidaId);
-
     boolean acerto = pregunta.getRespuestaCorrecta().trim().equalsIgnoreCase(respuesta.trim());
 
-    if (acerto) {
-      Jugador jugadorActual = partida.getJugadorEnTurno();
-      Provincia provincia = servicioProvincia.buscarPorId(idProvincia);
-
-      if (provincia != null && provincia.esNeutral()) {
-        jugadorActual.sumarPuntos(20);
-        provincia.setPuntos(20);
-        provincia.setIdJugadorDuenio(jugadorActual.getId());
-
-        servicioProvincia.actualizar(provincia);
-      }
-      servicioJugador.actualizar(jugadorActual);
-    } else {
+    if (!acerto) {
+      Partida partida = servicioPartida.buscarPorId(partidaId);
       partida.avanzarTurno();
       servicioPartida.actualizar(partida);
     }
+
     return acerto;
   }
 
@@ -138,15 +125,43 @@ public class ServicioJuegoImpl implements ServicioJuego {
 
     Jugador exduenio = servicioJugador.buscarPorId(provincia.getIdJugadorDuenio());
 
-    exduenio.restarPuntos(5);
-    jugadorActual.sumarPuntos(75);
+    if (exduenio != null) {
+      exduenio.restarPuntos(5);
+      servicioJugador.actualizar(exduenio);
+    }
 
+    jugadorActual.sumarPuntos(75);
     provincia.setPuntos(75);
     provincia.setIdJugadorDuenio(jugadorActual.getId());
 
-    servicioJugador.actualizar(exduenio);
+    partida.registrarConquista();
+    if (partida.alcanzoLimiteConquistas()) {
+      partida.avanzarTurno();
+    }
+
     servicioJugador.actualizar(jugadorActual);
     servicioProvincia.actualizar(provincia);
+    servicioPartida.actualizar(partida);
+  }
+
+  @Override
+  public void concretarColonizacion(Long partidaId, Long idProvincia) {
+    Partida partida = servicioPartida.buscarPorId(partidaId);
+    Jugador jugadorActual = partida.getJugadorEnTurno();
+    Provincia provincia = servicioProvincia.buscarPorId(idProvincia);
+
+    jugadorActual.sumarPuntos(20);
+    provincia.setPuntos(20);
+    provincia.setIdJugadorDuenio(jugadorActual.getId());
+
+    partida.registrarConquista();
+    if (partida.alcanzoLimiteConquistas()) {
+      partida.avanzarTurno();
+    }
+
+    servicioJugador.actualizar(jugadorActual);
+    servicioProvincia.actualizar(provincia);
+    servicioPartida.actualizar(partida);
   }
 
   @Override
