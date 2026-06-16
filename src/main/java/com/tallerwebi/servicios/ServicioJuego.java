@@ -33,4 +33,6 @@ public interface ServicioJuego {
   void concretarConquista(Long partidaId, Long idProvincia);
 
   void concretarColonizacion(Long partidaId, Long idProvincia);
+
+  void actualizarPartida(Partida partida);
 }

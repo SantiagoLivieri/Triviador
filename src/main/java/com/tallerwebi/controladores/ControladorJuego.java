@@ -37,10 +37,9 @@ public class ControladorJuego {
 
   @Autowired
   public ControladorJuego(
-    ServicioJuego servicioJuego,
-    ServicioProvincia servicioProvincia,
-    ServicioPregunta servicioPregunta
-  ) {
+      ServicioJuego servicioJuego,
+      ServicioProvincia servicioProvincia,
+      ServicioPregunta servicioPregunta) {
     this.servicioJuego = servicioJuego;
     this.servicioProvincia = servicioProvincia;
     this.servicioPregunta = servicioPregunta;
@@ -74,17 +73,21 @@ public class ControladorJuego {
 
   @PostMapping("/seleccionar-provincia")
   public ModelAndView seleccionarProvincia(
-    @RequestParam("idProvincia") Long idProvincia,
-    @RequestParam(ATRIBUTO_PARTIDA_ID) Long partidaId,
-    HttpServletRequest request
-  ) {
-    Pregunta pregunta = servicioPregunta.obtenerPreguntaPorProvincia(idProvincia);
+      @RequestParam("idProvincia") Long idProvincia,
+      @RequestParam(ATRIBUTO_PARTIDA_ID) Long partidaId,
+      HttpServletRequest request) {
+    Partida partida = servicioJuego.obtenerPartidaPorId(partidaId);
+    Pregunta pregunta = servicioPregunta.obtenerPreguntaPorProvincia(
+        idProvincia,
+        partida.getPreguntasHechas());
+
     if (pregunta == null) {
       request.getSession().setAttribute(MENSAJE_RESULTADO, "No hay preguntas cargadas.");
       return new ModelAndView(REDIRECT_JUEGO + partidaId);
     }
 
-    Partida partida = servicioJuego.obtenerPartidaPorId(partidaId);
+    partida.registrarPreguntaHecha(pregunta.getId());
+    servicioJuego.actualizarPartida(partida);
 
     try {
       servicioJuego.validarAtaque(partida.getJugadorEnTurno().getId(), idProvincia);
@@ -101,8 +104,8 @@ public class ControladorJuego {
 
     request.getSession().setAttribute("preguntaActual", pregunta);
     request
-      .getSession()
-      .setAttribute("opcionesActuales", servicioPregunta.obtenerOpcionesMezcladas(pregunta));
+        .getSession()
+        .setAttribute("opcionesActuales", servicioPregunta.obtenerOpcionesMezcladas(pregunta));
     request.getSession().setAttribute("idProvinciaActual", idProvincia);
 
     return new ModelAndView("redirect:/juego/pregunta-actual?partidaId=" + partidaId);
@@ -110,9 +113,8 @@ public class ControladorJuego {
 
   @GetMapping("/juego/pregunta-actual")
   public ModelAndView mostrarPreguntaActual(
-    @RequestParam("partidaId") Long partidaId,
-    HttpServletRequest request
-  ) {
+      @RequestParam("partidaId") Long partidaId,
+      HttpServletRequest request) {
     Pregunta pregunta = (Pregunta) request.getSession().getAttribute("preguntaActual");
 
     if (pregunta == null) {
@@ -122,13 +124,13 @@ public class ControladorJuego {
     Long idProvinciaActual = (Long) request.getSession().getAttribute("idProvinciaActual");
 
     Provincia provincia = idProvinciaActual != null
-      ? servicioProvincia.buscarPorId(idProvinciaActual)
-      : pregunta.getProvincia();
+        ? servicioProvincia.buscarPorId(idProvinciaActual)
+        : pregunta.getProvincia();
 
     if (provincia == null) {
       request
-        .getSession()
-        .setAttribute(MENSAJE_RESULTADO, "No se encontro la provincia seleccionada.");
+          .getSession()
+          .setAttribute(MENSAJE_RESULTADO, "No se encontro la provincia seleccionada.");
       return new ModelAndView(REDIRECT_JUEGO + partidaId);
     }
 
@@ -148,20 +150,18 @@ public class ControladorJuego {
 
   @PostMapping("/responder-provincia")
   public ModelAndView responderProvincia(
-    @RequestParam(ATRIBUTO_PARTIDA_ID) Long partidaId,
-    @RequestParam("idProvincia") Long idProvincia,
-    @RequestParam("idPregunta") Long idPregunta,
-    @RequestParam("respuesta") String respuesta,
-    HttpServletRequest request
-  ) {
+      @RequestParam(ATRIBUTO_PARTIDA_ID) Long partidaId,
+      @RequestParam("idProvincia") Long idProvincia,
+      @RequestParam("idPregunta") Long idPregunta,
+      @RequestParam("respuesta") String respuesta,
+      HttpServletRequest request) {
     HttpSession session = request.getSession();
 
     Boolean acerto = servicioJuego.procesarRespuestaYPasarTurno(
-      partidaId,
-      idProvincia,
-      idPregunta,
-      respuesta
-    );
+        partidaId,
+        idProvincia,
+        idPregunta,
+        respuesta);
 
     if (!acerto) {
       session.setAttribute(MENSAJE_RESULTADO, "Respuesta incorrecta. Fin de tu turno");
@@ -196,11 +196,9 @@ public class ControladorJuego {
       Partida partidaDespuesDeJugar = servicioJuego.obtenerPartidaPorId(partidaId);
       Jugador jugadorActual = partidaDespuesDeJugar.getJugadorEnTurno();
 
-      if (
-        jugadorQueRespondio != null &&
-        jugadorActual != null &&
-        !jugadorQueRespondio.getId().equals(jugadorActual.getId())
-      ) {
+      if (jugadorQueRespondio != null &&
+          jugadorActual != null &&
+          !jugadorQueRespondio.getId().equals(jugadorActual.getId())) {
         mensajeFinal += "\n\nAlcanzaste el límite máximo de 3 conquistas. Fin de tu turno.";
       }
 
@@ -213,12 +211,18 @@ public class ControladorJuego {
 
       return new ModelAndView(REDIRECT_JUEGO + partidaId);
     } else {
-      Pregunta proximaPregunta = servicioPregunta.obtenerPreguntaPorProvincia(idProvincia);
+      Partida partida = servicioJuego.obtenerPartidaPorId(partidaId);
+      Pregunta proximaPregunta = servicioPregunta.obtenerPreguntaPorProvincia(
+          idProvincia,
+          partida.getPreguntasHechas());
+
+      partida.registrarPreguntaHecha(proximaPregunta.getId());
+      servicioJuego.actualizarPartida(partida);
+
       session.setAttribute("preguntaActual", proximaPregunta);
       session.setAttribute(
-        "opcionesActuales",
-        servicioPregunta.obtenerOpcionesMezcladas(proximaPregunta)
-      );
+          "opcionesActuales",
+          servicioPregunta.obtenerOpcionesMezcladas(proximaPregunta));
 
       return new ModelAndView("redirect:/juego/pregunta-actual?partidaId=" + partidaId);
     }

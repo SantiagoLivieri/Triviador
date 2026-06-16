@@ -5,6 +5,8 @@ import com.tallerwebi.entidades.Partida;
 import com.tallerwebi.repositorios.RepositorioPartida;
 import com.tallerwebi.servicios.ServicioPartida;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import javax.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,8 +27,13 @@ public class ServicioPartidaImpl implements ServicioPartida {
   public Partida crearPartida(List<Jugador> jugadores) {
     Partida partida = new Partida();
 
-    partida.setJugadores(jugadores);
-    partida.setJugadorEnTurno(jugadores.get(0));
+    List<Jugador> listaMezclada = new ArrayList<>(jugadores);
+
+    Collections.shuffle(listaMezclada);
+
+    partida.setJugadores(listaMezclada);
+    partida.setJugadorEnTurno(listaMezclada.get(0));
+
     partida.setEtapaActual(1);
     partida.setInicioEtapa(LocalDateTime.now());
 
