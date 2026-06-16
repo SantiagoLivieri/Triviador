@@ -13,6 +13,7 @@ import com.tallerwebi.servicios.ServicioProvincia;
 import com.tallerwebi.servicios.excepcion.TiempoAgotadoException;
 import com.tallerwebi.servicios.excepcion.TurnoInvalidoException;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -28,11 +29,10 @@ public class ServicioJuegoImpl implements ServicioJuego {
   private static final int TIEMPO_MAXIMO_TURNO = 30;
 
   public ServicioJuegoImpl(
-    ServicioJugador servicioJugador,
-    ServicioProvincia servicioProvincia,
-    ServicioPregunta servicioPregunta,
-    ServicioPartida servicioPartida
-  ) {
+      ServicioJugador servicioJugador,
+      ServicioProvincia servicioProvincia,
+      ServicioPregunta servicioPregunta,
+      ServicioPartida servicioPartida) {
     this.servicioJugador = servicioJugador;
     this.servicioPregunta = servicioPregunta;
     this.servicioProvincia = servicioProvincia;
@@ -43,20 +43,17 @@ public class ServicioJuegoImpl implements ServicioJuego {
   public Long inicializarPartida(DatosLobby datosLobby) {
     servicioProvincia.resetearProvincias();
 
-    List<Jugador> jugadores = List.of(
-      servicioJugador.crearJugador(
-        datosLobby.getNombreJugadorUno(),
-        datosLobby.getColorJugadorUno()
-      ),
-      servicioJugador.crearJugador(
-        datosLobby.getNombreJugadorDos(),
-        datosLobby.getColorJugadorDos()
-      ),
-      servicioJugador.crearJugador(
-        datosLobby.getNombreJugadorTres(),
-        datosLobby.getColorJugadorTres()
-      )
-    );
+    List<Jugador> jugadores = new ArrayList<>(
+        List.of(
+            servicioJugador.crearJugador(
+                datosLobby.getNombreJugadorUno(),
+                datosLobby.getColorJugadorUno()),
+            servicioJugador.crearJugador(
+                datosLobby.getNombreJugadorDos(),
+                datosLobby.getColorJugadorDos()),
+            servicioJugador.crearJugador(
+                datosLobby.getNombreJugadorTres(),
+                datosLobby.getColorJugadorTres())));
 
     Partida partida = servicioPartida.crearPartida(jugadores);
 
@@ -70,11 +67,10 @@ public class ServicioJuegoImpl implements ServicioJuego {
 
   @Override
   public Boolean procesarRespuestaYPasarTurno(
-    Long partidaId,
-    Long idProvincia,
-    Long idPregunta,
-    String respuesta
-  ) {
+      Long partidaId,
+      Long idProvincia,
+      Long idPregunta,
+      String respuesta) {
     Pregunta pregunta = servicioPregunta.buscarPorId(idPregunta);
     if (pregunta == null) {
       throw new IllegalArgumentException("La pregunta con ID " + idPregunta + " no existe.");
@@ -166,7 +162,7 @@ public class ServicioJuegoImpl implements ServicioJuego {
 
   @Override
   public void procesarJugada(Long partidaId, Long jugadorId, Long provinciaSeleccionadaId)
-    throws TiempoAgotadoException, TurnoInvalidoException {
+      throws TiempoAgotadoException, TurnoInvalidoException {
     Partida partida = servicioPartida.buscarPorId(partidaId);
 
     if (!partida.esTurnoDe(jugadorId)) {
@@ -187,11 +183,17 @@ public class ServicioJuegoImpl implements ServicioJuego {
   @Override
   public void forzarSaltoPorTiempo(Long partidaId) {
     Partida partida = servicioPartida.buscarPorId(partidaId);
-    if (partida == null) return;
+    if (partida == null)
+      return;
 
     if (partida.tieneTiempoAgotado(TIEMPO_MAXIMO_TURNO - 2)) {
       partida.avanzarTurno();
       servicioPartida.actualizar(partida);
     }
+  }
+
+  @Override
+  public void actualizarPartida(Partida partida) {
+    servicioPartida.actualizar(partida);
   }
 }

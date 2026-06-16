@@ -3,7 +3,10 @@ package com.tallerwebi.entidades;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
+import javax.persistence.ElementCollection;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
@@ -11,6 +14,7 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
+import javax.persistence.OrderColumn;
 
 @Entity
 public class Partida {
@@ -20,10 +24,14 @@ public class Partida {
   private Long id;
 
   @OneToMany(fetch = FetchType.EAGER)
+  @OrderColumn
   private List<Jugador> jugadores;
 
   @ManyToOne
   private Jugador jugadorEnTurno;
+
+  @ElementCollection(fetch = FetchType.EAGER)
+  private Set<Long> preguntasHechas = new HashSet<>();
 
   private Integer etapaActual;
   private Integer rondaActual = 1;
@@ -37,7 +45,17 @@ public class Partida {
   }
 
   public List<Jugador> getJugadores() {
-    return jugadores;
+    if (this.jugadores == null) {
+      return new ArrayList<>();
+    }
+    List<Jugador> jugadoresReales = new ArrayList<>();
+    for (Jugador j : this.jugadores) {
+      boolean existe = jugadoresReales.stream().anyMatch(u -> u.getId().equals(j.getId()));
+      if (!existe) {
+        jugadoresReales.add(j);
+      }
+    }
+    return jugadoresReales;
   }
 
   public Jugador getJugadorEnTurno() {
@@ -69,23 +87,26 @@ public class Partida {
   }
 
   public void avanzarTurno() {
-    if (this.jugadores == null || this.jugadores.isEmpty()) {
+    List<Jugador> jugadoresLimpios = this.getJugadores();
+
+    if (jugadoresLimpios.isEmpty()) {
       return;
     }
 
     if (!estaFinalizada()) {
-      int indiceActual = this.jugadores.indexOf(this.jugadorEnTurno);
+      int indiceActual = buscarIndiceJugadorActual(jugadoresLimpios);
 
-      if (indiceActual == this.jugadores.size() - 1) {
+      if (indiceActual == jugadoresLimpios.size() - 1) {
         this.rondaActual++;
       }
 
       if (estaFinalizada()) {
         return;
       }
-      int siguienteIndice = (indiceActual + 1) % this.jugadores.size();
 
-      this.jugadorEnTurno = this.jugadores.get(siguienteIndice);
+      int siguienteIndice = (indiceActual + 1) % jugadoresLimpios.size();
+
+      this.jugadorEnTurno = jugadoresLimpios.get(siguienteIndice);
       this.etapaActual = 1;
       this.inicioEtapa = LocalDateTime.now();
       this.conquistasEnEsteTurno = 0;
@@ -137,8 +158,27 @@ public class Partida {
   }
 
   public boolean alcanzoLimiteConquistas() {
-    return (
-      this.conquistasEnEsteTurno != null && this.conquistasEnEsteTurno >= MAX_CONQUISTAS_POR_TURNO
-    );
+    return (this.conquistasEnEsteTurno != null && this.conquistasEnEsteTurno >= MAX_CONQUISTAS_POR_TURNO);
+  }
+
+  public Set<Long> getPreguntasHechas() {
+    return preguntasHechas;
+  }
+
+  public void registrarPreguntaHecha(Long preguntaId) {
+    this.preguntasHechas.add(preguntaId);
+  }
+
+  public void reiniciarPreguntasHechas() {
+    this.preguntasHechas.clear();
+  }
+
+  private int buscarIndiceJugadorActual(List<Jugador> jugadoresLimpios) {
+    for (int i = 0; i < jugadoresLimpios.size(); i++) {
+      if (jugadoresLimpios.get(i).getId().equals(this.jugadorEnTurno.getId())) {
+        return i;
+      }
+    }
+    return 0;
   }
 }
