@@ -21,18 +21,19 @@
     <div class="info-badge">
       Provincia: <strong th:text="${provincia.nombre}">La Pampa</strong>
     </div>
+
+    <div class="timer-container">
+      Tiempo restante<br>
+      <span id="timer">30</span>s
+    </div>
+
     <div class="info-badge">
       Jugador: <strong th:text="${jugadorActual != null ? jugadorActual.nombre : 'Sin jugador'}">Jugador</strong>
     </div>
   </div>
 
-  <div class="timer-container">
-    Tiempo restante<br>
-    <span id="timer">30</span>s
-  </div>
-
-  <h2 class="question" th:text="${pregunta != null ? pregunta.enunciado : 'No llegó pregunta'}">
-  </h2>
+  <h3 class="question" th:text="${pregunta != null ? pregunta.enunciado : 'No llegó pregunta'}">
+  </h3>
 
   <form th:action="@{/responder-provincia}" method="post">
     <input type="hidden" name="partidaId" th:value="${partidaId}">

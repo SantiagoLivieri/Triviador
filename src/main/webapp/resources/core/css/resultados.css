@@ -5,42 +5,42 @@
 }
 
 body {
-    
     background: radial-gradient(circle at top, #1e293b, #0f172a);
     color: #f8fafc;
     font-family: 'Poppins', 'Segoe UI', Tahoma, sans-serif;
-    min-height: 100vh;
+    height: 100vh;
     display: flex;
     justify-content: center;
     align-items: center;
-    padding: 20px;
+    overflow: hidden;
 }
 
 .contenedor-resultados {
-   
     background: rgba(30, 41, 59, 0.7);
     backdrop-filter: blur(10px);
     border: 1px solid rgba(255, 255, 255, 0.1);
     border-radius: 20px;
-    padding: 40px;
-    width: 100%;
-    max-width: 600px;
     box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.3), 0 10px 10px -5px rgba(0, 0, 0, 0.2);
-    text-align: center;
+
     display: flex;
     flex-direction: column;
-    gap: 20px;
+    text-align: center;
+    justify-content: space-between;
+
+    padding: 10px 40px;
+    width: 100%;
+    max-width: 600px;
 }
 
 .contenedor-resultados h1 {
 
-    font-size: 2.5rem;
+    font-size: 2rem;
     font-weight: 900;
     text-transform: uppercase;
     letter-spacing: 2px;
     text-shadow: 0 0 10px #74b9ff, 0 0 20px #74b9ff;
     color: #ffffff;
-    margin-bottom: 10px;
+    margin-bottom: 15px;
 }
 
 /* --- TARJETA DEL GANADOR --- */
@@ -48,8 +48,10 @@ body {
     background: linear-gradient(135deg, rgba(245, 158, 11, 0.2), rgba(217, 119, 6, 0.4));
     border: 2px solid #f59e0b; 
     border-radius: 16px;
-    padding: 25px;
+    padding: 18px;
+    margin-bottom: 20px;
     box-shadow: 0 0 20px rgba(245, 158, 11, 0.3);
+    width: 100%;;
   
     animation: pulseGanador 2.5s infinite ease-in-out;
 }
@@ -65,6 +67,17 @@ body {
     font-size: 1.8rem;
     margin-bottom: 10px;
     text-shadow: 0 2px 4px rgba(0,0,0,0.5);
+    display: flex;
+    justify-content: center;
+}
+
+.ganador-destacado span {
+    display: block;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+
+    width: 8em;
 }
 
 .ganador-destacado p {
@@ -81,7 +94,7 @@ hr {
     border: 0;
     height: 1px;
     background: rgba(255, 255, 255, 0.1);
-    margin: 10px 0;
+    margin-bottom: 10px;
 }
 
 .contenedor-resultados h3 {
@@ -90,7 +103,7 @@ hr {
     letter-spacing: 1px;
     font-size: 1.1rem;
     text-align: left;
-    margin-bottom: 5px;
+    margin-bottom: 10px;
 }
 
 ol {
@@ -107,9 +120,12 @@ li {
     border: 1px solid rgba(255, 255, 255, 0.1);
     border-radius: 12px;
     padding: 15px 20px;
+
     display: flex;
     justify-content: space-between;
+    gap: 10px;
     align-items: center;
+
     font-size: 1.1rem;
     font-weight: 600;
     transition: transform 0.2s, background 0.2s;
@@ -120,12 +136,38 @@ li:hover {
     transform: translateX(5px); 
 }
 
-li span:first-child {
-    color: #cbd5e1;
+.rankedJugador {
+    justify-self: start;
+    display: flex;
+    width: 15em;
+
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
 }
 
-li span:last-child {
+.rankedJugador span {
+    color: #cbd5e1;
+
+    display: block;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+}
+
+.rankedPuntos {
+    display: flex;
+    left: auto;
+    margin-right: 0px;
+
+}
+
+.rankedPuntos span {
     color: #38bdf8;
+}
+
+li > p {
+    margin: 0;
 }
 
 .btn-primary {
@@ -141,7 +183,7 @@ li span:last-child {
     letter-spacing: 1px;
     box-shadow: 0 8px 25px rgba(9, 132, 227, 0.4);
     transition: all 0.3s ease;
-    margin-top: 15px;
+    margin-top: 20px;
 }
 
 .btn-primary:hover {
