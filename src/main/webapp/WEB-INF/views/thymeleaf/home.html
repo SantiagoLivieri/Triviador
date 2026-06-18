@@ -19,13 +19,15 @@
     <h1 class="game-title">Triviador <span>Argentina</span></h1>
 
     <!-- Derecha: Perfil de Usuario -->
+    <a th:href="@{/perfil}" class="profile-link" style="text-decoration: none; color: inherit;">
     <div class="user-profile">
         <div class="avatar">👤</div>
         <div class="user-info">
             <span class="username" th:text="${usuario.nombreJugador}">Jugador</span>
-            <span class="user-stats">Puntos: <span th:text="${usuario.puntaje}">0</span></span>
+            <span class="user-stats" th:text="'Nivel ' + ${usuario.nivel}">Nivel 1</span>
         </div>
     </div>
+</a>
 </header>
 
 <!-- CUERPO DEL LOBBY -->

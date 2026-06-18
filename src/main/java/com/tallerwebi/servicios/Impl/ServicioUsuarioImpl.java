@@ -60,6 +60,11 @@ public class ServicioUsuarioImpl implements ServicioUsuario {
   }
 
   @Override
+  public void actualizarUsuario(Usuario usuario) {
+    repositorioUsuario.actualizarUsuario(usuario);
+  }
+
+  @Override
   public void cargarUsuarioAdminInicial() {
     Usuario adminExistente = repositorioUsuario.buscarUsuarioPorEmail("admin@triviador.com");
     if (adminExistente != null) {
