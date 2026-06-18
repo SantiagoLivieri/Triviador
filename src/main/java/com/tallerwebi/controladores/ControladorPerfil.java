@@ -1,6 +1,7 @@
 package com.tallerwebi.controladores;
 
 import com.tallerwebi.entidades.Usuario;
+import com.tallerwebi.servicios.ServicioHistorial;
 import com.tallerwebi.servicios.ServicioUsuario;
 import javax.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,25 +14,24 @@ import org.springframework.web.servlet.ModelAndView;
 @Controller
 public class ControladorPerfil {
 
-  private ServicioUsuario servicioUsuario;
+  private final ServicioUsuario servicioUsuario;
+  private final ServicioHistorial servicioHistorial;
 
   @Autowired
-  public ControladorPerfil(ServicioUsuario servicioUsuario) {
+  public ControladorPerfil(ServicioUsuario servicioUsuario, ServicioHistorial servicioHistorial) {
     this.servicioUsuario = servicioUsuario;
+    this.servicioHistorial = servicioHistorial;
   }
 
   @RequestMapping("/perfil")
   public ModelAndView verPerfil(HttpSession session) {
     Long usuarioId = (Long) session.getAttribute("usuarioId");
 
-    if (usuarioId == null) {
-      return new ModelAndView("redirect:/login");
-    }
-
     Usuario usuario = servicioUsuario.buscarUsuarioPorId(usuarioId);
 
     ModelMap modelMap = new ModelMap();
     modelMap.put("usuario", usuario);
+    modelMap.put("historial", servicioHistorial.buscarHistorialPorUsuario(usuarioId));
 
     return new ModelAndView("perfil", modelMap);
   }
@@ -39,10 +39,6 @@ public class ControladorPerfil {
   @RequestMapping(path = "/perfil/guardar", method = RequestMethod.POST)
   public ModelAndView guardarPerfil(String nombre, String nombreJugador, HttpSession session) {
     Long usuarioId = (Long) session.getAttribute("usuarioId");
-
-    if (usuarioId == null) {
-      return new ModelAndView("redirect:/login");
-    }
 
     servicioUsuario.actualizarPerfil(usuarioId, nombre, nombreJugador);
 

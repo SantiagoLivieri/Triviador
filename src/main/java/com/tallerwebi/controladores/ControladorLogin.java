@@ -53,14 +53,9 @@ public class ControladorLogin {
     return new ModelAndView("redirect:/home");
   }
 
-  //No puede entrar a home sin estar logueado
-
   @RequestMapping("/home")
   public ModelAndView home(HttpSession session) {
     Usuario usuario = (Usuario) session.getAttribute("usuarioLogueado");
-    if (usuario == null) {
-      return new ModelAndView("redirect:/login");
-    }
     ModelMap modelMap = new ModelMap();
     modelMap.put("usuario", usuario);
     return new ModelAndView("home", modelMap);
@@ -88,7 +83,9 @@ public class ControladorLogin {
       servicioLogin.validarEmail(datosRegistro.getEmail());
       servicioLogin.validarPassword(datosRegistro.getPassword(), datosRegistro.getRePassword());
       servicioLogin.crearUsuario(datosRegistro);
-    } catch (UsuarioExistenteException | PasswordsDiferentesException e) {
+    } catch (
+      UsuarioExistenteException | PasswordsDiferentesException | IllegalArgumentException e
+    ) {
       modelMap.put("error", e.getMessage());
       return new ModelAndView("registro", modelMap);
     }

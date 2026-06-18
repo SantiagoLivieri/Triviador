@@ -5,6 +5,7 @@ import com.tallerwebi.entidades.Jugador;
 import com.tallerwebi.entidades.Partida;
 import com.tallerwebi.entidades.Pregunta;
 import com.tallerwebi.entidades.Provincia;
+import com.tallerwebi.entidades.Usuario;
 import com.tallerwebi.servicios.ServicioJuego;
 import com.tallerwebi.servicios.ServicioPregunta;
 import com.tallerwebi.servicios.ServicioProvincia;
@@ -37,17 +38,23 @@ public class ControladorJuego {
 
   @Autowired
   public ControladorJuego(
-      ServicioJuego servicioJuego,
-      ServicioProvincia servicioProvincia,
-      ServicioPregunta servicioPregunta) {
+    ServicioJuego servicioJuego,
+    ServicioProvincia servicioProvincia,
+    ServicioPregunta servicioPregunta
+  ) {
     this.servicioJuego = servicioJuego;
     this.servicioProvincia = servicioProvincia;
     this.servicioPregunta = servicioPregunta;
   }
 
   @PostMapping("/iniciar-partida")
-  public ModelAndView iniciarPartida(@ModelAttribute("datosLobby") DatosLobby datosLobby) {
-    Long partidaId = servicioJuego.inicializarPartida(datosLobby);
+  public ModelAndView iniciarPartida(
+    @ModelAttribute("datosLobby") DatosLobby datosLobby,
+    HttpSession session
+  ) {
+    Usuario usuarioAnfitrion = (Usuario) session.getAttribute("usuarioLogueado");
+    Long partidaId = servicioJuego.inicializarPartida(datosLobby, usuarioAnfitrion);
+
     return new ModelAndView(REDIRECT_JUEGO + partidaId);
   }
 
@@ -57,6 +64,7 @@ public class ControladorJuego {
 
     Partida partida = servicioJuego.obtenerPartidaPorId(partidaId);
 
+    modelo.put("coloresPorJugador", partida.obtenerMapaDeColoresPorJugador());
     modelo.put("partida", partida);
     modelo.put("jugadores", partida.getJugadores());
     modelo.put("provincias", servicioProvincia.obtenerProvincias());
@@ -73,13 +81,15 @@ public class ControladorJuego {
 
   @PostMapping("/seleccionar-provincia")
   public ModelAndView seleccionarProvincia(
-      @RequestParam("idProvincia") Long idProvincia,
-      @RequestParam(ATRIBUTO_PARTIDA_ID) Long partidaId,
-      HttpServletRequest request) {
+    @RequestParam("idProvincia") Long idProvincia,
+    @RequestParam(ATRIBUTO_PARTIDA_ID) Long partidaId,
+    HttpServletRequest request
+  ) {
     Partida partida = servicioJuego.obtenerPartidaPorId(partidaId);
     Pregunta pregunta = servicioPregunta.obtenerPreguntaPorProvincia(
-        idProvincia,
-        partida.getPreguntasHechas());
+      idProvincia,
+      partida.getPreguntasHechas()
+    );
 
     if (pregunta == null) {
       request.getSession().setAttribute(MENSAJE_RESULTADO, "No hay preguntas cargadas.");
@@ -103,9 +113,11 @@ public class ControladorJuego {
     request.getSession().setAttribute(RESPONDIDAS_ATTR, 0);
 
     request.getSession().setAttribute("preguntaActual", pregunta);
+
     request
-        .getSession()
-        .setAttribute("opcionesActuales", servicioPregunta.obtenerOpcionesMezcladas(pregunta));
+      .getSession()
+      .setAttribute("opcionesActuales", servicioPregunta.obtenerOpcionesMezcladas(pregunta));
+
     request.getSession().setAttribute("idProvinciaActual", idProvincia);
 
     return new ModelAndView("redirect:/juego/pregunta-actual?partidaId=" + partidaId);
@@ -113,8 +125,9 @@ public class ControladorJuego {
 
   @GetMapping("/juego/pregunta-actual")
   public ModelAndView mostrarPreguntaActual(
-      @RequestParam("partidaId") Long partidaId,
-      HttpServletRequest request) {
+    @RequestParam("partidaId") Long partidaId,
+    HttpServletRequest request
+  ) {
     Pregunta pregunta = (Pregunta) request.getSession().getAttribute("preguntaActual");
 
     if (pregunta == null) {
@@ -124,13 +137,13 @@ public class ControladorJuego {
     Long idProvinciaActual = (Long) request.getSession().getAttribute("idProvinciaActual");
 
     Provincia provincia = idProvinciaActual != null
-        ? servicioProvincia.buscarPorId(idProvinciaActual)
-        : pregunta.getProvincia();
+      ? servicioProvincia.buscarPorId(idProvinciaActual)
+      : pregunta.getProvincia();
 
     if (provincia == null) {
       request
-          .getSession()
-          .setAttribute(MENSAJE_RESULTADO, "No se encontro la provincia seleccionada.");
+        .getSession()
+        .setAttribute(MENSAJE_RESULTADO, "No se encontro la provincia seleccionada.");
       return new ModelAndView(REDIRECT_JUEGO + partidaId);
     }
 
@@ -150,18 +163,20 @@ public class ControladorJuego {
 
   @PostMapping("/responder-provincia")
   public ModelAndView responderProvincia(
-      @RequestParam(ATRIBUTO_PARTIDA_ID) Long partidaId,
-      @RequestParam("idProvincia") Long idProvincia,
-      @RequestParam("idPregunta") Long idPregunta,
-      @RequestParam("respuesta") String respuesta,
-      HttpServletRequest request) {
+    @RequestParam(ATRIBUTO_PARTIDA_ID) Long partidaId,
+    @RequestParam("idProvincia") Long idProvincia,
+    @RequestParam("idPregunta") Long idPregunta,
+    @RequestParam("respuesta") String respuesta,
+    HttpServletRequest request
+  ) {
     HttpSession session = request.getSession();
 
     Boolean acerto = servicioJuego.procesarRespuestaYPasarTurno(
-        partidaId,
-        idProvincia,
-        idPregunta,
-        respuesta);
+      partidaId,
+      idProvincia,
+      idPregunta,
+      respuesta
+    );
 
     if (!acerto) {
       session.setAttribute(MENSAJE_RESULTADO, "Respuesta incorrecta. Fin de tu turno");
@@ -169,6 +184,8 @@ public class ControladorJuego {
 
       Partida partida = servicioJuego.obtenerPartidaPorId(partidaId);
       if (partida.estaFinalizada()) {
+        Long usuarioId = (Long) session.getAttribute("usuarioId");
+        servicioJuego.finalizarYRegistrarPartida(partidaId, usuarioId);
         return new ModelAndView("redirect:/partida/resultados/" + partidaId);
       }
 
@@ -196,9 +213,11 @@ public class ControladorJuego {
       Partida partidaDespuesDeJugar = servicioJuego.obtenerPartidaPorId(partidaId);
       Jugador jugadorActual = partidaDespuesDeJugar.getJugadorEnTurno();
 
-      if (jugadorQueRespondio != null &&
-          jugadorActual != null &&
-          !jugadorQueRespondio.getId().equals(jugadorActual.getId())) {
+      if (
+        jugadorQueRespondio != null &&
+        jugadorActual != null &&
+        !jugadorQueRespondio.getId().equals(jugadorActual.getId())
+      ) {
         mensajeFinal += "\n\nAlcanzaste el límite máximo de 3 conquistas. Fin de tu turno.";
       }
 
@@ -206,6 +225,8 @@ public class ControladorJuego {
       session.setAttribute("jugadorActual", jugadorActual);
 
       if (partidaDespuesDeJugar.estaFinalizada()) {
+        Long usuarioId = (Long) session.getAttribute("usuarioId");
+        servicioJuego.finalizarYRegistrarPartida(partidaId, usuarioId);
         return new ModelAndView("redirect:/partida/resultados/" + partidaId);
       }
 
@@ -213,16 +234,18 @@ public class ControladorJuego {
     } else {
       Partida partida = servicioJuego.obtenerPartidaPorId(partidaId);
       Pregunta proximaPregunta = servicioPregunta.obtenerPreguntaPorProvincia(
-          idProvincia,
-          partida.getPreguntasHechas());
+        idProvincia,
+        partida.getPreguntasHechas()
+      );
 
       partida.registrarPreguntaHecha(proximaPregunta.getId());
       servicioJuego.actualizarPartida(partida);
 
       session.setAttribute("preguntaActual", proximaPregunta);
       session.setAttribute(
-          "opcionesActuales",
-          servicioPregunta.obtenerOpcionesMezcladas(proximaPregunta));
+        "opcionesActuales",
+        servicioPregunta.obtenerOpcionesMezcladas(proximaPregunta)
+      );
 
       return new ModelAndView("redirect:/juego/pregunta-actual?partidaId=" + partidaId);
     }
@@ -234,12 +257,17 @@ public class ControladorJuego {
   }
 
   @RequestMapping(path = "/juego/tiempo-agotado", method = RequestMethod.POST)
-  public ModelAndView tiempoAgotado(@RequestParam(ATRIBUTO_PARTIDA_ID) Long partidaId) {
+  public ModelAndView tiempoAgotado(
+    @RequestParam(ATRIBUTO_PARTIDA_ID) Long partidaId,
+    HttpSession session
+  ) {
     servicioJuego.forzarSaltoPorTiempo(partidaId);
 
     Partida partida = servicioJuego.obtenerPartidaPorId(partidaId);
 
     if (partida.estaFinalizada()) {
+      Long usuarioId = (Long) session.getAttribute("usuarioId");
+      servicioJuego.finalizarYRegistrarPartida(partidaId, usuarioId);
       return new ModelAndView("redirect:/partida/resultados/" + partidaId);
     }
 

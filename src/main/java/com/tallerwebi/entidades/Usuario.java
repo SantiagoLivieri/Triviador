@@ -1,18 +1,21 @@
 package com.tallerwebi.entidades;
 
+import com.tallerwebi.controladores.clasesAuxiliares.DatosEstadistica;
 import com.tallerwebi.controladores.clasesAuxiliares.DatosRegistro;
+import java.util.ArrayList;
+import java.util.List;
 import javax.persistence.Column;
+import javax.persistence.Embedded;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
 import javax.persistence.Table;
 
-/**
- * Representa un usuario o jugador del sistema.
- */
 @Entity
 @Table(name = "Usuario")
 public class Usuario {
@@ -32,15 +35,15 @@ public class Usuario {
   @Column(name = "nombre_jugador", length = 100)
   private String nombreJugador;
 
-  @Column(name = "color_asignado", length = 50)
-  private String colorAsignado;
-
-  @Column(nullable = false)
-  private Integer puntaje = 0;
-
   @ManyToOne
   @JoinColumn(name = "rol_id")
   private Rol rol;
+
+  @OneToMany(mappedBy = "usuario", fetch = FetchType.LAZY)
+  private List<HistorialPartida> historial = new ArrayList<>();
+
+  @Embedded
+  private DatosEstadistica estadisticas = new DatosEstadistica();
 
   public Usuario() {}
 
@@ -50,8 +53,18 @@ public class Usuario {
     this.password = datosRegistro.getPassword();
     this.activo = true;
     this.rol = rolUser;
-    this.nombreJugador = datosRegistro.getNombre();
-    this.puntaje = 0;
+    this.estadisticas = new DatosEstadistica();
+  }
+
+  public int registrarFinDePartida(Integer puesto) {
+    if (this.estadisticas == null) {
+      this.estadisticas = new DatosEstadistica();
+    }
+
+    int xpGanada = estadisticas.calcularXPSegunPuesto(puesto);
+
+    this.estadisticas.registrarFinDePartida(puesto, xpGanada);
+    return xpGanada;
   }
 
   public Long getId() {
@@ -106,20 +119,20 @@ public class Usuario {
     this.nombreJugador = nombreJugador;
   }
 
-  public String getColorAsignado() {
-    return colorAsignado;
+  public Integer getExperiencia() {
+    return estadisticas != null ? estadisticas.getExperiencia() : 0;
   }
 
-  public void setColorAsignado(String colorAsignado) {
-    this.colorAsignado = colorAsignado;
+  public Integer getPartidasJugadas() {
+    return estadisticas != null ? estadisticas.getPartidasJugadas() : 0;
   }
 
-  public Integer getPuntaje() {
-    return puntaje;
+  public Integer getPartidasGanadas() {
+    return estadisticas != null ? estadisticas.getPartidasGanadas() : 0;
   }
 
-  public void setPuntaje(Integer puntaje) {
-    this.puntaje = puntaje;
+  public int getNivel() {
+    return estadisticas != null ? estadisticas.getNivelActual() : 1;
   }
 
   public Rol getRol() {

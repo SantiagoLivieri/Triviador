@@ -3,8 +3,11 @@ package com.tallerwebi.entidades;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Locale;
+import java.util.Map;
 import java.util.Set;
 import javax.persistence.ElementCollection;
 import javax.persistence.Entity;
@@ -56,34 +59,6 @@ public class Partida {
       }
     }
     return jugadoresReales;
-  }
-
-  public Jugador getJugadorEnTurno() {
-    return jugadorEnTurno;
-  }
-
-  public Integer getEtapaActual() {
-    return etapaActual;
-  }
-
-  public LocalDateTime getInicioEtapa() {
-    return inicioEtapa;
-  }
-
-  public void setJugadorEnTurno(Jugador jugadorEnTurno) {
-    this.jugadorEnTurno = jugadorEnTurno;
-  }
-
-  public void setEtapaActual(Integer etapaActual) {
-    this.etapaActual = etapaActual;
-  }
-
-  public void setInicioEtapa(LocalDateTime inicioEtapa) {
-    this.inicioEtapa = inicioEtapa;
-  }
-
-  public void setJugadores(List<Jugador> jugadores) {
-    this.jugadores = jugadores;
   }
 
   public void avanzarTurno() {
@@ -158,7 +133,9 @@ public class Partida {
   }
 
   public boolean alcanzoLimiteConquistas() {
-    return (this.conquistasEnEsteTurno != null && this.conquistasEnEsteTurno >= MAX_CONQUISTAS_POR_TURNO);
+    return (
+      this.conquistasEnEsteTurno != null && this.conquistasEnEsteTurno >= MAX_CONQUISTAS_POR_TURNO
+    );
   }
 
   public Set<Long> getPreguntasHechas() {
@@ -180,5 +157,67 @@ public class Partida {
       }
     }
     return 0;
+  }
+
+  public int calcularPuestoDeUsuario(Long usuarioId) {
+    List<Jugador> ranking = this.obtenerRanking();
+
+    for (int i = 0; i < ranking.size(); i++) {
+      Jugador jugAnfitrion = ranking.get(i);
+      if (
+        jugAnfitrion.getUsuario() != null && jugAnfitrion.getUsuario().getId().equals(usuarioId)
+      ) {
+        return i + 1;
+      }
+    }
+
+    return 3;
+  }
+
+  public String obtenerNombreGanador() {
+    List<Jugador> ranking = this.obtenerRanking();
+    return ranking.get(0).getNombre();
+  }
+
+  public Map<Long, String> obtenerMapaDeColoresPorJugador() {
+    Map<Long, String> mapaColores = new HashMap<>();
+
+    if (this.jugadores != null) {
+      for (Jugador jug : this.jugadores) {
+        if (jug != null && jug.getId() != null && jug.getColor() != null) {
+          mapaColores.put(jug.getId(), jug.getColor().toLowerCase(Locale.ROOT));
+        }
+      }
+    }
+
+    return mapaColores;
+  }
+
+  public Jugador getJugadorEnTurno() {
+    return jugadorEnTurno;
+  }
+
+  public Integer getEtapaActual() {
+    return etapaActual;
+  }
+
+  public LocalDateTime getInicioEtapa() {
+    return inicioEtapa;
+  }
+
+  public void setJugadorEnTurno(Jugador jugadorEnTurno) {
+    this.jugadorEnTurno = jugadorEnTurno;
+  }
+
+  public void setEtapaActual(Integer etapaActual) {
+    this.etapaActual = etapaActual;
+  }
+
+  public void setInicioEtapa(LocalDateTime inicioEtapa) {
+    this.inicioEtapa = inicioEtapa;
+  }
+
+  public void setJugadores(List<Jugador> jugadores) {
+    this.jugadores = jugadores;
   }
 }

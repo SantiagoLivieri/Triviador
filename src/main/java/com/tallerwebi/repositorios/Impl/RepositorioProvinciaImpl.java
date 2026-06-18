@@ -1,6 +1,7 @@
-package com.tallerwebi.repositorios;
+package com.tallerwebi.repositorios.Impl;
 
 import com.tallerwebi.entidades.Provincia;
+import com.tallerwebi.repositorios.RepositorioProvincia;
 import java.util.List;
 import org.hibernate.SessionFactory;
 import org.springframework.beans.factory.annotation.Autowired;

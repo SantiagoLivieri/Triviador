@@ -1,6 +1,7 @@
-package com.tallerwebi.repositorios;
+package com.tallerwebi.repositorios.Impl;
 
 import com.tallerwebi.entidades.Usuario;
+import com.tallerwebi.repositorios.RepositorioUsuario;
 import org.hibernate.SessionFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;

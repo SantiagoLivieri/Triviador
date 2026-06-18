@@ -25,10 +25,12 @@
       <div class="jugadores-grid">
 
         <article class="jugador" id="cardPlayer1">
-          <h3>Jugador 1</h3>
+          <h3>Jugador 1 (Anfitrión)</h3>
 
-          <label for="nombreJugadorUno">Nombre</label>
-          <input type="text" id="nombreJugadorUno" th:field="*{nombreJugadorUno}" required>
+          <label>Nombre</label>
+          <div class="readonly-text" th:text="${usuario.nombreJugador ?: usuario.nombre}">Nombre del Anfitrión</div>
+
+          <input type="hidden" id="nombreJugadorUno" th:field="*{nombreJugadorUno}" th:value="${usuario.nombreJugador ?: usuario.nombre}">
 
           <label class="colorJugadorTitle" for="colorJugadorUno">Color</label>
           <select class="colorJugador" th:field="*{colorJugadorUno}" required>

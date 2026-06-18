@@ -10,4 +10,6 @@ public interface ServicioUsuario {
   void cargarRolesIniciales();
 
   void cargarUsuarioAdminInicial();
+
+  void actualizarUsuario(Usuario usuario);
 }

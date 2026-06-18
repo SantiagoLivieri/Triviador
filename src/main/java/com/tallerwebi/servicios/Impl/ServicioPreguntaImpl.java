@@ -24,9 +24,9 @@ public class ServicioPreguntaImpl implements ServicioPregunta {
   public Pregunta obtenerPreguntaPorProvincia(Long idProvincia, Set<Long> preguntasYaHechas) {
     List<Pregunta> preguntasFiltradas = repositorioPregunta.buscarPorProvincia(idProvincia);
     List<Pregunta> disponiblesProvincia = preguntasFiltradas
-        .stream()
-        .filter(p -> !preguntasYaHechas.contains(p.getId()))
-        .collect(Collectors.toList());
+      .stream()
+      .filter(p -> !preguntasYaHechas.contains(p.getId()))
+      .collect(Collectors.toList());
 
     if (!disponiblesProvincia.isEmpty()) {
       Collections.shuffle(disponiblesProvincia);
@@ -39,9 +39,9 @@ public class ServicioPreguntaImpl implements ServicioPregunta {
     }
 
     List<Pregunta> disponiblesGeneral = todasLasPreguntas
-        .stream()
-        .filter(p -> !preguntasYaHechas.contains(p.getId()))
-        .collect(Collectors.toList());
+      .stream()
+      .filter(p -> !preguntasYaHechas.contains(p.getId()))
+      .collect(Collectors.toList());
 
     if (!disponiblesGeneral.isEmpty()) {
       Collections.shuffle(disponiblesGeneral);
@@ -58,7 +58,8 @@ public class ServicioPreguntaImpl implements ServicioPregunta {
   public List<String> obtenerOpcionesMezcladas(Pregunta pregunta) {
     if (pregunta == null) {
       throw new IllegalArgumentException(
-          "No se puede mezclar opciones de una pregunta inexistente");
+        "No se puede mezclar opciones de una pregunta inexistente"
+      );
     }
     return pregunta.getOpcionesMezcladas();
   }

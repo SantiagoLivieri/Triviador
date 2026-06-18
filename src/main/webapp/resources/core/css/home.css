@@ -64,6 +64,12 @@ header {
     padding: 8px 15px;
     border-radius: 30px;
     border: 1px solid rgba(255, 255, 255, 0.2);
+    cursor: pointer;
+    transition: opacity 0.2s ease;
+}
+
+.user-profile:hover {
+    opacity: 0.85 !important; 
 }
 
 .avatar {

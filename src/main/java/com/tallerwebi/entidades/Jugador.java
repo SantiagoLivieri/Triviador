@@ -5,6 +5,8 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 
 @Entity
@@ -22,14 +24,40 @@ public class Jugador {
   private String color;
 
   @Column(nullable = false)
-  private Integer puntaje = 0;
+  private Integer puntaje;
 
-  public Jugador() {}
+  //se relacionan varios jugadores a un mismo usuario por partida (porque es local).
+  // De esta manera se pueden recopilar datos para el perfil.
+  @ManyToOne
+  @JoinColumn(name = "usuario_id", nullable = true)
+  private Usuario usuario;
 
-  public Jugador(String nombre, String color) {
-    this.nombre = nombre;
+  protected Jugador() {}
+
+  public Jugador(String nombre, String color, Usuario usuario) {
+    this.usuario = usuario;
+
+    if (usuario == null) {
+      this.nombre = nombre;
+    } else if (usuario.getNombreJugador() != null && !usuario.getNombreJugador().trim().isEmpty()) {
+      this.nombre = usuario.getNombreJugador();
+    } else {
+      this.nombre = usuario.getNombre();
+    }
+
     this.color = color;
     this.puntaje = 0;
+  }
+
+  public void sumarPuntos(Integer puntos) {
+    if (this.puntaje == null) {
+      this.puntaje = 0;
+    }
+    this.puntaje += puntos;
+  }
+
+  public void restarPuntos(Integer puntos) {
+    this.puntaje = Math.max(0, this.puntaje - puntos);
   }
 
   public Long getId() {
@@ -60,14 +88,7 @@ public class Jugador {
     this.puntaje = puntaje;
   }
 
-  public void sumarPuntos(Integer puntos) {
-    if (this.puntaje == null) {
-      this.puntaje = 0;
-    }
-    this.puntaje += puntos;
-  }
-
-  public void restarPuntos(Integer puntos) {
-    this.puntaje = Math.max(0, this.puntaje - puntos);
+  public Usuario getUsuario() {
+    return usuario;
   }
 }

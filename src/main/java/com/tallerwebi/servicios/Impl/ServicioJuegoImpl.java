@@ -1,15 +1,19 @@
 package com.tallerwebi.servicios.Impl;
 
 import com.tallerwebi.controladores.clasesAuxiliares.DatosLobby;
+import com.tallerwebi.entidades.HistorialPartida;
 import com.tallerwebi.entidades.Jugador;
 import com.tallerwebi.entidades.Partida;
 import com.tallerwebi.entidades.Pregunta;
 import com.tallerwebi.entidades.Provincia;
+import com.tallerwebi.entidades.Usuario;
+import com.tallerwebi.servicios.ServicioHistorial;
 import com.tallerwebi.servicios.ServicioJuego;
 import com.tallerwebi.servicios.ServicioJugador;
 import com.tallerwebi.servicios.ServicioPartida;
 import com.tallerwebi.servicios.ServicioPregunta;
 import com.tallerwebi.servicios.ServicioProvincia;
+import com.tallerwebi.servicios.ServicioUsuario;
 import com.tallerwebi.servicios.excepcion.TiempoAgotadoException;
 import com.tallerwebi.servicios.excepcion.TurnoInvalidoException;
 import java.time.LocalDateTime;
@@ -26,34 +30,43 @@ public class ServicioJuegoImpl implements ServicioJuego {
   private final ServicioProvincia servicioProvincia;
   private final ServicioPregunta servicioPregunta;
   private final ServicioPartida servicioPartida;
+  private final ServicioHistorial servicioHistorial;
+  private final ServicioUsuario servicioUsuario;
   private static final int TIEMPO_MAXIMO_TURNO = 30;
 
   public ServicioJuegoImpl(
-      ServicioJugador servicioJugador,
-      ServicioProvincia servicioProvincia,
-      ServicioPregunta servicioPregunta,
-      ServicioPartida servicioPartida) {
+    ServicioJugador servicioJugador,
+    ServicioProvincia servicioProvincia,
+    ServicioPregunta servicioPregunta,
+    ServicioPartida servicioPartida,
+    ServicioHistorial servicioHistorial,
+    ServicioUsuario servicioUsuario
+  ) {
     this.servicioJugador = servicioJugador;
     this.servicioPregunta = servicioPregunta;
     this.servicioProvincia = servicioProvincia;
     this.servicioPartida = servicioPartida;
+    this.servicioHistorial = servicioHistorial;
+    this.servicioUsuario = servicioUsuario;
   }
 
   @Override
-  public Long inicializarPartida(DatosLobby datosLobby) {
+  public Long inicializarPartida(DatosLobby datosLobby, Usuario usuarioAnfitrion) {
     servicioProvincia.resetearProvincias();
 
     List<Jugador> jugadores = new ArrayList<>(
-        List.of(
-            servicioJugador.crearJugador(
-                datosLobby.getNombreJugadorUno(),
-                datosLobby.getColorJugadorUno()),
-            servicioJugador.crearJugador(
-                datosLobby.getNombreJugadorDos(),
-                datosLobby.getColorJugadorDos()),
-            servicioJugador.crearJugador(
-                datosLobby.getNombreJugadorTres(),
-                datosLobby.getColorJugadorTres())));
+      List.of(
+        servicioJugador.crearJugadorConUsuario(usuarioAnfitrion, datosLobby.getColorJugadorUno()),
+        servicioJugador.crearJugador(
+          datosLobby.getNombreJugadorDos(),
+          datosLobby.getColorJugadorDos()
+        ),
+        servicioJugador.crearJugador(
+          datosLobby.getNombreJugadorTres(),
+          datosLobby.getColorJugadorTres()
+        )
+      )
+    );
 
     Partida partida = servicioPartida.crearPartida(jugadores);
 
@@ -67,10 +80,11 @@ public class ServicioJuegoImpl implements ServicioJuego {
 
   @Override
   public Boolean procesarRespuestaYPasarTurno(
-      Long partidaId,
-      Long idProvincia,
-      Long idPregunta,
-      String respuesta) {
+    Long partidaId,
+    Long idProvincia,
+    Long idPregunta,
+    String respuesta
+  ) {
     Pregunta pregunta = servicioPregunta.buscarPorId(idPregunta);
     if (pregunta == null) {
       throw new IllegalArgumentException("La pregunta con ID " + idPregunta + " no existe.");
@@ -162,7 +176,7 @@ public class ServicioJuegoImpl implements ServicioJuego {
 
   @Override
   public void procesarJugada(Long partidaId, Long jugadorId, Long provinciaSeleccionadaId)
-      throws TiempoAgotadoException, TurnoInvalidoException {
+    throws TiempoAgotadoException, TurnoInvalidoException {
     Partida partida = servicioPartida.buscarPorId(partidaId);
 
     if (!partida.esTurnoDe(jugadorId)) {
@@ -183,8 +197,7 @@ public class ServicioJuegoImpl implements ServicioJuego {
   @Override
   public void forzarSaltoPorTiempo(Long partidaId) {
     Partida partida = servicioPartida.buscarPorId(partidaId);
-    if (partida == null)
-      return;
+    if (partida == null) return;
 
     if (partida.tieneTiempoAgotado(TIEMPO_MAXIMO_TURNO - 2)) {
       partida.avanzarTurno();
@@ -195,5 +208,32 @@ public class ServicioJuegoImpl implements ServicioJuego {
   @Override
   public void actualizarPartida(Partida partida) {
     servicioPartida.actualizar(partida);
+  }
+
+  @Override
+  public void finalizarYRegistrarPartida(Long partidaId, Long usuarioId) {
+    Partida partida = servicioPartida.buscarPorId(partidaId);
+    if (partida == null || !partida.estaFinalizada()) {
+      throw new IllegalStateException("La partida no ha finalizado o no existe.");
+    }
+
+    Usuario usuario = servicioUsuario.buscarUsuarioPorId(usuarioId);
+    if (usuario == null) {
+      throw new IllegalArgumentException("El usuario anfitrión no existe.");
+    }
+
+    int puestoFinal = partida.calcularPuestoDeUsuario(usuarioId);
+    int xpGanada = usuario.registrarFinDePartida(puestoFinal);
+    String nombreGanador = partida.obtenerNombreGanador();
+
+    servicioUsuario.actualizarUsuario(usuario);
+
+    HistorialPartida ticketHistorial = new HistorialPartida(
+      usuario,
+      puestoFinal,
+      xpGanada,
+      nombreGanador
+    );
+    servicioHistorial.guardar(ticketHistorial);
   }
 }

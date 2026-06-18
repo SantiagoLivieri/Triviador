@@ -2,11 +2,12 @@ package com.tallerwebi.servicios;
 
 import com.tallerwebi.controladores.clasesAuxiliares.DatosLobby;
 import com.tallerwebi.entidades.Partida;
+import com.tallerwebi.entidades.Usuario;
 import com.tallerwebi.servicios.excepcion.TiempoAgotadoException;
 import com.tallerwebi.servicios.excepcion.TurnoInvalidoException;
 
 public interface ServicioJuego {
-  Long inicializarPartida(DatosLobby datosLobby);
+  //Long inicializarPartida(DatosLobby datosLobby);
 
   Partida obtenerPartidaPorId(Long partidaId);
 
@@ -35,4 +36,8 @@ public interface ServicioJuego {
   void concretarColonizacion(Long partidaId, Long idProvincia);
 
   void actualizarPartida(Partida partida);
+
+  Long inicializarPartida(DatosLobby datosLobby, Usuario usuarioAnfitrion);
+
+  void finalizarYRegistrarPartida(Long partidaId, Long usuarioId);
 }
