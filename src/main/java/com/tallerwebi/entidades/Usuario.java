@@ -60,11 +60,25 @@ public class Usuario {
     if (this.estadisticas == null) {
       this.estadisticas = new DatosEstadistica();
     }
-
     int xpGanada = estadisticas.calcularXPSegunPuesto(puesto);
+    int monedasGanadas = estadisticas.calcularMonedasSegunPuesto(puesto);
 
-    this.estadisticas.registrarFinDePartida(puesto, xpGanada);
+    this.estadisticas.registrarFinDePartida(puesto, xpGanada, monedasGanadas);
     return xpGanada;
+  }
+
+  public void adquirirComodin(Comodin comodin) {
+    if (this.estadisticas == null) {
+      this.estadisticas = new DatosEstadistica();
+    }
+    this.estadisticas.registrarCompraDeItem(comodin);
+  }
+
+  public void consumirComodin(String comodin) {
+    if (this.estadisticas == null) {
+      this.estadisticas = new DatosEstadistica();
+    }
+    this.estadisticas.consumirComodin(comodin);
   }
 
   public Long getId() {
@@ -133,6 +147,26 @@ public class Usuario {
 
   public int getNivel() {
     return estadisticas != null ? estadisticas.getNivelActual() : 1;
+  }
+
+  public Integer getMonedas() {
+    return estadisticas != null ? estadisticas.getMonedas() : 0;
+  }
+
+  public Integer getComodinesEliminarDos() {
+    return estadisticas != null ? estadisticas.getComodinesEliminarDos() : 0;
+  }
+
+  public Integer getComodinesDobleChance() {
+    return estadisticas != null ? estadisticas.getComodinesDobleChance() : 0;
+  }
+
+  public Integer getComodinesPasarPregunta() {
+    return estadisticas != null ? estadisticas.getComodinesPasarPregunta() : 0;
+  }
+
+  public DatosEstadistica getEstadisticas() {
+    return estadisticas;
   }
 
   public Rol getRol() {

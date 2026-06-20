@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Tienda de Comodines - Triviador Argentina</title>
+  <link rel="stylesheet" th:href="@{/css/tienda.css}">
+</head>
+
+<body class="tienda-body">
+
+  <div class="tienda-contenedor">
+
+    <header class="tienda-cabecera">
+      <div class="cabecera-info">
+        <h2 class="tienda-titulo">Tienda Táctica</h2>
+        <p class="tienda-subtitulo">Comprá ventajas competitivas para tus próximas partidas</p>
+      </div>
+      <div class="billetera-usuario">
+        <span class="moneda-icono">🪙</span>
+        <div class="saldo-info">
+          <p class="saldo-etiqueta">Mis TriviaCoins</p>
+          <p class="saldo-valor" th:text="${usuario.monedas} + ' Coins'">0 Coins</p>
+        </div>
+      </div>
+    </header>
+
+    <div th:if="${error != null}" class="alerta alerta-error" th:text="${error}"></div>
+    <div th:if="${exito != null}" class="alerta alerta-exito" th:text="${exito}"></div>
+
+    <main class="articulos-grilla">
+
+      <article th:each="item : ${comodines}" class="tarjeta-article"
+        th:classappend="${item.nombre == 'ELIMINAR_2' ? 'item-destacado' : (item.nombre == 'DOBLE_CHANCE' ? 'item-intermedio' : 'item-economico')}">
+
+        <div class="articulo-icono"
+          th:text="${item.nombre == 'ELIMINAR_2' ? '✂️' : (item.nombre == 'DOBLE_CHANCE' ? '🛡️' : '⏭️')}">✂️</div>
+
+        <h3 class="articulo-nombre"
+          th:text="${item.nombre == 'ELIMINAR_2' ? 'Eliminar 2 Respuestas' : (item.nombre == 'DOBLE_CHANCE' ? 'Doble Chance' : 'Pasar Pregunta')}">
+          Nombre</h3>
+
+        <p class="articulo-descripcion" th:text="${item.descripcion}">Descripción dinámica traída desde la base de
+          datos.</p>
+
+        <div class="articulo-inventario">
+          <span th:if="${item.nombre == 'ELIMINAR_2'}"
+            th:text="'En inventario: ' + ${usuario.comodinesEliminarDos}">0</span>
+          <span th:if="${item.nombre == 'DOBLE_CHANCE'}"
+            th:text="'En inventario: ' + ${usuario.comodinesDobleChance}">0</span>
+          <span th:if="${item.nombre == 'PASAR_PREGUNTA'}"
+            th:text="'En inventario: ' + ${usuario.comodinesPasarPregunta}">0</span>
+        </div>
+
+        <form th:action="@{/tienda/comprar}" method="POST" class="form-compra">
+          <input type="hidden" name="tipo" th:value="${item.nombre}">
+          <button type="submit" class="btn-comprar">
+            <span>Comprar por</span>
+            <strong class="precio-tag" th:text="${item.costo} + ' 🪙'">50 🪙</strong>
+          </button>
+        </form>
+      </article>
+
+    </main>
+
+    <footer class="tienda-pie">
+      <a th:href="@{/home}" class="enlace-volver">
+        <svg class="icono-volver" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
+        </svg>
+        Volver al Lobby
+      </a>
+    </footer>
+
+  </div>
+
+</body>
+
+</html>
