@@ -26,8 +26,6 @@ public class Jugador {
   @Column(nullable = false)
   private Integer puntaje;
 
-  //se relacionan varios jugadores a un mismo usuario por partida (porque es local).
-  // De esta manera se pueden recopilar datos para el perfil.
   @ManyToOne
   @JoinColumn(name = "usuario_id", nullable = true)
   private Usuario usuario;

@@ -19,6 +19,7 @@ import com.tallerwebi.servicios.excepcion.TurnoInvalidoException;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -83,7 +84,8 @@ public class ServicioJuegoImpl implements ServicioJuego {
     Long partidaId,
     Long idProvincia,
     Long idPregunta,
-    String respuesta
+    String respuesta,
+    Boolean dobleChance
   ) {
     Pregunta pregunta = servicioPregunta.buscarPorId(idPregunta);
     if (pregunta == null) {
@@ -91,7 +93,7 @@ public class ServicioJuegoImpl implements ServicioJuego {
     }
     boolean acerto = pregunta.getRespuestaCorrecta().trim().equalsIgnoreCase(respuesta.trim());
 
-    if (!acerto) {
+    if (!acerto && !dobleChance) {
       Partida partida = servicioPartida.buscarPorId(partidaId);
       partida.avanzarTurno();
       servicioPartida.actualizar(partida);
@@ -235,5 +237,77 @@ public class ServicioJuegoImpl implements ServicioJuego {
       nombreGanador
     );
     servicioHistorial.guardar(ticketHistorial);
+  }
+
+  @Override
+  @Transactional
+  public List<String> aplicarComodinEliminarDos(
+    Long idUsuario,
+    List<String> opcionesEnPantalla,
+    Pregunta pregunta
+  ) {
+    Usuario usuario = servicioUsuario.buscarUsuarioPorId(idUsuario);
+    if (usuario == null) throw new IllegalArgumentException("Usuario no encontrado.");
+
+    usuario.consumirComodin("ELIMINAR_2");
+    servicioUsuario.actualizarUsuario(usuario);
+
+    String correcta = pregunta.getRespuestaCorrecta();
+    List<String> incorrectasEnPantalla = new ArrayList<>();
+
+    for (String opcion : opcionesEnPantalla) {
+      if (!opcion.equals(correcta)) {
+        incorrectasEnPantalla.add(opcion);
+      }
+    }
+
+    java.util.Collections.shuffle(incorrectasEnPantalla);
+
+    List<String> opcionesSobrevivientes = new ArrayList<>();
+    opcionesSobrevivientes.add(correcta);
+
+    if (!incorrectasEnPantalla.isEmpty()) {
+      opcionesSobrevivientes.add(incorrectasEnPantalla.get(0));
+    }
+
+    java.util.Collections.shuffle(opcionesSobrevivientes);
+
+    return opcionesSobrevivientes;
+  }
+
+  @Override
+  @Transactional
+  public void aplicarComodinDobleChance(Long idUsuario) {
+    Usuario usuario = servicioUsuario.buscarUsuarioPorId(idUsuario);
+    if (usuario == null) throw new IllegalArgumentException("Usuario no encontrado.");
+
+    usuario.consumirComodin("DOBLE_CHANCE");
+    servicioUsuario.actualizarUsuario(usuario);
+  }
+
+  @Override
+  @Transactional
+  public Pregunta aplicarComodinPasarPregunta(
+    Long idUsuario,
+    Pregunta preguntaActual,
+    Long idProvincia,
+    Set<Long> preguntasYaHechas
+  ) {
+    Usuario usuario = servicioUsuario.buscarUsuarioPorId(idUsuario);
+    if (usuario == null) throw new IllegalArgumentException("Usuario no encontrado.");
+
+    usuario.consumirComodin("PASAR_PREGUNTA");
+    servicioUsuario.actualizarUsuario(usuario);
+
+    if (preguntaActual != null) {
+      preguntasYaHechas.add(preguntaActual.getId());
+    }
+
+    return servicioPregunta.obtenerPreguntaPorProvincia(idProvincia, preguntasYaHechas);
+  }
+
+  @Override
+  public Usuario obtenerUsuarioPorId(Long usuarioId) {
+    return this.servicioUsuario.buscarUsuarioPorId(usuarioId);
   }
 }

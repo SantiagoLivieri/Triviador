@@ -5,12 +5,15 @@
   <meta charset="UTF-8">
   <title>Pregunta - Triviador Argentina</title>
   <link rel="stylesheet" th:href="@{/css/pregunta.css}">
-  <!-- Google Fonts para darle un toque gamer/moderno -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
-
   
+  <style>
+    .alert { padding: 10px; margin-bottom: 15px; border-radius: 5px; text-align: center; font-weight: bold; }
+    .alert-success { background-color: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
+    .alert-danger { background-color: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
+  </style>
 </head>
 
 <body>
@@ -32,6 +35,9 @@
     </div>
   </div>
 
+  <div th:if="${mensajeComodin}" class="alert alert-success" th:text="${mensajeComodin}"></div>
+  <div th:if="${errorComodin}" class="alert alert-danger" th:text="${errorComodin}"></div>
+
   <h3 class="question" th:text="${pregunta != null ? pregunta.enunciado : 'No llegó pregunta'}">
   </h3>
 
@@ -51,21 +57,22 @@
       Responder
     </button>
   </form>
+  
   <div class="jokers-section">
     <div class="jokers-title">Comodines Disponibles</div>
     <div class="jokers-container">
 
-      <button type="button" class="joker-btn joker-5050" onclick="usarComodin('50-50')">
-        <span class="joker-icon">❌</span>
+      <button type="button" class="joker-btn joker-5050" onclick="usarComodin('ELIMINAR_2')">
+        <span class="joker-icon">✂️</span>
         Eliminar dos respuestas incorrectas
       </button>
 
-      <button type="button" class="joker-btn joker-double" onclick="usarComodin('doble-chance')">
+      <button type="button" class="joker-btn joker-double" onclick="usarComodin('DOBLE_CHANCE')">
         <span class="joker-icon">🛡️</span>
         Doble chance
       </button>
 
-      <button type="button" class="joker-btn joker-skip" onclick="usarComodin('pasar')">
+      <button type="button" class="joker-btn joker-skip" onclick="usarComodin('PASAR_PREGUNTA')">
         <span class="joker-icon">⏩</span>
         Pasar pregunta
       </button>
@@ -105,7 +112,7 @@
   function forzarTiempoAgotado() {
     const form = document.createElement('form');
     form.method = 'POST';
-    form.action = '/spring/juego/tiempo-agotado';
+    form.action = /*[[@{/juego/tiempo-agotado}]]*/ '/juego/tiempo-agotado';
 
     const input = document.createElement('input');
     input.type = 'hidden';
@@ -113,6 +120,28 @@
     input.value = partidaId;
 
     form.appendChild(input);
+    document.body.appendChild(form);
+    form.submit();
+  }
+
+  function usarComodin(tipo) {
+    const form = document.createElement('form');
+    form.method = 'POST';
+   
+    form.action = /*[[@{/juego/usar-comodin}]]*/ '/juego/usar-comodin';
+
+    const inputTipo = document.createElement('input');
+    inputTipo.type = 'hidden';
+    inputTipo.name = 'tipoComodin'; 
+    inputTipo.value = tipo;
+
+    const inputPartida = document.createElement('input');
+    inputPartida.type = 'hidden';
+    inputPartida.name = 'partidaId';
+    inputPartida.value = partidaId;
+
+    form.appendChild(inputTipo);
+    form.appendChild(inputPartida);
     document.body.appendChild(form);
     form.submit();
   }
