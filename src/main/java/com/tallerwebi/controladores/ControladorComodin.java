@@ -24,6 +24,7 @@ public class ControladorComodin {
   private static final String ATRIBUTO_OPCIONES = "opcionesActuales";
   private static final String REDIRECT_PREGUNTA = "redirect:/juego/pregunta-actual?partidaId=";
   private static final String ERROR_COMODIN = "errorComodin";
+  private static final String COMODIN_YA_USADO = "comodinUsadoEnEstaPregunta";
 
   @Autowired
   public ControladorComodin(ServicioJuego servicioJuego, ServicioPregunta servicioPregunta) {
@@ -47,7 +48,12 @@ public class ControladorComodin {
   }
 
   private void ejecutarLogicaDeComodin(
-    String tipoComodin, Long partidaId, HttpSession session, RedirectAttributes flash, Long idUsuario) {
+    String tipoComodin,
+    Long partidaId,
+    HttpSession session,
+    RedirectAttributes flash,
+    Long idUsuario
+  ) {
     if (esJugadorInvitado(partidaId)) {
       flash.addFlashAttribute(ERROR_COMODIN, "Solo el anfitrión puede gastar comodines.");
       return;
@@ -59,11 +65,10 @@ public class ControladorComodin {
       return;
     }
 
-    if (Boolean.TRUE.equals((Boolean) session.getAttribute("comodinUsadoEnEstaPregunta"))) {
-            flash.addFlashAttribute(ERROR_COMODIN, 
-                "Ya utilizaste un comodín en esta pregunta.");
-            return;
-        }
+    if (Boolean.TRUE.equals((Boolean) session.getAttribute(COMODIN_YA_USADO))) {
+      flash.addFlashAttribute(ERROR_COMODIN, "Ya utilizaste un comodín en esta pregunta.");
+      return;
+    }
 
     aplicarEfectoComodin(tipoComodin, session, flash, idUsuario, preguntaActual);
 
@@ -84,7 +89,11 @@ public class ControladorComodin {
   }
 
   private void aplicarEfectoComodin(
-    String tipoComodin, HttpSession session, RedirectAttributes flash, Long idUsuario, Pregunta preguntaActual
+    String tipoComodin,
+    HttpSession session,
+    RedirectAttributes flash,
+    Long idUsuario,
+    Pregunta preguntaActual
   ) {
     switch (tipoComodin) {
       case "ELIMINAR_2":
@@ -100,13 +109,16 @@ public class ControladorComodin {
           }
 
           final List<String> opcionesFiltradas = servicioJuego.aplicarComodinEliminarDos(
-            idUsuario, opcionesEnPantalla, preguntaActual
+            idUsuario,
+            opcionesEnPantalla,
+            preguntaActual
           );
-          
-          session.setAttribute(ATRIBUTO_OPCIONES, opcionesFiltradas);
-          session.setAttribute("comodinUsadoEnEstaPregunta", true);
 
-          flash.addFlashAttribute("mensajeComodin",
+          session.setAttribute(ATRIBUTO_OPCIONES, opcionesFiltradas);
+          session.setAttribute(COMODIN_YA_USADO, true);
+
+          flash.addFlashAttribute(
+            "mensajeComodin",
             "¡Comodín aplicado! Se eliminaron 2 respuestas incorrectas."
           );
           break;
@@ -114,7 +126,8 @@ public class ControladorComodin {
       case "DOBLE_CHANCE":
         {
           if (Boolean.TRUE.equals((Boolean) session.getAttribute("dobleChanceActivo"))) {
-            flash.addFlashAttribute(ERROR_COMODIN,
+            flash.addFlashAttribute(
+              ERROR_COMODIN,
               "Ya tenes la Doble Chance activada para este turno."
             );
             break;
@@ -123,7 +136,7 @@ public class ControladorComodin {
           servicioJuego.aplicarComodinDobleChance(idUsuario);
 
           session.setAttribute("dobleChanceActivo", true);
-          session.setAttribute("comodinUsadoEnEstaPregunta", true);
+          session.setAttribute(COMODIN_YA_USADO, true);
 
           flash.addFlashAttribute("mensajeComodin", "¡Doble Chance activada!");
           break;
@@ -134,14 +147,20 @@ public class ControladorComodin {
           final Long idProvinciaActual = (Long) session.getAttribute("idProvinciaActual");
 
           final Pregunta nuevaPregunta = servicioJuego.aplicarComodinPasarPregunta(
-            idUsuario, preguntaActual, idProvinciaActual, preguntasYaHechas);
+            idUsuario,
+            preguntaActual,
+            idProvinciaActual,
+            preguntasYaHechas
+          );
 
-          final List<String> nuevasOpciones = servicioPregunta.obtenerOpcionesMezcladas(nuevaPregunta);
+          final List<String> nuevasOpciones = servicioPregunta.obtenerOpcionesMezcladas(
+            nuevaPregunta
+          );
 
           session.setAttribute("preguntaActual", nuevaPregunta);
           session.setAttribute(ATRIBUTO_OPCIONES, nuevasOpciones);
           session.setAttribute("preguntasYaHechas", preguntasYaHechas);
-          session.setAttribute("comodinUsadoEnEstaPregunta", true);
+          session.setAttribute(COMODIN_YA_USADO, true);
 
           flash.addFlashAttribute("mensajeComodin", "¡Pregunta saltada exitosamente!");
           break;

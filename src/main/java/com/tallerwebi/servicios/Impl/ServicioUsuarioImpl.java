@@ -1,13 +1,10 @@
 package com.tallerwebi.servicios.Impl;
 
-import com.tallerwebi.entidades.Comodin;
 import com.tallerwebi.entidades.Rol;
 import com.tallerwebi.entidades.Usuario;
-import com.tallerwebi.repositorios.RepositorioComodin;
 import com.tallerwebi.repositorios.RepositorioRol;
 import com.tallerwebi.repositorios.RepositorioUsuario;
 import com.tallerwebi.servicios.ServicioUsuario;
-import java.util.List;
 import javax.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -18,17 +15,11 @@ public class ServicioUsuarioImpl implements ServicioUsuario {
 
   private final RepositorioUsuario repositorioUsuario;
   private final RepositorioRol repositorioRol;
-  private final RepositorioComodin repositorioComodin;
 
   @Autowired
-  public ServicioUsuarioImpl(
-    RepositorioUsuario repositorioUsuario,
-    RepositorioRol repositorioRol,
-    RepositorioComodin repositorioComodin
-  ) {
+  public ServicioUsuarioImpl(RepositorioUsuario repositorioUsuario, RepositorioRol repositorioRol) {
     this.repositorioUsuario = repositorioUsuario;
     this.repositorioRol = repositorioRol;
-    this.repositorioComodin = repositorioComodin;
   }
 
   @Override
@@ -102,19 +93,5 @@ public class ServicioUsuarioImpl implements ServicioUsuario {
     if (rolExistente == null) {
       repositorioRol.guardar(new Rol(descripcion));
     }
-  }
-
-  @Override
-  public void procesarCompraDeComodin(Long idUsuario, String nombreComodin) {
-    Usuario usuario = repositorioUsuario.buscarUsuarioPorId(idUsuario);
-    Comodin comodin = repositorioComodin.buscarPorNombre(nombreComodin);
-
-    usuario.adquirirComodin(comodin);
-    repositorioUsuario.actualizarUsuario(usuario);
-  }
-
-  @Override
-  public List<Comodin> obtenerCatalogoDeComodines() {
-    return repositorioComodin.buscarTodos();
   }
 }

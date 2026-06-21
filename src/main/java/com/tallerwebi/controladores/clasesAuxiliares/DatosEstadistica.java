@@ -101,9 +101,10 @@ public class DatosEstadistica {
   }
 
   private Integer decrementarInventario(Integer cantidadActual) {
-    if (cantidadActual == null || cantidadActual <= 0) {
-      throw new IllegalStateException("No tenés este comodín en tu inventario.");
-    }
+    if (cantidadActual == null || cantidadActual <= 0) throw new IllegalStateException(
+      "No tenés este comodín en tu inventario."
+    );
+
     return cantidadActual - 1;
   }
 
@@ -124,14 +125,14 @@ public class DatosEstadistica {
   }
 
   public int getNivelActual() {
-    if (this.experiencia == null || this.experiencia < 200) {
-      return 1;
-    }
+    if (this.experiencia == null || this.experiencia < 200) return 1;
+
     return (this.experiencia / 200) + 1;
   }
 
   public Integer getExperiencia() {
-    return experiencia;
+    if (this.experiencia == null) return 0;
+    return this.experiencia;
   }
 
   public void setExperiencia(Integer experiencia) {
