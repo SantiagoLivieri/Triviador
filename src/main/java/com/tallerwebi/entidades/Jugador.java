@@ -23,8 +23,8 @@ public class Jugador {
   @Column(nullable = false, length = 50)
   private String color;
 
-  @Column(nullable = false)
-  private Integer puntaje;
+  @Column(nullable = false, columnDefinition = "integer default 0")
+  private Integer puntaje = 0;
 
   @ManyToOne
   @JoinColumn(name = "usuario_id", nullable = true)

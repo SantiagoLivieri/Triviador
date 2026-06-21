@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" th:href="@{/css/ranking.css}">
+    <title>Ranking - Triviador Argentina</title>
+</head>
+<body>
+
+<header class="ranking-header-nav">
+    
+    <div class="header-col left">
+        <a th:href="@{/home}" class="btn-volver">
+            <span class="flecha">←</span> Volver al Home
+        </a>
+    </div>
+
+    <div class="header-col center">
+        <h1 class="game-title">
+            Triviador <span>Argentina</span>
+        </h1>
+    </div>
+
+    <div class="header-col right">
+        
+        <div class="user-profile wallet-badge">
+            <div class="avatar-moneda">🪙</div>
+            <div class="user-info">
+                <span class="user-stats">TriviaCoins</span>
+                <strong class="username text-gold" 
+                        th:text="${usuario.estadisticas != null && usuario.estadisticas.monedas != null ? usuario.estadisticas.monedas : '0'} + ' 🪙'">
+                        0 🪙
+                </strong>
+            </div>
+        </div>
+        
+        <a th:href="@{/perfil}" class="profile-link">
+            <div class="user-profile">
+                <div class="avatar">👤</div>
+                <div class="user-info">
+                    <span class="username" th:text="${usuario.nombreJugador}">Jugador</span>
+                    <span class="user-stats" th:text="'Nivel ' + ${usuario.nivel}">Nivel 1</span>
+                </div>
+            </div>
+        </a>
+
+    </div>
+</header>
+
+<main class="ranking-main">
+    
+    <div class="ranking-title-section">
+        <h2>Clasificación Histórica</h2>
+        <p>Los Reyes del Conocimiento</p>
+    </div>
+
+    <div class="podium-container" th:if="${top10 != null && !top10.isEmpty()}">
+        
+        <div class="podium-card silver" th:if="${top10.size() > 1}">
+            <div class="medal">🥈</div>
+            <div class="podium-avatar">👤</div>
+            <h3 th:text="${top10[1].nombreJugador}">Jugador 2</h3>
+            <span class="podium-level" th:text="'Nivel ' + ${top10[1].nivel}">Nivel</span>
+            <span class="podium-xp" th:text="${top10[1].estadisticas != null ? top10[1].estadisticas.experiencia : 0} + ' XP'">0 XP</span>
+        </div>
+
+        <div class="podium-card gold" th:if="${top10.size() > 0}">
+            <div class="medal">👑</div>
+            <div class="podium-avatar">🏆</div>
+            <h3 th:text="${top10[0].nombreJugador}">Jugador 1</h3>
+            <span class="podium-level" th:text="'Nivel ' + ${top10[0].nivel}">Nivel</span>
+            <span class="podium-xp" th:text="${top10[0].estadisticas != null ? top10[0].estadisticas.experiencia : 0} + ' XP'">0 XP</span>
+        </div>
+
+        <div class="podium-card bronze" th:if="${top10.size() > 2}">
+            <div class="medal">🥉</div>
+            <div class="podium-avatar">👤</div>
+            <h3 th:text="${top10[2].nombreJugador}">Jugador 3</h3>
+            <span class="podium-level" th:text="'Nivel ' + ${top10[2].nivel}">Nivel</span>
+            <span class="podium-xp" th:text="${top10[2].estadisticas != null ? top10[2].estadisticas.experiencia : 0} + ' XP'">0 XP</span>
+        </div>
+    </div>
+
+    <div class="ranking-table-container" th:if="${top10.size() > 3}">
+        <table class="ranking-table">
+            <thead>
+                <tr>
+                    <th>#</th>
+                    <th>Jugador</th>
+                    <th>Nivel</th>
+                    <th style="text-align: right;">Experiencia</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr th:each="jugador, iterStat : ${top10}" th:if="${iterStat.index > 2}">
+                    <td class="rank-number" th:text="${iterStat.index + 1}">4</td>
+                    <td class="rank-name" th:text="${jugador.nombreJugador}">Nombre</td>
+                    <td><span class="badge-level" th:text="'Nvl ' + ${jugador.nivel}">1</span></td>
+                    <td class="rank-points" th:text="${jugador.estadisticas != null ? jugador.estadisticas.experiencia : 0} + ' XP'">0 XP</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <div class="my-rank-banner">
+        <div class="my-rank-info">
+            <span class="my-rank-title">Tu Posición en el Mundo</span>
+            <h2 th:text="'#' + ${miPuesto}">#0</h2>
+        </div>
+        <div class="my-rank-stats">
+            <div>
+                <span class="stat-label">Nivel Actual</span>
+                <strong th:text="${usuario.nivel}">1</strong>
+            </div>
+            <div>
+                <span class="stat-label">XP Acumulada</span>
+                <strong th:text="${usuario.estadisticas != null ? usuario.estadisticas.experiencia : 0}">0</strong>
+            </div>
+        </div>
+    </div>
+
+</main>
+
+</body>
+</html>

@@ -12,59 +12,63 @@
 
 <body>
 
-   <header style="display: flex; justify-content: space-between; align-items: center; width: 100%; box-sizing: border-box; padding: 15px 40px; background: rgba(0, 0, 0, 0.45); backdrop-filter: blur(10px); border-bottom: 2px solid rgba(255, 255, 255, 0.1); z-index: 10;">
-    
-    <div style="flex: 1; display: flex; justify-content: flex-start;">
-        <a th:href="@{/logout}" class="logout-btn">Salir</a>
-    </div>
+    <header
+        style="display: flex; justify-content: space-between; align-items: center; width: 100%; box-sizing: border-box; padding: 15px 40px; background: rgba(0, 0, 0, 0.45); backdrop-filter: blur(10px); border-bottom: 2px solid rgba(255, 255, 255, 0.1); z-index: 10;">
 
-    <div style="flex: 1; display: flex; justify-content: center;">
-        <h1 class="game-title" style="margin: 0; white-space: nowrap;">
-            Triviador <span>Argentina</span>
-        </h1>
-    </div>
-
-    <div style="flex: 1; display: flex; justify-content: flex-end; align-items: center; gap: 15px;">
-        
-        <div class="user-profile wallet-badge" style="display: flex; align-items: center; background-color: rgba(255, 215, 0, 0.1); border: 1px solid #ffd700; border-radius: 8px; padding: 5px 12px; cursor: default;">
-            <div class="avatar" style="margin-right: 8px; font-size: 1.2rem; background-color: transparent; border: none;">🪙</div>
-            <div class="user-info" style="display: flex; flex-direction: column;">
-                <span class="user-stats" style="font-size: 0.75rem; color: #aaa; text-transform: uppercase; letter-spacing: 0.5px;">TriviaCoins</span>
-                <strong class="username" style="color: #ffd700; font-size: 1rem;" 
-                        th:text="${usuario.estadisticas != null && usuario.estadisticas.monedas != null ? usuario.estadisticas.monedas : '0'} + ' 🪙'">
-                        0 🪙
-                </strong>
-            </div>
+        <div style="flex: 1; display: flex; justify-content: flex-start;">
+            <a th:href="@{/logout}" class="logout-btn">Salir</a>
         </div>
-        
-        <a th:href="@{/perfil}" class="profile-link" style="text-decoration: none; color: inherit;">
-            <div class="user-profile">
-                <div class="avatar">👤</div>
-                <div class="user-info">
-                    <span class="username" th:text="${usuario.nombreJugador}">Jugador</span>
-                    <span class="user-stats" th:text="'Nivel ' + ${usuario.nivel}">Nivel 1</span>
+
+        <div style="flex: 1; display: flex; justify-content: center;">
+            <h1 class="game-title" style="margin: 0; white-space: nowrap;">
+                Triviador <span>Argentina</span>
+            </h1>
+        </div>
+
+        <div style="flex: 1; display: flex; justify-content: flex-end; align-items: center; gap: 15px;">
+
+            <div class="user-profile wallet-badge"
+                style="display: flex; align-items: center; background-color: rgba(255, 215, 0, 0.1); border: 1px solid #ffd700; border-radius: 8px; padding: 5px 12px; cursor: default;">
+                <div class="avatar"
+                    style="margin-right: 8px; font-size: 1.2rem; background-color: transparent; border: none;">🪙</div>
+                <div class="user-info" style="display: flex; flex-direction: column;">
+                    <span class="user-stats"
+                        style="font-size: 0.75rem; color: #aaa; text-transform: uppercase; letter-spacing: 0.5px;">TriviaCoins</span>
+                    <strong class="username" style="color: #ffd700; font-size: 1rem;"
+                        th:text="${usuario.monedas} + ' 🪙'">
+                        0 🪙
+                    </strong>
                 </div>
             </div>
-        </a>
 
-    </div>
-</header>
+            <a th:href="@{/perfil}" class="profile-link" style="text-decoration: none; color: inherit;">
+                <div class="user-profile">
+                    <div class="avatar">👤</div>
+                    <div class="user-info">
+                        <span class="username" th:text="${usuario.nombreJugador}">Jugador</span>
+                        <span class="user-stats" th:text="'Nivel ' + ${usuario.nivel}">Nivel 1</span>
+                    </div>
+                </div>
+            </a>
 
-    <!-- CUERPO DEL LOBBY -->
+        </div>
+    </header>
+
     <main>
-        <!-- Botón Principal -->
+
         <a th:href="@{/lobby}" class="play-btn">¡Iniciar Partida!</a>
 
-        <!-- Otras Opciones del Lobby -->
+
         <div class="secondary-options">
             <a th:href="@{/tienda}" class="sec-btn"
                 style="text-decoration: none; display: inline-flex; align-items: center; justify-content: center; box-sizing: border-box;">Tienda</a>
-            <button class="sec-btn" hidden>Ranking</button>
+            <a th:href="@{/ranking}" class="sec-btn"
+                style="text-decoration: none; display: inline-flex; align-items: center; justify-content: center; box-sizing: border-box;">Ranking</a>
             <button class="sec-btn" hidden>Amigos</button>
         </div>
     </main>
 
-    <!-- PIE DE PÁGINA -->
+
     <footer>
         &copy; 2026 Triviador Argentina - El juego de preguntas y estrategia.
     </footer>

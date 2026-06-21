@@ -2,6 +2,7 @@ package com.tallerwebi.controladores;
 
 import com.tallerwebi.entidades.Comodin;
 import com.tallerwebi.entidades.Usuario;
+import com.tallerwebi.servicios.ServicioTienda;
 import com.tallerwebi.servicios.ServicioUsuario;
 import java.util.List;
 import javax.servlet.http.HttpSession;
@@ -16,13 +17,15 @@ import org.springframework.web.servlet.ModelAndView;
 @Controller
 public class ControladorTienda {
 
+  private final ServicioTienda servicioTienda;
   private final ServicioUsuario servicioUsuario;
 
   private static final String VISTA_TIENDA = "tienda";
   private static final String ATRIBUTO_USUARIO = "usuario";
 
   @Autowired
-  public ControladorTienda(ServicioUsuario servicioUsuario) {
+  public ControladorTienda(ServicioTienda servicioTienda, ServicioUsuario servicioUsuario) {
+    this.servicioTienda = servicioTienda;
     this.servicioUsuario = servicioUsuario;
   }
 
@@ -32,7 +35,7 @@ public class ControladorTienda {
 
     ModelMap modelo = new ModelMap();
     Usuario usuario = servicioUsuario.buscarUsuarioPorId(usuarioLogueado.getId());
-    List<Comodin> catalogo = servicioUsuario.obtenerCatalogoDeComodines();
+    List<Comodin> catalogo = servicioTienda.obtenerCatalogoDeComodines();
 
     modelo.put("comodines", catalogo);
     modelo.put(ATRIBUTO_USUARIO, usuario);
@@ -49,7 +52,7 @@ public class ControladorTienda {
     ModelMap modelo = new ModelMap();
 
     try {
-      servicioUsuario.procesarCompraDeComodin(usuarioLogueado.getId(), tipoComodin);
+      servicioTienda.procesarCompraDeComodin(usuarioLogueado.getId(), tipoComodin);
       modelo.put("exito", "¡Comodín adquirido con éxito!");
     } catch (IllegalArgumentException | IllegalStateException e) {
       modelo.put("error", e.getMessage());
@@ -60,7 +63,7 @@ public class ControladorTienda {
     session.setAttribute("usuarioLogueado", usuarioActualizado);
     modelo.put(ATRIBUTO_USUARIO, usuarioActualizado);
 
-    List<Comodin> catalogo = servicioUsuario.obtenerCatalogoDeComodines();
+    List<Comodin> catalogo = servicioTienda.obtenerCatalogoDeComodines();
     modelo.put("comodines", catalogo);
 
     return new ModelAndView(VISTA_TIENDA, modelo);

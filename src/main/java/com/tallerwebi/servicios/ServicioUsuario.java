@@ -1,8 +1,6 @@
 package com.tallerwebi.servicios;
 
-import com.tallerwebi.entidades.Comodin;
 import com.tallerwebi.entidades.Usuario;
-import java.util.List;
 
 public interface ServicioUsuario {
   Usuario buscarUsuarioPorId(Long id);
@@ -14,8 +12,4 @@ public interface ServicioUsuario {
   void cargarUsuarioAdminInicial();
 
   void actualizarUsuario(Usuario usuario);
-
-  void procesarCompraDeComodin(Long idUsuario, String nombreComodin);
-
-  List<Comodin> obtenerCatalogoDeComodines();
 }
