@@ -41,7 +41,7 @@
   <h3 class="question" th:text="${pregunta != null ? pregunta.enunciado : 'No llegó pregunta'}">
   </h3>
 
-  <form th:action="@{/responder-provincia}" method="post">
+  <form th:action="@{/disputa/responder-provincia}" method="post">
     <input type="hidden" name="partidaId" th:value="${partidaId}">
     <input type="hidden" name="idProvincia" th:value="${provincia.id}">
     <input type="hidden" name="idPregunta" th:value="${pregunta.id}">
@@ -128,7 +128,7 @@
     const form = document.createElement('form');
     form.method = 'POST';
    
-    form.action = /*[[@{/juego/usar-comodin}]]*/ '/juego/usar-comodin';
+    form.action = /*[[@{/disputa/usar-comodin}]]*/ '/disputa/usar-comodin';
 
     const inputTipo = document.createElement('input');
     inputTipo.type = 'hidden';

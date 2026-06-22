@@ -19,16 +19,12 @@ public class ServicioJugadorImpl implements ServicioJugador {
   public Jugador crearJugador(String nombre, String color) {
     Jugador jugador = new Jugador(nombre, color, null);
 
-    repositorioJugador.guardar(jugador);
-
     return jugador;
   }
 
   @Override
   public Jugador crearJugadorConUsuario(Usuario usuario, String color) {
     Jugador jugador = new Jugador(usuario.getNombreJugador(), color, usuario);
-
-    repositorioJugador.guardar(jugador);
 
     return jugador;
   }

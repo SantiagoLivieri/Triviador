@@ -18,6 +18,7 @@ public class RepositorioComodinImpl implements RepositorioComodin {
     this.sessionFactory = sessionFactory;
   }
 
+  @SuppressWarnings("deprecation")
   @Override
   public Comodin buscarPorNombre(String nombre) {
     return (Comodin) sessionFactory
