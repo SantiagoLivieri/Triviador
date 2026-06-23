@@ -6,6 +6,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import com.tallerwebi.entidades.Partida;
 import com.tallerwebi.integracion.config.HibernateTestConfig;
+import com.tallerwebi.repositorios.Impl.RepositorioPartidaImpl;
 import javax.transaction.Transactional;
 import org.hibernate.SessionFactory;
 import org.junit.jupiter.api.BeforeEach;

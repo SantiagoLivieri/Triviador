@@ -1,5 +1,6 @@
 package com.tallerwebi.repositorios;
 
+import com.tallerwebi.repositorios.Impl.RepositorioRolImpl;
 import com.tallerwebi.repositorios.config.HibernateInfraestructuraTestConfig;
 import org.hibernate.SessionFactory;
 import org.junit.jupiter.api.BeforeEach;

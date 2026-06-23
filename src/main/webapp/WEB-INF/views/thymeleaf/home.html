@@ -1,51 +1,79 @@
 <!DOCTYPE html>
 <html lang="es" xmlns:th="http://www.thymeleaf.org">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" th:href="@{/css/main.css}">
     <link rel="stylesheet" th:href="@{/css/home.css}">
     <title>Triviador Argentina - Lobby</title>
-   
+
 </head>
+
 <body>
 
-<!-- BARRA SUPERIOR -->
-<header>
-    <!-- Izquierda: Desconectarse -->
-    <a th:href="@{/logout}" class="logout-btn">Salir</a>
+    <header
+        style="display: flex; justify-content: space-between; align-items: center; width: 100%; box-sizing: border-box; padding: 15px 40px; background: rgba(0, 0, 0, 0.45); backdrop-filter: blur(10px); border-bottom: 2px solid rgba(255, 255, 255, 0.1); z-index: 10;">
 
-    <!-- Centro: Nombre del Juego -->
-    <h1 class="game-title">Triviador <span>Argentina</span></h1>
-
-    <!-- Derecha: Perfil de Usuario -->
-    <div class="user-profile">
-        <div class="avatar">👤</div>
-        <div class="user-info">
-            <span class="username" th:text="${usuario.nombreJugador}">Jugador</span>
-            <span class="user-stats">Puntos: <span th:text="${usuario.puntaje}">0</span></span>
+        <div style="flex: 1; display: flex; justify-content: flex-start;">
+            <a th:href="@{/logout}" class="logout-btn">Salir</a>
         </div>
-    </div>
-</header>
 
-<!-- CUERPO DEL LOBBY -->
-<main>
-    <!-- Botón Principal -->
-    <a th:href="@{/lobby}" class="play-btn">¡Iniciar Partida!</a>
+        <div style="flex: 1; display: flex; justify-content: center;">
+            <h1 class="game-title" style="margin: 0; white-space: nowrap;">
+                Triviador <span>Argentina</span>
+            </h1>
+        </div>
 
-    <!-- Otras Opciones del Lobby -->
-    <div class="secondary-options">
-        <button class="sec-btn" onclick="alert('Abriendo Tienda...')">Tienda</button>
-        <button class="sec-btn" onclick="alert('Abriendo Clasificación...')">Ranking</button>
-        <button class="sec-btn" onclick="alert('Abriendo Amigos...')">Amigos</button>
-    </div>
-</main>
+        <div style="flex: 1; display: flex; justify-content: flex-end; align-items: center; gap: 15px;">
 
-<!-- PIE DE PÁGINA -->
-<footer>
-    &copy; 2026 Triviador Argentina - El juego de preguntas y estrategia.
-</footer>
+            <div class="user-profile wallet-badge"
+                style="display: flex; align-items: center; background-color: rgba(255, 215, 0, 0.1); border: 1px solid #ffd700; border-radius: 8px; padding: 5px 12px; cursor: default;">
+                <div class="avatar"
+                    style="margin-right: 8px; font-size: 1.2rem; background-color: transparent; border: none;">🪙</div>
+                <div class="user-info" style="display: flex; flex-direction: column;">
+                    <span class="user-stats"
+                        style="font-size: 0.75rem; color: #aaa; text-transform: uppercase; letter-spacing: 0.5px;">TriviaCoins</span>
+                    <strong class="username" style="color: #ffd700; font-size: 1rem;"
+                        th:text="${usuario.monedas} + ' 🪙'">
+                        0 🪙
+                    </strong>
+                </div>
+            </div>
+
+            <a th:href="@{/perfil}" class="profile-link" style="text-decoration: none; color: inherit;">
+                <div class="user-profile">
+                    <div class="avatar">👤</div>
+                    <div class="user-info">
+                        <span class="username" th:text="${usuario.nombreJugador}">Jugador</span>
+                        <span class="user-stats" th:text="'Nivel ' + ${usuario.nivel}">Nivel 1</span>
+                    </div>
+                </div>
+            </a>
+
+        </div>
+    </header>
+
+    <main>
+
+        <a th:href="@{/lobby}" class="play-btn">¡Iniciar Partida!</a>
+
+
+        <div class="secondary-options">
+            <a th:href="@{/tienda}" class="sec-btn"
+                style="text-decoration: none; display: inline-flex; align-items: center; justify-content: center; box-sizing: border-box;">Tienda</a>
+            <a th:href="@{/ranking}" class="sec-btn"
+                style="text-decoration: none; display: inline-flex; align-items: center; justify-content: center; box-sizing: border-box;">Ranking</a>
+            <button class="sec-btn" hidden>Amigos</button>
+        </div>
+    </main>
+
+
+    <footer>
+        &copy; 2026 Triviador Argentina - El juego de preguntas y estrategia.
+    </footer>
 
 
 </body>
+
 </html>

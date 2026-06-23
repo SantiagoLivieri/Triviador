@@ -1,19 +1,25 @@
 package com.tallerwebi.servicios.Impl;
 
 import com.tallerwebi.controladores.clasesAuxiliares.DatosLobby;
+import com.tallerwebi.entidades.HistorialPartida;
 import com.tallerwebi.entidades.Jugador;
 import com.tallerwebi.entidades.Partida;
 import com.tallerwebi.entidades.Pregunta;
 import com.tallerwebi.entidades.Provincia;
+import com.tallerwebi.entidades.Usuario;
+import com.tallerwebi.servicios.ServicioHistorial;
 import com.tallerwebi.servicios.ServicioJuego;
 import com.tallerwebi.servicios.ServicioJugador;
 import com.tallerwebi.servicios.ServicioPartida;
 import com.tallerwebi.servicios.ServicioPregunta;
 import com.tallerwebi.servicios.ServicioProvincia;
+import com.tallerwebi.servicios.ServicioUsuario;
 import com.tallerwebi.servicios.excepcion.TiempoAgotadoException;
 import com.tallerwebi.servicios.excepcion.TurnoInvalidoException;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -25,36 +31,41 @@ public class ServicioJuegoImpl implements ServicioJuego {
   private final ServicioProvincia servicioProvincia;
   private final ServicioPregunta servicioPregunta;
   private final ServicioPartida servicioPartida;
+  private final ServicioHistorial servicioHistorial;
+  private final ServicioUsuario servicioUsuario;
   private static final int TIEMPO_MAXIMO_TURNO = 30;
 
   public ServicioJuegoImpl(
     ServicioJugador servicioJugador,
     ServicioProvincia servicioProvincia,
     ServicioPregunta servicioPregunta,
-    ServicioPartida servicioPartida
+    ServicioPartida servicioPartida,
+    ServicioHistorial servicioHistorial,
+    ServicioUsuario servicioUsuario
   ) {
     this.servicioJugador = servicioJugador;
     this.servicioPregunta = servicioPregunta;
     this.servicioProvincia = servicioProvincia;
     this.servicioPartida = servicioPartida;
+    this.servicioHistorial = servicioHistorial;
+    this.servicioUsuario = servicioUsuario;
   }
 
   @Override
-  public Long inicializarPartida(DatosLobby datosLobby) {
+  public Long inicializarPartida(DatosLobby datosLobby, Usuario usuarioAnfitrion) {
     servicioProvincia.resetearProvincias();
 
-    List<Jugador> jugadores = List.of(
-      servicioJugador.crearJugador(
-        datosLobby.getNombreJugadorUno(),
-        datosLobby.getColorJugadorUno()
-      ),
-      servicioJugador.crearJugador(
-        datosLobby.getNombreJugadorDos(),
-        datosLobby.getColorJugadorDos()
-      ),
-      servicioJugador.crearJugador(
-        datosLobby.getNombreJugadorTres(),
-        datosLobby.getColorJugadorTres()
+    List<Jugador> jugadores = new ArrayList<>(
+      List.of(
+        servicioJugador.crearJugadorConUsuario(usuarioAnfitrion, datosLobby.getColorJugadorUno()),
+        servicioJugador.crearJugador(
+          datosLobby.getNombreJugadorDos(),
+          datosLobby.getColorJugadorDos()
+        ),
+        servicioJugador.crearJugador(
+          datosLobby.getNombreJugadorTres(),
+          datosLobby.getColorJugadorTres()
+        )
       )
     );
 
@@ -73,7 +84,8 @@ public class ServicioJuegoImpl implements ServicioJuego {
     Long partidaId,
     Long idProvincia,
     Long idPregunta,
-    String respuesta
+    String respuesta,
+    Boolean dobleChance
   ) {
     Pregunta pregunta = servicioPregunta.buscarPorId(idPregunta);
     if (pregunta == null) {
@@ -81,7 +93,7 @@ public class ServicioJuegoImpl implements ServicioJuego {
     }
     boolean acerto = pregunta.getRespuestaCorrecta().trim().equalsIgnoreCase(respuesta.trim());
 
-    if (!acerto) {
+    if (!acerto && !dobleChance) {
       Partida partida = servicioPartida.buscarPorId(partidaId);
       partida.avanzarTurno();
       servicioPartida.actualizar(partida);
@@ -193,5 +205,109 @@ public class ServicioJuegoImpl implements ServicioJuego {
       partida.avanzarTurno();
       servicioPartida.actualizar(partida);
     }
+  }
+
+  @Override
+  public void actualizarPartida(Partida partida) {
+    servicioPartida.actualizar(partida);
+  }
+
+  @Override
+  public void finalizarYRegistrarPartida(Long partidaId, Long usuarioId) {
+    Partida partida = servicioPartida.buscarPorId(partidaId);
+    if (partida == null || !partida.estaFinalizada()) {
+      throw new IllegalStateException("La partida no ha finalizado o no existe.");
+    }
+
+    Usuario usuario = servicioUsuario.buscarUsuarioPorId(usuarioId);
+    if (usuario == null) {
+      throw new IllegalArgumentException("El usuario anfitrión no existe.");
+    }
+
+    int puestoFinal = partida.calcularPuestoDeUsuario(usuarioId);
+    int xpGanada = usuario.registrarFinDePartida(puestoFinal);
+    String nombreGanador = partida.obtenerNombreGanador();
+
+    servicioUsuario.actualizarUsuario(usuario);
+
+    HistorialPartida ticketHistorial = new HistorialPartida(
+      usuario,
+      puestoFinal,
+      xpGanada,
+      nombreGanador
+    );
+    servicioHistorial.guardar(ticketHistorial);
+  }
+
+  @Override
+  @Transactional
+  public List<String> aplicarComodinEliminarDos(
+    Long idUsuario,
+    List<String> opcionesEnPantalla,
+    Pregunta pregunta
+  ) {
+    Usuario usuario = servicioUsuario.buscarUsuarioPorId(idUsuario);
+    if (usuario == null) throw new IllegalArgumentException("Usuario no encontrado.");
+
+    usuario.consumirComodin("ELIMINAR_2");
+    servicioUsuario.actualizarUsuario(usuario);
+
+    String correcta = pregunta.getRespuestaCorrecta();
+    List<String> incorrectasEnPantalla = new ArrayList<>();
+
+    for (String opcion : opcionesEnPantalla) {
+      if (!opcion.equals(correcta)) {
+        incorrectasEnPantalla.add(opcion);
+      }
+    }
+
+    java.util.Collections.shuffle(incorrectasEnPantalla);
+
+    List<String> opcionesSobrevivientes = new ArrayList<>();
+    opcionesSobrevivientes.add(correcta);
+
+    if (!incorrectasEnPantalla.isEmpty()) {
+      opcionesSobrevivientes.add(incorrectasEnPantalla.get(0));
+    }
+
+    java.util.Collections.shuffle(opcionesSobrevivientes);
+
+    return opcionesSobrevivientes;
+  }
+
+  @Override
+  @Transactional
+  public void aplicarComodinDobleChance(Long idUsuario) {
+    Usuario usuario = servicioUsuario.buscarUsuarioPorId(idUsuario);
+    if (usuario == null) throw new IllegalArgumentException("Usuario no encontrado.");
+
+    usuario.consumirComodin("DOBLE_CHANCE");
+    servicioUsuario.actualizarUsuario(usuario);
+  }
+
+  @Override
+  @Transactional
+  public Pregunta aplicarComodinPasarPregunta(
+    Long idUsuario,
+    Pregunta preguntaActual,
+    Long idProvincia,
+    Set<Long> preguntasYaHechas
+  ) {
+    Usuario usuario = servicioUsuario.buscarUsuarioPorId(idUsuario);
+    if (usuario == null) throw new IllegalArgumentException("Usuario no encontrado.");
+
+    usuario.consumirComodin("PASAR_PREGUNTA");
+    servicioUsuario.actualizarUsuario(usuario);
+
+    if (preguntaActual != null) {
+      preguntasYaHechas.add(preguntaActual.getId());
+    }
+
+    return servicioPregunta.obtenerPreguntaPorProvincia(idProvincia, preguntasYaHechas);
+  }
+
+  @Override
+  public Usuario obtenerUsuarioPorId(Long usuarioId) {
+    return this.servicioUsuario.buscarUsuarioPorId(usuarioId);
   }
 }

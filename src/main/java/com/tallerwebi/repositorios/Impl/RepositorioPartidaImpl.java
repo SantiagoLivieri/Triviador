@@ -1,6 +1,7 @@
-package com.tallerwebi.repositorios;
+package com.tallerwebi.repositorios.Impl;
 
 import com.tallerwebi.entidades.Partida;
+import com.tallerwebi.repositorios.RepositorioPartida;
 import org.hibernate.Hibernate;
 import org.hibernate.SessionFactory;
 import org.springframework.beans.factory.annotation.Autowired;

@@ -9,7 +9,7 @@
         <h1>¡Juego Terminado!</h1>
         
         <div class="ganador-destacado">
-            <h2>🏆 Ganador: <span th:text="${ganador.nombre}">Nombre</span> 🏆</h2>
+            <h2>🏆 Ganador:&nbsp;<span th:text="${ganador.nombre}">Nombre</span> 🏆</h2>
             <p>Con un total de <strong th:text="${ganador.puntaje}">0</strong> puntos.</p>
         </div>
 
@@ -18,8 +18,13 @@
         <h3>Ranking Final:</h3>
         <ol>
             <li th:each="jugador : ${ranking}">
-                <span th:text="${jugador.nombre}">Jugador</span> - 
-                <span th:text="${jugador.puntaje}">0</span> puntos
+                <div class="rankedJugador">
+                    <span th:text="${jugador.nombre}">Jugador</span>
+                </div>
+                <div class="rankedPuntos">
+                    <span th:text="${jugador.puntaje}">0</span>
+                    <p>&nbsp;&nbsp;puntos</p>
+                </div>
             </li>
         </ol>
 

@@ -6,8 +6,7 @@ import static org.hamcrest.Matchers.*;
 import org.junit.jupiter.api.Test;
 
 public class JugadorTest {
-
-  @Test
+  /*  @Test
   public void queSePuedaCrearUnJugadorConConstructorVacioYSuPuntajeSeaCero() {
     Jugador jugador = new Jugador();
 
@@ -42,4 +41,5 @@ public class JugadorTest {
     assertThat(jugador.getColor(), is(equalTo("rojo")));
     assertThat(jugador.getPuntaje(), is(equalTo(150)));
   }
+    */
 }

@@ -1,6 +1,7 @@
 package com.tallerwebi.servicios;
 
 import com.tallerwebi.entidades.Jugador;
+import com.tallerwebi.entidades.Usuario;
 import java.util.List;
 
 public interface ServicioJugador {
@@ -12,4 +13,6 @@ public interface ServicioJugador {
 
   Jugador buscarPorId(Long idJugador);
   Jugador crearJugador(String nombre, String color);
+
+  Jugador crearJugadorConUsuario(Usuario usuarioAnfitrion, String colorJugadorUno);
 }

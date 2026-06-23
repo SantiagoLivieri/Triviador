@@ -1,6 +1,7 @@
-package com.tallerwebi.repositorios;
+package com.tallerwebi.repositorios.Impl;
 
 import com.tallerwebi.entidades.Jugador;
+import com.tallerwebi.repositorios.RepositorioJugador;
 import java.util.List;
 import org.hibernate.SessionFactory;
 import org.springframework.beans.factory.annotation.Autowired;

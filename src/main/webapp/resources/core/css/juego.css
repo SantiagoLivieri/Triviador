@@ -68,11 +68,11 @@ main {
 }
 
 .jugadores {
-    align-items: center;
     margin-left: 20px;
     position: absolute;
 
     top: 20px;
+    max-width: 5em;
 
     z-index: 1000;
 
@@ -93,6 +93,10 @@ main {
 #nombreDeJugador {
     margin: 0 0 8px;
     color: white;
+    display: block;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
 }
 
 #puntaje {
@@ -102,16 +106,19 @@ main {
 .jugador-rojo {
     background: #dc2626;
     border: 5px solid #F95834;
+    max-height: 8em;
 }
 
 .jugador-azul {
     background: #2563eb;
     border: 5px solid #4077ED;
+    max-height: 8em;
 }
 
 .jugador-verde {
     background: #16a34a;
     border: 5px solid #19B853;
+    max-height: 8em;
 }
 
 #InfoDerecha {
@@ -125,21 +132,20 @@ main {
     left: auto;
     display: flex;
     flex-direction: column;
+    align-items: flex-end;
 }
-
 
 #turnoYTimer {
     background: radial-gradient(circle at top, #263b63, #111827 55%, #05070c);
     gap: 10px;
     border-radius: 16px;
-    min-width: 180px;
     width: 22em;
     padding: 18px;
     align-items: center;
     display: flex;
+    align-self: flex-end;
     flex-direction: column;
 }
-
 
 #timerBox {
     text-align: center;
@@ -150,9 +156,22 @@ main {
 }
 
 .turno {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
     text-align: center;
     font-size: 1.4rem;
     color: #efb810;
+}
+
+.turno > strong {
+    width: 10em;
+
+    display: block;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    color: #cbd5e1;
 }
 
 .mensaje {
@@ -163,6 +182,7 @@ main {
     background: rgb(26, 25, 25);
     text-align: center;
     font-weight: bold;
+    display: flex;
 }
 
 .tablero {

@@ -106,4 +106,16 @@ public class Pregunta {
     Collections.shuffle(opciones);
     return opciones;
   }
+
+  public String getOpcionIncorrectaUno() {
+    return opcionIncorrectaUno;
+  }
+
+  public String getOpcionIncorrectaDos() {
+    return opcionIncorrectaDos;
+  }
+
+  public String getOpcionIncorrectaTres() {
+    return opcionIncorrectaTres;
+  }
 }

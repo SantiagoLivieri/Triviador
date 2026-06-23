@@ -33,8 +33,8 @@ map.setMaxBounds(CONFIG_MAPA.limites);
 
 //mapa de fondo (después podemos cambiarlo)
 
-L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager_nolabels/{z}/{x}/{y}{r}.png', {
-    attribution: '&copy; OpenStreetMap &copy; CARTO'
+L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
+    attribution: 'Tiles © Esri'
 }).addTo(map);
 
 //hago que lea el geoJSON

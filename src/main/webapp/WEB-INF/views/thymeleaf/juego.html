@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="es" xmlns:th="http://www.thymeleaf.org">
+
 <head>
   <meta charset="UTF-8">
   <link rel="stylesheet" th:href="@{/css/main.css}">
@@ -27,67 +28,50 @@
 
         <!--nombre de jugadores y puntaje-->
         <div class="jugadores">
-          <article class="jugador" 
-                    th:each="jugador : ${jugadores}"
-                    th:classappend="${' jugador-' + #strings.toLowerCase(jugador.color)}">
+          <article class="jugador" th:each="jugador : ${jugadores}"
+            th:classappend="${' jugador-' + #strings.toLowerCase(jugador.color)}">
             <h1 id="nombreDeJugador" th:text="${jugador.nombre}">Jugador</h1>
             <h2 id="puntaje">Puntaje: <strong th:text="${jugador.puntaje}">0</strong></h2>
           </article>
         </div>
 
         <!--turnos timer y mensaje-->
-          <section id="InfoDerecha">
-            <article id="turnoYTimer">
-              <div class="turno">
-                Turno actual:
-                <strong th:text="${jugadorActual != null ? jugadorActual.nombre : 'Sin jugadores'}"></strong>
-              </div>
-              <div id="timerBox">
-                Tiempo restante: <span id="timer">30</span>s
-              </div>
-
-              <div id="rondaBox" style="margin-top: 5px; padding-top: 8px; font-size: 1.1rem;">
-                Ronda: <strong style="color: white;" th:text="${partida.rondaActual ?: 1}">1</strong> / 12
-              </div>
-            </article>
-            <div
-            class="mensaje"
-            th:if="${mensajeResultado != null}"
-            th:text="${mensajeResultado}">
+        <section id="InfoDerecha">
+          <article id="turnoYTimer">
+            <div class="turno">
+              Turno actual:
+              <strong th:text="${jugadorActual != null ? jugadorActual.nombre : 'Sin jugadores'}"></strong>
             </div>
-          </section>
+            <div id="timerBox">
+              Tiempo restante: <span id="timer">30</span>s
+            </div>
+
+            <div id="rondaBox" style="margin-top: 5px; padding-top: 8px; font-size: 1.1rem;">
+              Ronda: <strong style="color: white;" th:text="${partida.rondaActual ?: 1}">1</strong> / 12
+            </div>
+          </article>
+          <div class="mensaje" th:if="${mensajeResultado != null}" th:text="${mensajeResultado}">
+          </div>
+        </section>
 
       </div>
     </section>
 
     <!--Las provincias en botones - actualmente invisible - no borrar-->
     <section class="tablero">
-      <form
-          class="provincia-form"
-          th:each="provincia : ${provincias}"
-          th:action="@{/seleccionar-provincia}"
-          method="post">
+      <form class="provincia-form" th:each="provincia : ${provincias}" th:action="@{/seleccionar-provincia}"
+        method="post">
 
         <input type="hidden" name="partidaId" th:value="${partida.id}">
-        
+
         <input type="hidden" name="idProvincia" th:value="${provincia.id}">
 
-        <button
-            type="submit"
-            class="provincia"
-            th:attr="data-id=${provincia.id}, 
-            data-nombre=${provincia.nombre}"
-            th:classappend="${
-              provincia.idJugadorDuenio == null
-                ? ' provincia-neutral'
-                : (jugadores.size() > 0 and provincia.idJugadorDuenio == jugadores[0].id
-                    ? ' provincia-rojo'
-                    : (jugadores.size() > 1 and provincia.idJugadorDuenio == jugadores[1].id
-                        ? ' provincia-azul'
-                        : (jugadores.size() > 2 and provincia.idJugadorDuenio == jugadores[2].id
-                            ? ' provincia-verde'
-                            : ' provincia-neutral')))
-            }">
+        <button type="submit" class="provincia" th:attr="data-id=${provincia.id}, 
+            data-nombre=${provincia.nombre}" th:classappend="${
+    provincia.idJugadorDuenio == null 
+    ? ' provincia-neutral' 
+    : ' provincia-' + coloresPorJugador[provincia.idJugadorDuenio]
+}">
 
           <span class="provincia-nombre" th:text="${provincia.nombre}">Provincia</span>
 
@@ -99,52 +83,53 @@
       </form>
     </section>
   </main>
-    <!--inicia leaflet-->
-    <script th:src="@{/js/leaflet.js}"></script>
+  <!--inicia leaflet-->
+  <script th:src="@{/js/leaflet.js}"></script>
 
-    <!--carga el mapa-->
-    <script type="module" th:src="@{/js/mapa.js}"></script>
+  <!--carga el mapa-->
+  <script type="module" th:src="@{/js/mapa.js}"></script>
 
   <script th:inline="javascript">
-    
-  const partidaId = /*[[${partida.id}]]*/ 0;
-      const inicioEtapaStr = /*[[${partida.inicioEtapa.toString()}]]*/ '';
-      const inicioTurno = new Date(inicioEtapaStr).getTime();
-      const DURACION_TURNO_MS = 30 * 1000; 
-      const display = document.getElementById('timer');
 
-      function actualizarCronometro() {
-          const ahora = new Date().getTime();
-          const tiempoTranscurrido = ahora - inicioTurno;
-          const tiempoRestante = Math.max(0, Math.round((DURACION_TURNO_MS - tiempoTranscurrido) / 1000));
+    const partidaId = /*[[${partida.id}]]*/ 0;
+    const inicioEtapaStr = /*[[${partida.inicioEtapa.toString()}]]*/ '';
+    const inicioTurno = new Date(inicioEtapaStr).getTime();
+    const DURACION_TURNO_MS = 30 * 1000;
+    const display = document.getElementById('timer');
 
-          if (display) {
-              display.textContent = tiempoRestante;
-          }
-          if (tiempoRestante <= 0) {
-              clearInterval(cronometro);
-              forzarTiempoAgotado();
-          }
+    function actualizarCronometro() {
+      const ahora = new Date().getTime();
+      const tiempoTranscurrido = ahora - inicioTurno;
+      const tiempoRestante = Math.max(0, Math.round((DURACION_TURNO_MS - tiempoTranscurrido) / 1000));
+
+      if (display) {
+        display.textContent = tiempoRestante;
       }
-
-      actualizarCronometro(); 
-      
-      const cronometro = setInterval(actualizarCronometro, 1000);
-
-      function forzarTiempoAgotado() {
-          const form = document.createElement('form');
-          form.method = 'POST';
-          form.action = '/spring/juego/tiempo-agotado';
-
-          const input = document.createElement('input');
-          input.type = 'hidden';
-          input.name = 'partidaId';
-          input.value = partidaId;
-
-          form.appendChild(input);
-          document.body.appendChild(form);
-          form.submit(); 
+      if (tiempoRestante <= 0) {
+        clearInterval(cronometro);
+        forzarTiempoAgotado();
       }
+    }
+
+    actualizarCronometro();
+
+    const cronometro = setInterval(actualizarCronometro, 1000);
+
+    function forzarTiempoAgotado() {
+      const form = document.createElement('form');
+      form.method = 'POST';
+      form.action = '/spring/juego/tiempo-agotado';
+
+      const input = document.createElement('input');
+      input.type = 'hidden';
+      input.name = 'partidaId';
+      input.value = partidaId;
+
+      form.appendChild(input);
+      document.body.appendChild(form);
+      form.submit();
+    }
   </script>
 </body>
+
 </html>
