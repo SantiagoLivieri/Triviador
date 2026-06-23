@@ -17,16 +17,11 @@
   </header>
 
   <main>
-
-    <!--Seccion de mapas y puntaje-->
-
     <section id="mapaYPuntos">
 
       <div id="map">
-        <!--Nombre de provincias-->
         <div id="info-provincia"></div>
 
-        <!--nombre de jugadores y puntaje-->
         <div class="jugadores">
           <article class="jugador" th:each="jugador : ${jugadores}"
             th:classappend="${' jugador-' + #strings.toLowerCase(jugador.color)}">
@@ -35,7 +30,6 @@
           </article>
         </div>
 
-        <!--turnos timer y mensaje-->
         <section id="InfoDerecha">
           <article id="turnoYTimer">
             <div class="turno">
@@ -57,9 +51,8 @@
       </div>
     </section>
 
-    <!--Las provincias en botones - actualmente invisible - no borrar-->
     <section class="tablero">
-      <form class="provincia-form" th:each="provincia : ${provincias}" th:action="@{/seleccionar-provincia}"
+      <form class="provincia-form" th:each="provincia : ${provincias}" th:action="@{/disputa/seleccionar-provincia}"
         method="post">
 
         <input type="hidden" name="partidaId" th:value="${partida.id}">
@@ -83,10 +76,10 @@
       </form>
     </section>
   </main>
-  <!--inicia leaflet-->
+
   <script th:src="@{/js/leaflet.js}"></script>
 
-  <!--carga el mapa-->
+
   <script type="module" th:src="@{/js/mapa.js}"></script>
 
   <script th:inline="javascript">
