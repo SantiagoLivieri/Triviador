@@ -4,14 +4,12 @@ import com.tallerwebi.controladores.clasesAuxiliares.DatosLobby;
 import com.tallerwebi.entidades.HistorialPartida;
 import com.tallerwebi.entidades.Jugador;
 import com.tallerwebi.entidades.Partida;
-import com.tallerwebi.entidades.Pregunta;
 import com.tallerwebi.entidades.Provincia;
 import com.tallerwebi.entidades.Usuario;
 import com.tallerwebi.servicios.ServicioHistorial;
 import com.tallerwebi.servicios.ServicioJuego;
 import com.tallerwebi.servicios.ServicioJugador;
 import com.tallerwebi.servicios.ServicioPartida;
-import com.tallerwebi.servicios.ServicioPregunta;
 import com.tallerwebi.servicios.ServicioProvincia;
 import com.tallerwebi.servicios.ServicioUsuario;
 import com.tallerwebi.servicios.excepcion.TiempoAgotadoException;
@@ -29,22 +27,20 @@ public class ServicioJuegoImpl implements ServicioJuego {
 
   private final ServicioJugador servicioJugador;
   private final ServicioProvincia servicioProvincia;
-  private final ServicioPregunta servicioPregunta;
   private final ServicioPartida servicioPartida;
   private final ServicioHistorial servicioHistorial;
   private final ServicioUsuario servicioUsuario;
   private static final int TIEMPO_MAXIMO_TURNO = 30;
+  private static final int REQUERIDAS_POR_CONQUISTA = 3;
 
   public ServicioJuegoImpl(
     ServicioJugador servicioJugador,
     ServicioProvincia servicioProvincia,
-    ServicioPregunta servicioPregunta,
     ServicioPartida servicioPartida,
     ServicioHistorial servicioHistorial,
     ServicioUsuario servicioUsuario
   ) {
     this.servicioJugador = servicioJugador;
-    this.servicioPregunta = servicioPregunta;
     this.servicioProvincia = servicioProvincia;
     this.servicioPartida = servicioPartida;
     this.servicioHistorial = servicioHistorial;
@@ -72,60 +68,6 @@ public class ServicioJuegoImpl implements ServicioJuego {
     Partida partida = servicioPartida.crearPartida(jugadores);
 
     return partida.getId();
-  }
-
-  @Override
-  public Partida obtenerPartidaPorId(Long partidaId) {
-    return servicioPartida.buscarPorId(partidaId);
-  }
-
-  @Override
-  public Boolean procesarRespuestaYPasarTurno(
-    Long partidaId,
-    Long idProvincia,
-    Long idPregunta,
-    String respuesta,
-    Boolean dobleChance
-  ) {
-    Pregunta pregunta = servicioPregunta.buscarPorId(idPregunta);
-    if (pregunta == null) {
-      throw new IllegalArgumentException("La pregunta con ID " + idPregunta + " no existe.");
-    }
-    boolean acerto = pregunta.getRespuestaCorrecta().trim().equalsIgnoreCase(respuesta.trim());
-
-    if (!acerto && !dobleChance) {
-      Partida partida = servicioPartida.buscarPorId(partidaId);
-      partida.avanzarTurno();
-      servicioPartida.actualizar(partida);
-    }
-
-    return acerto;
-  }
-
-  @Override
-  public Integer obtenerCantidadPreguntasRequeridas(Long idProvincia) {
-    return servicioProvincia.obtenerCantidadPreguntasRequeridas(idProvincia);
-  }
-
-  // Impide atacar provincias propias
-  @Override
-  public void validarAtaque(Long jugadorId, Long idProvincia) {
-    Provincia provincia = servicioProvincia.buscarPorId(idProvincia);
-
-    if (provincia != null) {
-      provincia.validarAtaque(jugadorId);
-    }
-  }
-
-  // Determina si se respondieron la cantidad de preguntas necesarias
-  @Override
-  public boolean disputaFinalizada(Integer respondidas, Integer requeridas) {
-    return respondidas >= requeridas;
-  }
-
-  @Override
-  public boolean esConquista(Integer preguntasRequeridas) {
-    return preguntasRequeridas == 3;
   }
 
   // Se ocupa de cambio de dueño y puntaje en conquistas
@@ -177,6 +119,40 @@ public class ServicioJuegoImpl implements ServicioJuego {
   }
 
   @Override
+  public void avanzarTurno(Long partidaId) {
+    Partida partida = servicioPartida.buscarPorId(partidaId);
+    partida.avanzarTurno();
+    servicioPartida.actualizar(partida);
+  }
+
+  @Override
+  public void registrarPreguntaHecha(Long partidaId, Long idPregunta) {
+    Partida partida = servicioPartida.buscarPorId(partidaId);
+    partida.registrarPreguntaHecha(idPregunta);
+    servicioPartida.actualizar(partida);
+  }
+
+  @Override
+  public void iniciarAtaque(Long partidaId, Long idProvincia)
+    throws TiempoAgotadoException, TurnoInvalidoException {
+    Partida partida = servicioPartida.buscarPorId(partidaId);
+    Long jugadorId = partida.getJugadorEnTurno().getId();
+
+    this.validarAtaque(jugadorId, idProvincia);
+
+    this.procesarJugada(partidaId, jugadorId, idProvincia);
+  }
+
+  @Override
+  public void validarAtaque(Long jugadorId, Long idProvincia) {
+    Provincia provincia = servicioProvincia.buscarPorId(idProvincia);
+
+    if (provincia != null) {
+      provincia.validarAtaque(jugadorId);
+    }
+  }
+
+  @Override
   public void procesarJugada(Long partidaId, Long jugadorId, Long provinciaSeleccionadaId)
     throws TiempoAgotadoException, TurnoInvalidoException {
     Partida partida = servicioPartida.buscarPorId(partidaId);
@@ -208,8 +184,46 @@ public class ServicioJuegoImpl implements ServicioJuego {
   }
 
   @Override
-  public void actualizarPartida(Partida partida) {
-    servicioPartida.actualizar(partida);
+  public String evaluarAcierto(
+    Long partidaId,
+    Long idProvincia,
+    Integer respondidas,
+    Integer requeridas
+  ) {
+    if (respondidas < requeridas) {
+      return null;
+    }
+
+    Partida partida = servicioPartida.buscarPorId(partidaId);
+    Jugador jugadorQueRespondio = partida.getJugadorEnTurno();
+
+    String mensajeFinal;
+    if (requeridas == REQUERIDAS_POR_CONQUISTA) {
+      this.concretarConquista(partidaId, idProvincia);
+      mensajeFinal = "¡Respondiste las 3 correctas y conquistaste la provincia!";
+    } else {
+      this.concretarColonizacion(partidaId, idProvincia);
+      mensajeFinal = "¡Respuesta correcta! Provincia colonizada.";
+    }
+
+    Partida partidaDespues = servicioPartida.buscarPorId(partidaId);
+    if (!jugadorQueRespondio.getId().equals(partidaDespues.getJugadorEnTurno().getId())) {
+      mensajeFinal += "\n\nAlcanzaste el límite máximo de 3 conquistas. Fin de tu turno.";
+    }
+
+    return mensajeFinal;
+  }
+
+  @Override
+  public boolean evaluarYFinalizarPartida(Long partidaId, Long usuarioId) {
+    Partida partida = servicioPartida.buscarPorId(partidaId);
+
+    if (partida != null && partida.estaFinalizada()) {
+      this.finalizarYRegistrarPartida(partidaId, usuarioId);
+      return true;
+    }
+
+    return false;
   }
 
   @Override
@@ -240,74 +254,32 @@ public class ServicioJuegoImpl implements ServicioJuego {
   }
 
   @Override
-  @Transactional
-  public List<String> aplicarComodinEliminarDos(
-    Long idUsuario,
-    List<String> opcionesEnPantalla,
-    Pregunta pregunta
-  ) {
-    Usuario usuario = servicioUsuario.buscarUsuarioPorId(idUsuario);
-    if (usuario == null) throw new IllegalArgumentException("Usuario no encontrado.");
-
-    usuario.consumirComodin("ELIMINAR_2");
-    servicioUsuario.actualizarUsuario(usuario);
-
-    String correcta = pregunta.getRespuestaCorrecta();
-    List<String> incorrectasEnPantalla = new ArrayList<>();
-
-    for (String opcion : opcionesEnPantalla) {
-      if (!opcion.equals(correcta)) {
-        incorrectasEnPantalla.add(opcion);
-      }
-    }
-
-    java.util.Collections.shuffle(incorrectasEnPantalla);
-
-    List<String> opcionesSobrevivientes = new ArrayList<>();
-    opcionesSobrevivientes.add(correcta);
-
-    if (!incorrectasEnPantalla.isEmpty()) {
-      opcionesSobrevivientes.add(incorrectasEnPantalla.get(0));
-    }
-
-    java.util.Collections.shuffle(opcionesSobrevivientes);
-
-    return opcionesSobrevivientes;
-  }
-
-  @Override
-  @Transactional
-  public void aplicarComodinDobleChance(Long idUsuario) {
-    Usuario usuario = servicioUsuario.buscarUsuarioPorId(idUsuario);
-    if (usuario == null) throw new IllegalArgumentException("Usuario no encontrado.");
-
-    usuario.consumirComodin("DOBLE_CHANCE");
-    servicioUsuario.actualizarUsuario(usuario);
-  }
-
-  @Override
-  @Transactional
-  public Pregunta aplicarComodinPasarPregunta(
-    Long idUsuario,
-    Pregunta preguntaActual,
-    Long idProvincia,
-    Set<Long> preguntasYaHechas
-  ) {
-    Usuario usuario = servicioUsuario.buscarUsuarioPorId(idUsuario);
-    if (usuario == null) throw new IllegalArgumentException("Usuario no encontrado.");
-
-    usuario.consumirComodin("PASAR_PREGUNTA");
-    servicioUsuario.actualizarUsuario(usuario);
-
-    if (preguntaActual != null) {
-      preguntasYaHechas.add(preguntaActual.getId());
-    }
-
-    return servicioPregunta.obtenerPreguntaPorProvincia(idProvincia, preguntasYaHechas);
+  public void actualizarPartida(Partida partida) {
+    servicioPartida.actualizar(partida);
   }
 
   @Override
   public Usuario obtenerUsuarioPorId(Long usuarioId) {
     return this.servicioUsuario.buscarUsuarioPorId(usuarioId);
+  }
+
+  @Override
+  public Set<Long> obtenerPreguntasHechas(Long partidaId) {
+    return servicioPartida.buscarPorId(partidaId).getPreguntasHechas();
+  }
+
+  @Override
+  public List<Provincia> obtenerProvinciasDelTablero() {
+    return servicioProvincia.obtenerProvincias();
+  }
+
+  @Override
+  public Partida obtenerPartidaPorId(Long partidaId) {
+    return servicioPartida.buscarPorId(partidaId);
+  }
+
+  @Override
+  public Integer obtenerCantidadPreguntasRequeridas(Long idProvincia) {
+    return servicioProvincia.obtenerCantidadPreguntasRequeridas(idProvincia);
   }
 }

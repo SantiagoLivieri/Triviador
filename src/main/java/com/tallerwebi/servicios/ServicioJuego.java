@@ -2,7 +2,7 @@ package com.tallerwebi.servicios;
 
 import com.tallerwebi.controladores.clasesAuxiliares.DatosLobby;
 import com.tallerwebi.entidades.Partida;
-import com.tallerwebi.entidades.Pregunta;
+import com.tallerwebi.entidades.Provincia;
 import com.tallerwebi.entidades.Usuario;
 import com.tallerwebi.servicios.excepcion.TiempoAgotadoException;
 import com.tallerwebi.servicios.excepcion.TurnoInvalidoException;
@@ -23,10 +23,6 @@ public interface ServicioJuego {
 
   void validarAtaque(Long jugadorId, Long idProvincia);
 
-  boolean disputaFinalizada(Integer respondidas, Integer requeridas);
-
-  boolean esConquista(Integer preguntasrequeridas);
-
   void concretarConquista(Long partidaId, Long idProvincia);
 
   void concretarColonizacion(Long partidaId, Long idProvincia);
@@ -37,26 +33,18 @@ public interface ServicioJuego {
 
   void finalizarYRegistrarPartida(Long partidaId, Long usuarioId);
 
-  List<String> aplicarComodinEliminarDos(
-    Long idUsuario,
-    List<String> opcionesEnPantalla,
-    Pregunta pregunta
-  );
+  void avanzarTurno(Long partidaId);
 
-  void aplicarComodinDobleChance(Long idUsuario);
+  boolean evaluarYFinalizarPartida(Long partidaId, Long usuarioId);
 
-  Pregunta aplicarComodinPasarPregunta(
-    Long idUsuario,
-    Pregunta preguntaActual,
-    Long idProvincia,
-    Set<Long> preguntasYaHechas
-  );
+  void iniciarAtaque(Long partidaId, Long idProvincia)
+    throws TiempoAgotadoException, TurnoInvalidoException;
 
-  Boolean procesarRespuestaYPasarTurno(
-    Long partidaId,
-    Long idProvincia,
-    Long idPregunta,
-    String respuesta,
-    Boolean dobleChance
-  );
+  Set<Long> obtenerPreguntasHechas(Long partidaId);
+
+  void registrarPreguntaHecha(Long partidaId, Long idPregunta);
+
+  String evaluarAcierto(Long partidaId, Long idProvincia, Integer respondidas, Integer requeridas);
+
+  List<Provincia> obtenerProvinciasDelTablero();
 }
