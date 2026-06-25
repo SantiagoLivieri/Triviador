@@ -104,6 +104,13 @@
       clearInterval(cronometro);
       forzarTiempoAgotado();
     }
+    if (tiempoRestante <= 10) {
+        display.style.color = "red";
+    } else if (tiempoRestante <= 15) {
+        display.style.color = "orange";
+    } else {
+        display.style.color = "green";
+    }
   }
   actualizarCronometro();
 

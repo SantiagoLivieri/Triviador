@@ -81,17 +81,17 @@ main {
 
 #cardPlayer1 {
     background-color: #dc2626;
-    border: 5px solid #F95834;
+    border: 4px solid #8a0b0b;
 }
 
 #cardPlayer2 {
     background-color: #2563eb;
-    border: 5px solid #4077ED;
+    border: 4px solid #10337e;
 }
 
 #cardPlayer3 {
     background-color: #16a34a;
-    border: 5px solid #19B853;
+    border: 4px solid #064b1f;
 }
 
 label {
