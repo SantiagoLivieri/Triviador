@@ -54,7 +54,7 @@ body {
 
 .info-badge strong {
     color: #38bdf8;
-
+    text-align: center;
     display: block;
     overflow: hidden;
     white-space: nowrap;
