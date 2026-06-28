@@ -2,6 +2,7 @@ package com.tallerwebi.repositorios.Impl;
 
 import com.tallerwebi.entidades.Comodin;
 import com.tallerwebi.repositorios.RepositorioComodin;
+import java.util.Arrays;
 import java.util.List;
 import org.hibernate.SessionFactory;
 import org.hibernate.criterion.Restrictions;
@@ -32,7 +33,8 @@ public class RepositorioComodinImpl implements RepositorioComodin {
   public List<Comodin> buscarTodos() {
     return sessionFactory
       .getCurrentSession()
-      .createQuery("from Comodin c order by c.nombre", Comodin.class)
+      .createQuery("from Comodin c where c.nombre in (:nombres) order by c.nombre", Comodin.class)
+      .setParameterList("nombres", Arrays.asList("DOBLE_CHANCE", "ELIMINAR_2", "PASAR_PREGUNTA"))
       .getResultList();
   }
 }

@@ -192,3 +192,15 @@ INSERT IGNORE INTO Pregunta (id, enunciado, respuesta_correcta, opcion_incorrect
 INSERT IGNORE INTO Pregunta (id, enunciado, respuesta_correcta, opcion_incorrecta_uno, opcion_incorrecta_dos, opcion_incorrecta_tres, tipo_pregunta, categoria_pregunta, provincia_id) VALUES (70, '¿En la casa de qué importante familia de la época se sesionó el Congreso que declaró la Independencia de 1816?', 'Francisca Bazán de Laguna', 'Familia Anchorena', 'Estancia El Plumerillo', 'Posta de Yatasto', 'MULTIPLE_CHOICE', 'HISTORIA', 24);
 INSERT IGNORE INTO Pregunta (id, enunciado, respuesta_correcta, opcion_incorrecta_uno, opcion_incorrecta_dos, opcion_incorrecta_tres, tipo_pregunta, categoria_pregunta, provincia_id) VALUES (71, '¿Por qué halagador título o apodo es tradicionalmente conocida esta pequeña pero fértil provincia norteña?', 'El Jardín de la República', 'Madre de Ciudades', 'Tierra del Sol', 'La Docta', 'MULTIPLE_CHOICE', 'CULTURA_GENERAL', 24);
 INSERT IGNORE INTO Pregunta (id, enunciado, respuesta_correcta, opcion_incorrecta_uno, opcion_incorrecta_dos, opcion_incorrecta_tres, tipo_pregunta, categoria_pregunta, provincia_id) VALUES (72, '¿Qué histórico club de fútbol viste a rayas celestes y blancas y hace de local en el estadio ''Monumental José Fierro''?', 'Atlético Tucumán', 'San Martín de Tucumán', 'Central Norte', 'Gimnasia y Tiro', 'MULTIPLE_CHOICE', 'DEPORTE', 24);
+
+INSERT INTO Comodin (id, nombre, descripcion, costo)
+VALUES (1, 'DOBLE_CHANCE', 'Si fallas tu primera respuesta, el juego te otorga una segunda oportunidad inmediata.', 35)
+ON DUPLICATE KEY UPDATE nombre = VALUES(nombre), descripcion = VALUES(descripcion), costo = VALUES(costo);
+
+INSERT INTO Comodin (id, nombre, descripcion, costo)
+VALUES (2, 'ELIMINAR_2', 'Remueve dos opciones incorrectas de la pregunta actual dejando solo la correcta y una trampa.', 50)
+ON DUPLICATE KEY UPDATE nombre = VALUES(nombre), descripcion = VALUES(descripcion), costo = VALUES(costo);
+
+INSERT INTO Comodin (id, nombre, descripcion, costo)
+VALUES (3, 'PASAR_PREGUNTA', 'Salta la pregunta actual sin penalizaciones y te asigna una nueva tarjeta distinta.', 25)
+ON DUPLICATE KEY UPDATE nombre = VALUES(nombre), descripcion = VALUES(descripcion), costo = VALUES(costo);
