@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" th:href="@{/css/main.css}">
+    <link rel="stylesheet" th:href="@{/css/lobby.css}">
+    <title>Triviador Argentina - Lobby Online</title>
+</head>
+
+<body>
+
+<header>
+    <h1 class="game-title">Triviador <span>Argentina</span></h1>
+</header>
+
+<main>
+    <section class="lobby-card">
+        <h2>Sala de espera Online</h2>
+        <p>Conectate con otros jugadores en tiempo real.</p>
+
+        <div id="online-container" class="acciones">
+            <button id="btnBuscarPartida" class="start-btn">Buscar Partida</button>
+
+            <div id="statusPartida" style="margin-top: 20px; font-size: 1.2em; color: #fff;"></div>
+        </div>
+
+        <div class="acciones" style="margin-top: 20px;">
+            <a th:href="@{/home}" class="volver">Volver al inicio</a>
+        </div>
+    </section>
+</main>
+
+<footer>
+    &copy; 2026 Triviador Argentina - El juego de preguntas y estrategia.
+</footer>
+
+<script>
+    const btnBuscar = document.getElementById('btnBuscarPartida');
+    const statusDiv = document.getElementById('statusPartida');
+
+    btnBuscar.addEventListener('click', function() {
+        this.disabled = true;
+        statusDiv.innerText = "Buscando partida...";
+
+        fetch('/api/buscar-partida', { method: 'POST' })
+            .then(res => res.json())
+            .then(data => {
+                const idPartida = data.id;
+                statusDiv.innerText = "Partida encontrada. Esperando jugadores...";
+
+                const interval = setInterval(() => {
+                    fetch(`/api/estado-partida/${idPartida}`)
+                        .then(res => res.json())
+                        .then(estado => {
+                            statusDiv.innerText = `Esperando jugadores (${estado.cantidad}/3)...`;
+
+                            if (estado.cantidad >= 3) {
+                                clearInterval(interval);
+                                statusDiv.innerText = "¡Partida completa! Iniciando...";
+                                window.location.href = `/juego/partida/${idPartida}`;
+                            }
+                        })
+                        .catch(err => console.error("Error consultando estado:", err));
+                }, 2000);
+            })
+            .catch(err => {
+                statusDiv.innerText = "Error al conectar con el servidor.";
+                btnBuscar.disabled = false;
+            });
+    });
+</script>
+
+</body>
+</html>

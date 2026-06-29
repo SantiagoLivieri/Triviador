@@ -1,5 +1,6 @@
 package com.tallerwebi.entidades;
 
+import com.tallerwebi.controladores.clasesAuxiliares.EstadoDePartida;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
@@ -45,6 +46,8 @@ public class Partida {
   private Integer conquistasEnEsteTurno = 0;
   private static final int MAX_CONQUISTAS_POR_TURNO = 3;
   private LocalDateTime inicioEtapa;
+  private EstadoDePartida estadoDePartida;
+  public static final int CANTIDAD_JUGADORES_MAXIMA = 3;
 
   public Long getId() {
     return id;
@@ -135,6 +138,13 @@ public class Partida {
     this.conquistasEnEsteTurno++;
   }
 
+  public void agregarJugador(Jugador jugador) {
+    if (this.jugadores == null) {
+      this.jugadores = new ArrayList<>();
+    }
+    this.jugadores.add(jugador);
+  }
+
   public boolean alcanzoLimiteConquistas() {
     return (
       this.conquistasEnEsteTurno != null && this.conquistasEnEsteTurno >= MAX_CONQUISTAS_POR_TURNO
@@ -222,5 +232,13 @@ public class Partida {
 
   public void setJugadores(List<Jugador> jugadores) {
     this.jugadores = jugadores;
+  }
+
+  public EstadoDePartida getEstadoDePartida() {
+    return estadoDePartida;
+  }
+
+  public void setEstadoDePartida(EstadoDePartida estadoDePartida) {
+    this.estadoDePartida = estadoDePartida;
   }
 }

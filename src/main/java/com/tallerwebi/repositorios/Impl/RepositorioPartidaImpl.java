@@ -1,5 +1,6 @@
 package com.tallerwebi.repositorios.Impl;
 
+import com.tallerwebi.controladores.clasesAuxiliares.EstadoDePartida;
 import com.tallerwebi.entidades.Partida;
 import com.tallerwebi.repositorios.RepositorioPartida;
 import org.hibernate.Hibernate;
@@ -41,5 +42,15 @@ public class RepositorioPartidaImpl implements RepositorioPartida {
   @Override
   public void actualizar(Partida partida) {
     sessionFactory.getCurrentSession().update(partida);
+  }
+
+  @Override
+  public Partida buscarPartidaEnEspera() {
+    return (Partida) sessionFactory
+      .getCurrentSession()
+      .createCriteria(Partida.class)
+      .add(org.hibernate.criterion.Restrictions.eq("estadoDePartida", EstadoDePartida.EN_ESPERA))
+      .setMaxResults(1)
+      .uniqueResult();
   }
 }

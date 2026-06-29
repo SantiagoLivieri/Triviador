@@ -56,8 +56,10 @@
 
     <main>
 
-        <a th:href="@{/lobby}" class="play-btn">¡Iniciar Partida!</a>
-
+        <div class = btn-flex>
+            <a th:href="@{/lobby(modo='local')}" class="play-btn">¡Iniciar Partida Local!</a>
+            <a th:href="@{/lobby-online(modo='online')}" class="play-btn">¡Iniciar Partida Online!</a>
+        </div>
 
         <div class="secondary-options">
             <a th:href="@{/tienda}" class="sec-btn"

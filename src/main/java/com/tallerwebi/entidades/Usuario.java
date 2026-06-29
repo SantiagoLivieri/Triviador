@@ -29,7 +29,7 @@ public class Usuario {
   private String email;
 
   private String password;
-
+  private Integer triviaCoins;
   private Boolean activo;
 
   @Column(name = "nombre_jugador", length = 100)
@@ -175,5 +175,13 @@ public class Usuario {
 
   public void setRol(Rol rol) {
     this.rol = rol;
+  }
+
+  public Integer getTriviaCoins() {
+    return triviaCoins;
+  }
+
+  public void setTriviaCoins(Integer triviaCoins) {
+    this.triviaCoins = triviaCoins;
   }
 }

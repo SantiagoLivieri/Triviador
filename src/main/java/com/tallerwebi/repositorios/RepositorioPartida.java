@@ -8,4 +8,6 @@ public interface RepositorioPartida {
   Partida buscarPorId(Long id);
 
   void actualizar(Partida partida);
+
+  Partida buscarPartidaEnEspera();
 }

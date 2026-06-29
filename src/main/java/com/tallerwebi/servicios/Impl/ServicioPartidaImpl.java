@@ -1,7 +1,9 @@
 package com.tallerwebi.servicios.Impl;
 
+import com.tallerwebi.controladores.clasesAuxiliares.EstadoDePartida;
 import com.tallerwebi.entidades.Jugador;
 import com.tallerwebi.entidades.Partida;
+import com.tallerwebi.entidades.Usuario;
 import com.tallerwebi.repositorios.RepositorioPartida;
 import com.tallerwebi.servicios.ServicioPartida;
 import java.time.LocalDateTime;
@@ -50,5 +52,33 @@ public class ServicioPartidaImpl implements ServicioPartida {
   @Override
   public void actualizar(Partida partida) {
     repositorioPartida.actualizar(partida);
+  }
+
+  @Override
+  @Transactional
+  public Partida buscarOCrearPartida(Usuario usuario) {
+    Partida partida = repositorioPartida.buscarPartidaEnEspera();
+
+    if (partida == null) {
+      partida = new Partida();
+      partida.setEstadoDePartida(EstadoDePartida.EN_ESPERA);
+      partida.setJugadores(new ArrayList<>());
+    }
+    Jugador nuevojugador = new Jugador(usuario.getNombre(), "ROJO", usuario);
+
+    partida.agregarJugador(nuevojugador);
+
+    if (partida.getJugadores().size() == partida.CANTIDAD_JUGADORES_MAXIMA) {
+      partida.setEstadoDePartida(EstadoDePartida.JUGANDO);
+    }
+    repositorioPartida.actualizar(partida);
+
+    return partida;
+  }
+
+  @Override
+  public int contarJugadoresEnPartida(Long idPartida) {
+    Partida partida = repositorioPartida.buscarPorId(idPartida);
+    return (partida != null) ? partida.getJugadores().size() : 0;
   }
 }

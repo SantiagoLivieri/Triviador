@@ -132,6 +132,9 @@ main {
     text-decoration: none;
     display: inline-block;
 }
+.btn-flex{
+    display: flex;
+}
 
 .play-btn:hover {
     transform: translateY(-5px) scale(1.05);
