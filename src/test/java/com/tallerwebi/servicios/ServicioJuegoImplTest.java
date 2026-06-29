@@ -28,6 +28,7 @@ import com.tallerwebi.servicios.Impl.ServicioJuegoImpl;
 import com.tallerwebi.servicios.excepcion.TiempoAgotadoException;
 import com.tallerwebi.servicios.excepcion.TurnoInvalidoException;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 // JUnit: marca un método como test.
@@ -35,6 +36,7 @@ import org.junit.jupiter.api.Test;
 // JUnit: permite extender el comportamiento de JUnit.
 // En este caso lo usamos para conectar JUnit con Mockito.
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentCaptor;
 // Mockito: crea e inyecta automáticamente los mocks en la clase real.
 import org.mockito.InjectMocks;
 // Mockito: crea objetos simulados.
@@ -1000,37 +1002,6 @@ public class ServicioJuegoImplTest {
   }
 
   @Test
-  public void alConcretarConquistaYAlcanzarLimiteDebeAvanzarTurno() {
-    /*
-     * Este test cubre la rama de concretarConquista()
-     * donde la partida alcanza el límite de conquistas.
-     */
-
-    // Preparación
-    Long partidaId = 1L;
-    Long provinciaId = 2L;
-    Long jugadorId = 3L;
-
-    Partida partida = org.mockito.Mockito.mock(Partida.class);
-    Jugador jugadorActual = org.mockito.Mockito.mock(Jugador.class);
-    Provincia provincia = org.mockito.Mockito.mock(Provincia.class);
-
-    when(servicioPartida.buscarPorId(partidaId)).thenReturn(partida);
-    when(partida.getJugadorEnTurno()).thenReturn(jugadorActual);
-    when(jugadorActual.getId()).thenReturn(jugadorId);
-    when(servicioProvincia.buscarPorId(provinciaId)).thenReturn(provincia);
-    when(partida.alcanzoLimiteConquistas()).thenReturn(true);
-
-    // Ejecución
-    servicioJuego.concretarConquista(partidaId, provinciaId);
-
-    // Verificación
-    verify(partida).registrarConquista();
-    verify(partida).avanzarTurno();
-    verify(servicioPartida).actualizar(partida);
-  }
-
-  @Test
   public void evaluarAciertoConTresRequeridasDebeConcretarConquistaYRetornarMensajeDeConquista() {
     /*
      * Este test cubre evaluarAcierto()
@@ -1205,5 +1176,256 @@ public class ServicioJuegoImplTest {
     );
 
     verify(servicioUsuario, never()).buscarUsuarioPorId(usuarioId);
+  }
+
+  @Test
+  public void alInicializarPartidaDebeResetearProvinciasCrearJugadoresCrearPartidaYRetornarId() {
+    /*
+     * Cubre inicializarPartida().
+     *
+     * Este método:
+     * 1. resetea las provincias
+     * 2. crea el jugador anfitrión
+     * 3. crea jugador dos
+     * 4. crea jugador tres
+     * 5. crea la partida
+     * 6. devuelve el id de la partida creada
+     */
+
+    // Preparación
+    DatosLobby datosLobby = org.mockito.Mockito.mock(DatosLobby.class);
+    Usuario usuarioAnfitrion = org.mockito.Mockito.mock(Usuario.class);
+
+    Jugador jugadorUno = org.mockito.Mockito.mock(Jugador.class);
+    Jugador jugadorDos = org.mockito.Mockito.mock(Jugador.class);
+    Jugador jugadorTres = org.mockito.Mockito.mock(Jugador.class);
+
+    Partida partidaCreada = org.mockito.Mockito.mock(Partida.class);
+
+    when(datosLobby.getColorJugadorUno()).thenReturn("Rojo");
+    when(datosLobby.getNombreJugadorDos()).thenReturn("Jugador Dos");
+    when(datosLobby.getColorJugadorDos()).thenReturn("Azul");
+    when(datosLobby.getNombreJugadorTres()).thenReturn("Jugador Tres");
+    when(datosLobby.getColorJugadorTres()).thenReturn("Verde");
+
+    when(servicioJugador.crearJugadorConUsuario(usuarioAnfitrion, "Rojo")).thenReturn(jugadorUno);
+    when(servicioJugador.crearJugador("Jugador Dos", "Azul")).thenReturn(jugadorDos);
+    when(servicioJugador.crearJugador("Jugador Tres", "Verde")).thenReturn(jugadorTres);
+
+    when(servicioPartida.crearPartida(any())).thenReturn(partidaCreada);
+    when(partidaCreada.getId()).thenReturn(50L);
+
+    // Ejecución
+    Long idPartida = servicioJuego.inicializarPartida(datosLobby, usuarioAnfitrion);
+
+    // Verificación
+    verify(servicioProvincia).resetearProvincias();
+
+    verify(servicioJugador).crearJugadorConUsuario(usuarioAnfitrion, "Rojo");
+    verify(servicioJugador).crearJugador("Jugador Dos", "Azul");
+    verify(servicioJugador).crearJugador("Jugador Tres", "Verde");
+
+    /*
+     * Mockito:
+     *
+     * ArgumentCaptor captura el argumento real que recibió crearPartida().
+     * Lo usamos para revisar que la lista tenga los 3 jugadores esperados.
+     */
+    ArgumentCaptor<ArrayList<Jugador>> captorJugadores = ArgumentCaptor.forClass(ArrayList.class);
+
+    verify(servicioPartida).crearPartida(captorJugadores.capture());
+
+    ArrayList<Jugador> jugadoresUsados = captorJugadores.getValue();
+
+    assertEquals(3, jugadoresUsados.size());
+    assertEquals(jugadorUno, jugadoresUsados.get(0));
+    assertEquals(jugadorDos, jugadoresUsados.get(1));
+    assertEquals(jugadorTres, jugadoresUsados.get(2));
+
+    assertEquals(50L, idPartida);
+  }
+
+  @Test
+  public void alConcretarConquistaYAlcanzarLimiteDebeAvanzarTurno() {
+    /*
+     * Cubre esta rama de concretarConquista():
+     *
+     * if (partida.alcanzoLimiteConquistas()) {
+     *   partida.avanzarTurno();
+     * }
+     */
+
+    // Preparación
+    Long partidaId = 1L;
+    Long provinciaId = 2L;
+    Long jugadorId = 3L;
+
+    Partida partida = org.mockito.Mockito.mock(Partida.class);
+    Jugador jugadorActual = org.mockito.Mockito.mock(Jugador.class);
+    Provincia provincia = org.mockito.Mockito.mock(Provincia.class);
+
+    when(servicioPartida.buscarPorId(partidaId)).thenReturn(partida);
+    when(partida.getJugadorEnTurno()).thenReturn(jugadorActual);
+    when(jugadorActual.getId()).thenReturn(jugadorId);
+
+    when(servicioProvincia.buscarPorId(provinciaId)).thenReturn(provincia);
+
+    /*
+     * No hay ex dueño.
+     */
+    when(provincia.getIdJugadorDuenio()).thenReturn(null);
+    when(servicioJugador.buscarPorId(null)).thenReturn(null);
+
+    /*
+     * Esta es la rama que queremos cubrir.
+     */
+    when(partida.alcanzoLimiteConquistas()).thenReturn(true);
+
+    // Ejecución
+    servicioJuego.concretarConquista(partidaId, provinciaId);
+
+    // Verificación
+    verify(jugadorActual).sumarPuntos(75);
+    verify(provincia).setPuntos(75);
+    verify(provincia).setIdJugadorDuenio(jugadorId);
+
+    verify(partida).registrarConquista();
+    verify(partida).avanzarTurno();
+
+    verify(servicioJugador).actualizar(jugadorActual);
+    verify(servicioProvincia).actualizar(provincia);
+    verify(servicioPartida).actualizar(partida);
+  }
+
+  @Test
+  public void evaluarAciertoConTresRequeridasDebeConquistarProvinciaYRetornarMensaje() {
+    /*
+     * Cubre evaluarAcierto() cuando:
+     *
+     * requeridas == REQUERIDAS_POR_CONQUISTA
+     *
+     * Es decir, cuando tiene que llamar a concretarConquista().
+     */
+
+    // Preparación
+    Long partidaId = 1L;
+    Long provinciaId = 2L;
+    Long jugadorId = 3L;
+
+    Partida partida = org.mockito.Mockito.mock(Partida.class);
+    Jugador jugadorActual = org.mockito.Mockito.mock(Jugador.class);
+    Provincia provincia = org.mockito.Mockito.mock(Provincia.class);
+
+    when(servicioPartida.buscarPorId(partidaId)).thenReturn(partida);
+    when(partida.getJugadorEnTurno()).thenReturn(jugadorActual);
+    when(jugadorActual.getId()).thenReturn(jugadorId);
+
+    when(servicioProvincia.buscarPorId(provinciaId)).thenReturn(provincia);
+    when(provincia.getIdJugadorDuenio()).thenReturn(null);
+    when(servicioJugador.buscarPorId(null)).thenReturn(null);
+    when(partida.alcanzoLimiteConquistas()).thenReturn(false);
+
+    // Ejecución
+    String mensaje = servicioJuego.evaluarAcierto(partidaId, provinciaId, 3, 3);
+
+    // Verificación
+    assertEquals("¡Respondiste las 3 correctas y conquistaste la provincia!", mensaje);
+
+    verify(jugadorActual).sumarPuntos(75);
+    verify(provincia).setPuntos(75);
+    verify(provincia).setIdJugadorDuenio(jugadorId);
+  }
+
+  @Test
+  public void evaluarAciertoConMenosDeTresRequeridasDebeColonizarProvinciaYRetornarMensaje() {
+    /*
+     * Cubre evaluarAcierto() cuando requeridas NO es 3.
+     *
+     * En este caso debe llamar a concretarColonizacion().
+     */
+
+    // Preparación
+    Long partidaId = 1L;
+    Long provinciaId = 2L;
+    Long jugadorId = 3L;
+
+    Partida partida = org.mockito.Mockito.mock(Partida.class);
+    Jugador jugadorActual = org.mockito.Mockito.mock(Jugador.class);
+    Provincia provincia = org.mockito.Mockito.mock(Provincia.class);
+
+    when(servicioPartida.buscarPorId(partidaId)).thenReturn(partida);
+    when(partida.getJugadorEnTurno()).thenReturn(jugadorActual);
+    when(jugadorActual.getId()).thenReturn(jugadorId);
+
+    when(servicioProvincia.buscarPorId(provinciaId)).thenReturn(provincia);
+    when(partida.alcanzoLimiteConquistas()).thenReturn(false);
+
+    // Ejecución
+    String mensaje = servicioJuego.evaluarAcierto(partidaId, provinciaId, 1, 1);
+
+    // Verificación
+    assertEquals("¡Respuesta correcta! Provincia colonizada.", mensaje);
+
+    verify(jugadorActual).sumarPuntos(20);
+    verify(provincia).setPuntos(20);
+    verify(provincia).setIdJugadorDuenio(jugadorId);
+  }
+
+  @Test
+  public void evaluarAciertoCuandoCambiaElJugadorEnTurnoDebeAgregarMensajeDeFinDeTurno() {
+    /*
+     * Cubre esta rama de evaluarAcierto():
+     *
+     * if (!jugadorQueRespondio.getId().equals(partidaDespues.getJugadorEnTurno().getId())) {
+     *   mensajeFinal += ...
+     * }
+     */
+
+    // Preparación
+    Long partidaId = 1L;
+    Long provinciaId = 2L;
+
+    Partida partidaAntes = org.mockito.Mockito.mock(Partida.class);
+    Partida partidaDurante = org.mockito.Mockito.mock(Partida.class);
+    Partida partidaDespues = org.mockito.Mockito.mock(Partida.class);
+
+    Jugador jugadorQueRespondio = org.mockito.Mockito.mock(Jugador.class);
+    Jugador jugadorSiguiente = org.mockito.Mockito.mock(Jugador.class);
+
+    Provincia provincia = org.mockito.Mockito.mock(Provincia.class);
+
+    /*
+     * evaluarAcierto() busca la partida tres veces:
+     *
+     * 1. al inicio de evaluarAcierto()
+     * 2. dentro de concretarColonizacion()
+     * 3. después de concretarColonizacion()
+     */
+    when(servicioPartida.buscarPorId(partidaId))
+      .thenReturn(partidaAntes, partidaDurante, partidaDespues);
+
+    when(partidaAntes.getJugadorEnTurno()).thenReturn(jugadorQueRespondio);
+    when(partidaDurante.getJugadorEnTurno()).thenReturn(jugadorQueRespondio);
+    when(partidaDespues.getJugadorEnTurno()).thenReturn(jugadorSiguiente);
+
+    when(jugadorQueRespondio.getId()).thenReturn(10L);
+    when(jugadorSiguiente.getId()).thenReturn(20L);
+
+    when(servicioProvincia.buscarPorId(provinciaId)).thenReturn(provincia);
+
+    /*
+     * Hacemos que colonizar alcance el límite,
+     * entonces concretarColonizacion() avanza el turno.
+     */
+    when(partidaDurante.alcanzoLimiteConquistas()).thenReturn(true);
+
+    // Ejecución
+    String mensaje = servicioJuego.evaluarAcierto(partidaId, provinciaId, 1, 1);
+
+    // Verificación
+    assertTrue(mensaje.contains("¡Respuesta correcta! Provincia colonizada."));
+    assertTrue(mensaje.contains("Alcanzaste el límite máximo de 3 conquistas. Fin de tu turno."));
+
+    verify(partidaDurante).avanzarTurno();
   }
 }
