@@ -172,6 +172,23 @@ footer {
     font-size: 0.9rem;
     color: rgba(255, 255, 255, 0.6);
 }
+.btn-sugerir {
+  background: #2563eb;
+  color: white;
+}
+
+.btn-sugerir:hover {
+  background: #1d4ed8;
+}
+
+.btn-admin-sugerencias {
+  background: #7c3aed;
+  color: white;
+}
+
+.btn-admin-sugerencias:hover {
+  background: #6d28d9;
+}
 
 @media (max-width: 900px) {
     .tablero {

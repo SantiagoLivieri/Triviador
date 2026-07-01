@@ -18,6 +18,18 @@
         <div style="flex: 1; display: flex; justify-content: flex-start;">
             <a th:href="@{/logout}" class="logout-btn">Salir</a>
         </div>
+       <div> <a th:if="${usuario != null && usuario.rol != null && usuario.rol.descripcion == 'JUGADOR'}"
+   th:href="@{/sugerir-pregunta}"
+   class="home-btn btn-sugerir">
+  Sugerir pregunta
+</a></div> 
+
+    <div> <a th:if="${usuario != null && usuario.rol != null && usuario.rol.descripcion == 'ADMIN'}"
+   th:href="@{/admin/sugerencias}"
+   class="home-btn btn-admin-sugerencias">
+  Revisar sugerencias
+</a></div>
+
 
         <div style="flex: 1; display: flex; justify-content: center;">
             <h1 class="game-title" style="margin: 0; white-space: nowrap;">
@@ -55,6 +67,7 @@
     </header>
 
     <main>
+        
 
         <a th:href="@{/lobby}" class="play-btn">¡Iniciar Partida!</a>
 
