@@ -1,8 +1,5 @@
 package com.tallerwebi.controladores.clasesAuxiliares;
 
-import com.tallerwebi.entidades.CategoriaPregunta;
-import com.tallerwebi.entidades.TipoPregunta;
-
 public class DatosSugerenciaPregunta {
 
   private Long id;
@@ -11,8 +8,6 @@ public class DatosSugerenciaPregunta {
   private String opcionIncorrectaUno;
   private String opcionIncorrectaDos;
   private String opcionIncorrectaTres;
-  private TipoPregunta tipoPregunta = TipoPregunta.MULTIPLE_CHOICE;
-  private CategoriaPregunta categoriaPregunta;
   private Long idProvincia;
 
   public DatosSugerenciaPregunta() {}
@@ -63,22 +58,6 @@ public class DatosSugerenciaPregunta {
 
   public void setOpcionIncorrectaTres(String opcionIncorrectaTres) {
     this.opcionIncorrectaTres = opcionIncorrectaTres;
-  }
-
-  public TipoPregunta getTipoPregunta() {
-    return tipoPregunta;
-  }
-
-  public void setTipoPregunta(TipoPregunta tipoPregunta) {
-    this.tipoPregunta = tipoPregunta;
-  }
-
-  public CategoriaPregunta getCategoriaPregunta() {
-    return categoriaPregunta;
-  }
-
-  public void setCategoriaPregunta(CategoriaPregunta categoriaPregunta) {
-    this.categoriaPregunta = categoriaPregunta;
   }
 
   public Long getIdProvincia() {

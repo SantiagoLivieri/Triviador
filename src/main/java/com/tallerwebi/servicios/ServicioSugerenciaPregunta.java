@@ -8,6 +8,8 @@ import java.util.List;
 public interface ServicioSugerenciaPregunta {
   void crearSugerencia(DatosSugerenciaPregunta datos, Usuario usuarioCreador);
 
+  void crearPreguntaComoAdmin(DatosSugerenciaPregunta datos, Usuario usuarioAdmin);
+
   List<SugerenciaPregunta> obtenerSugerenciasPendientes();
 
   List<SugerenciaPregunta> obtenerTodas();

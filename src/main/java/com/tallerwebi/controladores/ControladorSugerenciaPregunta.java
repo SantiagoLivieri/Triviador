@@ -23,6 +23,7 @@ public class ControladorSugerenciaPregunta {
   private static final String VISTA_SUGERIR_PREGUNTA = "sugerir-pregunta";
   private static final String VISTA_ADMIN_SUGERENCIAS = "admin-sugerencias";
   private static final String VISTA_ADMIN_EDITAR_SUGERENCIA = "admin-editar-sugerencia";
+  private static final String VISTA_ADMIN_CREAR_PREGUNTA = "admin-crear-pregunta";
   private static final String REDIRECT_HOME = "redirect:/home";
   private static final String REDIRECT_ADMIN_SUGERENCIAS = "redirect:/admin/sugerencias";
   private static final String ERROR = "error";
@@ -164,6 +165,43 @@ public class ControladorSugerenciaPregunta {
       cargarDatosFormulario(modelo);
       return new ModelAndView(VISTA_ADMIN_EDITAR_SUGERENCIA, modelo);
     }
+  }
+
+  @GetMapping("/admin/preguntas/crear")
+  public ModelAndView mostrarFormularioCrearPreguntaAdmin(HttpSession session) {
+    Usuario usuario = (Usuario) session.getAttribute(USUARIO_LOGUEADO);
+
+    if (!esAdmin(usuario)) {
+      return new ModelAndView(REDIRECT_HOME);
+    }
+
+    ModelMap modelo = new ModelMap();
+    cargarDatosFormulario(modelo);
+    modelo.put(DATOS_SUGERENCIA, new DatosSugerenciaPregunta());
+
+    return new ModelAndView(VISTA_ADMIN_CREAR_PREGUNTA, modelo);
+  }
+
+  @PostMapping("/admin/preguntas/crear")
+  public ModelAndView guardarPreguntaAdmin(
+    @ModelAttribute(DATOS_SUGERENCIA) DatosSugerenciaPregunta datos,
+    HttpSession session
+  ) {
+    Usuario usuario = (Usuario) session.getAttribute(USUARIO_LOGUEADO);
+    ModelMap modelo = new ModelMap();
+
+    try {
+      servicioSugerenciaPregunta.crearPreguntaComoAdmin(datos, usuario);
+      modelo.put(EXITO, "¡Pregunta creada correctamente!");
+      modelo.put(DATOS_SUGERENCIA, new DatosSugerenciaPregunta());
+    } catch (IllegalArgumentException e) {
+      modelo.put(ERROR, e.getMessage());
+      modelo.put(DATOS_SUGERENCIA, datos);
+    }
+
+    cargarDatosFormulario(modelo);
+
+    return new ModelAndView(VISTA_ADMIN_CREAR_PREGUNTA, modelo);
   }
 
   private void cargarDatosFormulario(ModelMap modelo) {

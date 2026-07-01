@@ -24,6 +24,8 @@ public class ServicioSugerenciaPreguntaImpl implements ServicioSugerenciaPregunt
   private final RepositorioPregunta repositorioPregunta;
   private final RepositorioProvincia repositorioProvincia;
 
+  private static final String PROVINCIA_NO_EXISTE = "La provincia seleccionada no existe.";
+
   @Autowired
   public ServicioSugerenciaPreguntaImpl(
     RepositorioSugerenciaPregunta repositorioSugerenciaPregunta,
@@ -40,11 +42,7 @@ public class ServicioSugerenciaPreguntaImpl implements ServicioSugerenciaPregunt
     validarUsuarioJugador(usuarioCreador);
     validarDatos(datos);
 
-    Provincia provincia = repositorioProvincia.buscarPorId(datos.getIdProvincia());
-
-    if (provincia == null) {
-      throw new IllegalArgumentException("La provincia seleccionada no existe.");
-    }
+    Provincia provincia = buscarProvinciaSeleccionada(datos.getIdProvincia());
 
     SugerenciaPregunta sugerencia = new SugerenciaPregunta(
       datos.getEnunciado().trim(),
@@ -57,6 +55,25 @@ public class ServicioSugerenciaPreguntaImpl implements ServicioSugerenciaPregunt
     );
 
     repositorioSugerenciaPregunta.guardar(sugerencia);
+  }
+
+  @Override
+  public void crearPreguntaComoAdmin(DatosSugerenciaPregunta datos, Usuario usuarioAdmin) {
+    validarUsuarioAdmin(usuarioAdmin);
+    validarDatos(datos);
+
+    Provincia provincia = buscarProvinciaSeleccionada(datos.getIdProvincia());
+
+    Pregunta pregunta = construirPregunta(
+      datos.getEnunciado().trim(),
+      datos.getRespuestaCorrecta().trim(),
+      datos.getOpcionIncorrectaUno().trim(),
+      datos.getOpcionIncorrectaDos().trim(),
+      datos.getOpcionIncorrectaTres().trim(),
+      provincia
+    );
+
+    repositorioPregunta.guardar(pregunta);
   }
 
   @Override
@@ -87,14 +104,12 @@ public class ServicioSugerenciaPreguntaImpl implements ServicioSugerenciaPregunt
       throw new IllegalArgumentException("La sugerencia no existe.");
     }
 
-    Pregunta preguntaAprobada = new Pregunta(
+    Pregunta preguntaAprobada = construirPregunta(
       sugerencia.getEnunciado(),
       sugerencia.getRespuestaCorrecta(),
       sugerencia.getOpcionIncorrectaUno(),
       sugerencia.getOpcionIncorrectaDos(),
       sugerencia.getOpcionIncorrectaTres(),
-      TipoPregunta.MULTIPLE_CHOICE,
-      null,
       sugerencia.getProvincia()
     );
 
@@ -120,11 +135,7 @@ public class ServicioSugerenciaPreguntaImpl implements ServicioSugerenciaPregunt
       throw new IllegalArgumentException("La sugerencia no existe.");
     }
 
-    Provincia provincia = repositorioProvincia.buscarPorId(datos.getIdProvincia());
-
-    if (provincia == null) {
-      throw new IllegalArgumentException("La provincia seleccionada no existe.");
-    }
+    Provincia provincia = buscarProvinciaSeleccionada(datos.getIdProvincia());
 
     sugerencia.actualizarDatos(
       datos.getEnunciado().trim(),
@@ -149,6 +160,34 @@ public class ServicioSugerenciaPreguntaImpl implements ServicioSugerenciaPregunt
     }
 
     repositorioSugerenciaPregunta.eliminar(sugerencia);
+  }
+
+  private Provincia buscarProvinciaSeleccionada(Long idProvincia) {
+    Provincia provincia = repositorioProvincia.buscarPorId(idProvincia);
+    if (provincia == null) {
+      throw new IllegalArgumentException(PROVINCIA_NO_EXISTE);
+    }
+    return provincia;
+  }
+
+  private Pregunta construirPregunta(
+    String enunciado,
+    String respuestaCorrecta,
+    String opcionIncorrectaUno,
+    String opcionIncorrectaDos,
+    String opcionIncorrectaTres,
+    Provincia provincia
+  ) {
+    return new Pregunta(
+      enunciado,
+      respuestaCorrecta,
+      opcionIncorrectaUno,
+      opcionIncorrectaDos,
+      opcionIncorrectaTres,
+      TipoPregunta.MULTIPLE_CHOICE,
+      null,
+      provincia
+    );
   }
 
   private void validarDatos(DatosSugerenciaPregunta datos) {

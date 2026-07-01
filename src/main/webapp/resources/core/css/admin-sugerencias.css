@@ -318,6 +318,12 @@ body {
   text-align: center;
 }
 
+.alerta-exito {
+  background-color: var(--color-green-100);
+  color: var(--color-green-800);
+  border: 1px solid #86efac;
+}
+
 @media (max-width: 760px) {
   .acciones-edicion {
     flex-direction: column;
