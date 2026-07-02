@@ -27,8 +27,8 @@ public class HibernateConfig {
     if (dbPort == null) dbPort = "3306";
 
     if (dbName == null) dbName = "triviador"; //Nombre de la base de datos
-    if (dbUser == null) dbUser = "user"; // Usuario de MySQL Workbench
-    if (dbPassword == null) dbPassword = "user"; //Contraseña de MySQL Workbench
+    if (dbUser == null) dbUser = "root"; // Usuario de MySQL Workbench
+    if (dbPassword == null) dbPassword = "root"; //Contraseña de MySQL Workbench
 
     String url = String.format(
       "jdbc:mysql://%s:%s/%s?useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true",

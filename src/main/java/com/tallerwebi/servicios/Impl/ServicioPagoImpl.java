@@ -30,7 +30,7 @@ public class ServicioPagoImpl implements ServicioPago {
   private static final Logger LOGGER = LoggerFactory.getLogger(ServicioPagoImpl.class);
 
   // esta url puede cambiar cada vez q se levanta el proyecto
-  private static final String BASE_URL_NGROK = "https://slot-fascism-repossess.ngrok-free.dev";
+  private static final String BASE_URL_NGROK = "https://dashboard.ngrok.com/early-access";
 
   private static final String ESTADO_APROBADO = "approved";
   private static final String SEPARADOR_REFERENCIA = "_";

@@ -44,7 +44,7 @@ public class ControladorSugerenciaPreguntaTest {
     return usuario;
   }
 
-  //mostrarFormularioSugerencia    
+  //mostrarFormularioSugerencia
   @Test
   public void jugadorPuedeVerFormularioDeSugerencia() {
     Usuario jugador = crearUsuarioConRol("JUGADOR");
@@ -178,15 +178,13 @@ public class ControladorSugerenciaPreguntaTest {
 
   @Test
   public void eliminarSugerenciaConErrorRedireccionaAlListado() {
-
     Usuario admin = crearUsuarioConRol("ADMIN");
 
-    when(session.getAttribute("usuarioLogueado"))
-    .thenReturn(admin);
+    when(session.getAttribute("usuarioLogueado")).thenReturn(admin);
 
     doThrow(new IllegalArgumentException("error"))
-    .when(servicioSugerenciaPregunta)
-    .eliminarSugerencia(1L, admin);
+      .when(servicioSugerenciaPregunta)
+      .eliminarSugerencia(1L, admin);
 
     ModelAndView mv = controlador.eliminarSugerencia(1L, session);
 
@@ -195,7 +193,7 @@ public class ControladorSugerenciaPreguntaTest {
     verify(servicioSugerenciaPregunta).eliminarSugerencia(1L, admin);
   }
 
-  //mostrarEditarSugerencia 
+  //mostrarEditarSugerencia
   @Test
   public void editarSugerenciaNoAdminRedireccionaHome() {
     Usuario jugador = crearUsuarioConRol("JUGADOR");
@@ -219,7 +217,6 @@ public class ControladorSugerenciaPreguntaTest {
 
     assertEquals("redirect:/admin/sugerencias", mv.getViewName());
   }
-
 
   @Test
   public void editarSugerenciaExistenteMuestraVista() {
@@ -253,7 +250,6 @@ public class ControladorSugerenciaPreguntaTest {
 
   @Test
   public void editarSugerenciaConProvinciaCargaIdProvincia() {
-
     Usuario admin = crearUsuarioConRol("ADMIN");
 
     Provincia provincia = mock(Provincia.class);
@@ -268,17 +264,16 @@ public class ControladorSugerenciaPreguntaTest {
     when(sugerencia.getOpcionIncorrectaTres()).thenReturn("C");
     when(sugerencia.getProvincia()).thenReturn(provincia);
 
-    when(session.getAttribute("usuarioLogueado"))
-    .thenReturn(admin);
+    when(session.getAttribute("usuarioLogueado")).thenReturn(admin);
 
-    when(servicioSugerenciaPregunta.buscarPorId(1L))
-    .thenReturn(sugerencia);
+    when(servicioSugerenciaPregunta.buscarPorId(1L)).thenReturn(sugerencia);
 
     ModelAndView mv = controlador.mostrarEditarSugerencia(1L, session);
 
-    DatosSugerenciaPregunta datos = 
-    (DatosSugerenciaPregunta) mv.getModel().get("datosSugerenciaPregunta");
-    
+    DatosSugerenciaPregunta datos = (DatosSugerenciaPregunta) mv
+      .getModel()
+      .get("datosSugerenciaPregunta");
+
     assertEquals(5L, datos.getIdProvincia());
   }
 
@@ -297,17 +292,15 @@ public class ControladorSugerenciaPreguntaTest {
 
   @Test
   public void guardarEdicionConErrorMuestraFormularioNuevamente() {
-
     Usuario admin = crearUsuarioConRol("ADMIN");
 
     DatosSugerenciaPregunta datos = new DatosSugerenciaPregunta();
 
-    when(session.getAttribute("usuarioLogueado"))
-    .thenReturn(admin);
+    when(session.getAttribute("usuarioLogueado")).thenReturn(admin);
 
     doThrow(new IllegalArgumentException("datos inválidos"))
-    .when(servicioSugerenciaPregunta)
-    .actualizarSugerencia(datos, admin);
+      .when(servicioSugerenciaPregunta)
+      .actualizarSugerencia(datos, admin);
 
     ModelAndView mv = controlador.guardarEdicionSugerencia(datos, session);
 
@@ -334,10 +327,9 @@ public class ControladorSugerenciaPreguntaTest {
   public void usuarioNoAdminNoPuedeVerFormularioCrearPregunta() {
     Usuario jugador = crearUsuarioConRol("JUGADOR");
 
-    when(session.getAttribute("usuarioLogueado"))
-    .thenReturn(jugador);
+    when(session.getAttribute("usuarioLogueado")).thenReturn(jugador);
 
-    ModelAndView mv =controlador.mostrarFormularioCrearPreguntaAdmin(session);
+    ModelAndView mv = controlador.mostrarFormularioCrearPreguntaAdmin(session);
 
     assertEquals("redirect:/home", mv.getViewName());
   }
@@ -360,17 +352,15 @@ public class ControladorSugerenciaPreguntaTest {
 
   @Test
   public void guardarPreguntaAdminConErrorMuestraFormulario() {
-
     Usuario admin = crearUsuarioConRol("ADMIN");
 
     DatosSugerenciaPregunta datos = new DatosSugerenciaPregunta();
 
-    when(session.getAttribute("usuarioLogueado"))
-    .thenReturn(admin);
+    when(session.getAttribute("usuarioLogueado")).thenReturn(admin);
 
     doThrow(new IllegalArgumentException("pregunta inválida"))
-    .when(servicioSugerenciaPregunta)
-    .crearPreguntaComoAdmin(datos, admin);
+      .when(servicioSugerenciaPregunta)
+      .crearPreguntaComoAdmin(datos, admin);
 
     ModelAndView mv = controlador.guardarPreguntaAdmin(datos, session);
 
