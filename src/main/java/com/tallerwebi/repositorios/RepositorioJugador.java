@@ -13,4 +13,6 @@ public interface RepositorioJugador {
   List<Jugador> buscarTodos();
 
   Jugador buscarPorId(Long idJugadorDuenio);
+
+  Jugador buscarPorUsuarioIdYPartidaId(Long usuarioId, Long partidaId);
 }

@@ -27,6 +27,10 @@ public class Jugador {
   private Integer puntaje = 0;
 
   @ManyToOne
+  @JoinColumn(name = "partida_id", nullable = false)
+  private Partida partida;
+
+  @ManyToOne
   @JoinColumn(name = "usuario_id", nullable = true)
   private Usuario usuario;
 
@@ -88,5 +92,13 @@ public class Jugador {
 
   public Usuario getUsuario() {
     return usuario;
+  }
+
+  public Partida getPartida() {
+    return partida;
+  }
+
+  public void setPartida(Partida partida) {
+    this.partida = partida;
   }
 }

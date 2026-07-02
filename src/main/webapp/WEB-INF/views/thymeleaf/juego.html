@@ -5,7 +5,7 @@
   <meta charset="UTF-8">
   <link rel="stylesheet" th:href="@{/css/main.css}">
   <title>Triviador Argentina - Partida</title>
-
+  <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
   <link rel="stylesheet" th:href="@{/css/leaflet.css}">
   <link rel="stylesheet" th:href="@{/css/mapa.css}">
   <link rel="stylesheet" th:href="@{/css/juego.css}">
@@ -79,13 +79,10 @@
 
   <script th:src="@{/js/leaflet.js}"></script>
 
-
-  <script type="module" th:src="@{/js/mapa.js}"></script>
-
   <script th:inline="javascript">
 
     const partidaId = /*[[${partida.id}]]*/ 0;
-    const inicioEtapaStr = /*[[${partida.inicioEtapa.toString()}]]*/ '';
+    const inicioEtapaStr = /*[[${partida.inicioEtapa?.toString()}]]*/ '';
     const inicioTurno = new Date(inicioEtapaStr).getTime();
     const DURACION_TURNO_MS = 30 * 1000;
     const display = document.getElementById('timer');
@@ -130,6 +127,8 @@
       form.submit();
     }
   </script>
+  <script type="module" th:src="@{/js/mapa.js}"></script>
+
 </body>
 
 </html>

@@ -47,4 +47,6 @@ public interface ServicioJuego {
   String evaluarAcierto(Long partidaId, Long idProvincia, Integer respondidas, Integer requeridas);
 
   List<Provincia> obtenerProvinciasDelTablero();
+
+  void validarTurnoMultijugador(Long partidaId, Long id) throws TurnoInvalidoException;
 }

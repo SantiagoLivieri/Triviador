@@ -4,6 +4,7 @@ import com.tallerwebi.controladores.clasesAuxiliares.EstadoDePartida;
 import com.tallerwebi.entidades.Jugador;
 import com.tallerwebi.entidades.Partida;
 import com.tallerwebi.entidades.Usuario;
+import com.tallerwebi.repositorios.RepositorioJugador;
 import com.tallerwebi.repositorios.RepositorioPartida;
 import com.tallerwebi.servicios.ServicioPartida;
 import java.time.LocalDateTime;
@@ -19,10 +20,15 @@ import org.springframework.stereotype.Service;
 public class ServicioPartidaImpl implements ServicioPartida {
 
   private final RepositorioPartida repositorioPartida;
+  private final RepositorioJugador repositorioJugador;
 
   @Autowired
-  public ServicioPartidaImpl(RepositorioPartida repositorioPartida) {
+  public ServicioPartidaImpl(
+    RepositorioPartida repositorioPartida,
+    RepositorioJugador repositorioJugador
+  ) {
     this.repositorioPartida = repositorioPartida;
+    this.repositorioJugador = repositorioJugador;
   }
 
   @Override
@@ -32,6 +38,10 @@ public class ServicioPartidaImpl implements ServicioPartida {
     List<Jugador> listaMezclada = new ArrayList<>(jugadores);
 
     Collections.shuffle(listaMezclada);
+
+    for (Jugador jugador : listaMezclada) {
+      jugador.setPartida(partida);
+    }
 
     partida.setJugadores(listaMezclada);
     partida.setJugadorEnTurno(listaMezclada.get(0));
@@ -63,10 +73,12 @@ public class ServicioPartidaImpl implements ServicioPartida {
       partida = new Partida();
       partida.setEstadoDePartida(EstadoDePartida.EN_ESPERA);
       partida.setJugadores(new ArrayList<>());
+      repositorioPartida.guardar(partida);
     }
     Jugador nuevojugador = new Jugador(usuario.getNombre(), "ROJO", usuario);
-
+    nuevojugador.setPartida(partida);
     partida.agregarJugador(nuevojugador);
+    repositorioJugador.guardar(nuevojugador);
 
     if (partida.getJugadores().size() == partida.CANTIDAD_JUGADORES_MAXIMA) {
       partida.setEstadoDePartida(EstadoDePartida.JUGANDO);

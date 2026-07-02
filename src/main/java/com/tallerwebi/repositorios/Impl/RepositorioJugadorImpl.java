@@ -3,6 +3,7 @@ package com.tallerwebi.repositorios.Impl;
 import com.tallerwebi.entidades.Jugador;
 import com.tallerwebi.repositorios.RepositorioJugador;
 import java.util.List;
+import javax.transaction.Transactional;
 import org.hibernate.SessionFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
@@ -11,6 +12,7 @@ import org.springframework.stereotype.Repository;
  * Implementacion del repositorio de jugadores.
  */
 @Repository
+@Transactional
 public class RepositorioJugadorImpl implements RepositorioJugador {
 
   private final SessionFactory sessionFactory;
@@ -49,6 +51,16 @@ public class RepositorioJugadorImpl implements RepositorioJugador {
       .getCurrentSession()
       .createQuery("from Jugador where id = :id")
       .setParameter("id", idJugadorDuenio)
+      .uniqueResult();
+  }
+
+  @Override
+  public Jugador buscarPorUsuarioIdYPartidaId(Long usuarioId, Long partidaId) {
+    return (Jugador) sessionFactory
+      .getCurrentSession()
+      .createQuery("from Jugador where usuario.id = :usuarioId and partida.id = :partidaId")
+      .setParameter("usuarioId", usuarioId)
+      .setParameter("partidaId", partidaId)
       .uniqueResult();
   }
 }

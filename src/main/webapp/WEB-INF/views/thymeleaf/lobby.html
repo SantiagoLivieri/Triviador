@@ -21,7 +21,7 @@
     <h2>Crear partida local</h2>
     <p>Ingresá los nombres de los jugadores y elegí un color para cada uno.</p>
 
-    <form th:action="@{/iniciar-partida}" th:object="${datosLobby}" method="post">
+    <form th:action="@{/juego/iniciar-partida}" th:object="${datosLobby}" method="post">
       <div class="jugadores-grid">
 
         <article class="jugador" id="cardPlayer1">

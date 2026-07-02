@@ -274,6 +274,22 @@ public class ServicioJuegoImpl implements ServicioJuego {
   }
 
   @Override
+  public void validarTurnoMultijugador(Long partidaId, Long usuarioId)
+    throws TurnoInvalidoException {
+    Jugador jugadorQueIntenta = servicioJugador.buscarPorUsuarioIdYPartidaId(usuarioId, partidaId);
+
+    if (jugadorQueIntenta == null) {
+      throw new TurnoInvalidoException("El usuario no participa en esta partida");
+    }
+
+    Partida partida = servicioPartida.buscarPorId(partidaId);
+
+    if (!partida.getJugadorEnTurno().getId().equals(jugadorQueIntenta.getId())) {
+      throw new TurnoInvalidoException("Fuera de turno");
+    }
+  }
+
+  @Override
   public Partida obtenerPartidaPorId(Long partidaId) {
     return servicioPartida.buscarPorId(partidaId);
   }

@@ -194,7 +194,7 @@ main {
     gap: 14px;
 }
 
-/*.provincia {
+.provincia {
       min-height: 82px;
       border: none;
       border-radius: 14px;
@@ -245,7 +245,7 @@ main {
 
     .provincia {
       width: 100%;
-    }*/
+    }
 
 @media (max-width: 900px) {
     .tablero {

@@ -39,6 +39,7 @@ L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/
 
 //hago que lea el geoJSON
 //agregué date.now para que el navegador descargue el json y no use cargas viejas
+document.addEventListener('DOMContentLoaded', () => {
 fetch('/spring/js/ProvinciasArgentinas.json?v=' + Date.now())
     .then(response => response.json())
     .then(data => {
@@ -87,3 +88,4 @@ fetch('/spring/js/ProvinciasArgentinas.json?v=' + Date.now())
         provinciasLayer.addTo(map);
 
     });
+});

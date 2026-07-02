@@ -29,6 +29,11 @@ public class ServicioJugadorImpl implements ServicioJugador {
     return jugador;
   }
 
+  @Override
+  public Jugador buscarPorUsuarioIdYPartidaId(Long usuarioId, Long partidaId) {
+    return repositorioJugador.buscarPorUsuarioIdYPartidaId(usuarioId, partidaId);
+  }
+
   @Autowired
   public ServicioJugadorImpl(RepositorioJugador repositorioJugador) {
     this.repositorioJugador = repositorioJugador;

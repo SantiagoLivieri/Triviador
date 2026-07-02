@@ -15,4 +15,6 @@ public interface ServicioJugador {
   Jugador crearJugador(String nombre, String color);
 
   Jugador crearJugadorConUsuario(Usuario usuarioAnfitrion, String colorJugadorUno);
+
+  Jugador buscarPorUsuarioIdYPartidaId(Long usuarioId, Long partidaId);
 }

@@ -30,10 +30,10 @@ public class ControladorPregunta {
 
   private static final String ATRIBUTO_PARTIDA_ID = "partidaId";
   private static final String MENSAJE_RESULTADO = "mensajeResultado";
-  private static final String REDIRECT_TABLERO = "redirect:/juego?id=";
+  private static final String REDIRECT_TABLERO = "redirect:/juego/partida/";
   private static final String REDIRECT_PREGUNTA_ACTUAL =
     "redirect:/disputa/pregunta-actual?partidaId=";
-  private static final String REDIRECT_RESULTADOS = "redirect:/partida/resultados/";
+  private static final String REDIRECT_RESULTADOS = "redirect:/juego/partida/resultados/";
 
   public static final String REQUERIDAS_ATTR = "preguntasRequeridas";
   public static final String RESPONDIDAS_ATTR = "preguntasRespondidasExito";
@@ -63,6 +63,14 @@ public class ControladorPregunta {
     HttpSession session
   ) {
     try {
+      Partida partida = servicioJuego.obtenerPartidaPorId(partidaId);
+
+      if (partida.getJugadorEnTurno() == null && !partida.getJugadores().isEmpty()) {
+        partida.setJugadorEnTurno(partida.getJugadores().get(0));
+        servicioJuego.actualizarPartida(partida);
+      }
+
+      // 3. Iniciamos el ataque
       servicioJuego.iniciarAtaque(partidaId, idProvincia);
 
       Set<Long> preguntasHechas = servicioJuego.obtenerPreguntasHechas(partidaId);
@@ -93,7 +101,7 @@ public class ControladorPregunta {
       return new ModelAndView(REDIRECT_PREGUNTA_ACTUAL + partidaId);
     } catch (Exception e) {
       session.setAttribute(MENSAJE_RESULTADO, e.getMessage());
-      return new ModelAndView(REDIRECT_TABLERO + partidaId);
+      return new ModelAndView("redirect:/partida/" + partidaId);
     }
   }
 

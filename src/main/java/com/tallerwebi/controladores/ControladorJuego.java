@@ -20,14 +20,14 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
 
 @Controller
+@RequestMapping("/juego")
 public class ControladorJuego {
 
   private final ServicioJuego servicioJuego;
 
   private static final String ATRIBUTO_PARTIDA_ID = "partidaId";
 
-  private static final String REDIRECT_JUEGO = "redirect:/juego?id=";
-
+  private static final String REDIRECT_JUEGO = "redirect:/juego/partida/";
   private static final String MENSAJE_RESULTADO = "mensajeResultado";
   public static final String REQUERIDAS_ATTR = "preguntasRequeridas";
   public static final String RESPONDIDAS_ATTR = "preguntasRespondidasExito";
@@ -48,10 +48,13 @@ public class ControladorJuego {
     return new ModelAndView(REDIRECT_JUEGO + partidaId);
   }
 
-  @GetMapping("/juego")
-  public ModelAndView mostrarJuego(@RequestParam("id") Long partidaId, HttpSession session) {
-    ModelMap modelo = new ModelMap();
+  @GetMapping("/partida/{id}")
+  public ModelAndView mostrarJuego(@PathVariable("id") Long partidaId, HttpSession session) {
     Partida partida = servicioJuego.obtenerPartidaPorId(partidaId);
+    if (partida.getJugadorEnTurno() == null && !partida.getJugadores().isEmpty()) {
+      partida.setJugadorEnTurno(partida.getJugadores().get(0));
+    }
+    ModelMap modelo = new ModelMap();
 
     modelo.put("coloresPorJugador", partida.obtenerMapaDeColoresPorJugador());
     modelo.put("partida", partida);
