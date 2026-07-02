@@ -27,3 +27,6 @@ hs_err_pid*
 
 # Local configuration file for database connection
 src\main\java\com\tallerwebi\config\HibernateConfig.java
+
+# Claves locales
+src\main\resources\application-local.properties

@@ -6,6 +6,8 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.PropertySource;
+import org.springframework.context.support.PropertySourcesPlaceholderConfigurer;
 import org.springframework.web.filter.CharacterEncodingFilter;
 import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
@@ -21,6 +23,7 @@ import org.thymeleaf.templatemode.TemplateMode;
 @ComponentScan(
   { "com.tallerwebi.controladores", "com.tallerwebi.servicios", "com.tallerwebi.repositorios" }
 )
+@PropertySource("classpath:application-local.properties")
 public class SpringWebConfig implements WebMvcConfigurer {
 
   // Spring + Thymeleaf need this
@@ -92,6 +95,11 @@ public class SpringWebConfig implements WebMvcConfigurer {
     return filter;
   }
 
+  @Bean
+  public static PropertySourcesPlaceholderConfigurer propertyConfigInDev() {
+    return new PropertySourcesPlaceholderConfigurer();
+  }
+
   @Override
   public void addInterceptors(InterceptorRegistry registry) {
     registry
@@ -104,7 +112,10 @@ public class SpringWebConfig implements WebMvcConfigurer {
         "/validarRegistro",
         "/css/**",
         "/js/**",
-        "/img/**"
+        "/img/**",
+        "/api/**",
+        "**/api/**",
+        "/api/pagos/**"
       );
   }
 }
