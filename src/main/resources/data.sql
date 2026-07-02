@@ -206,9 +206,10 @@ INSERT INTO Comodin (id, nombre, descripcion, costo)
 VALUES (3, 'PASAR_PREGUNTA', 'Salta la pregunta actual sin penalizaciones y te asigna una nueva tarjeta distinta.', 25)
 ON DUPLICATE KEY UPDATE nombre = VALUES(nombre), descripcion = VALUES(descripcion), costo = VALUES(costo);
 
-INSERT IGNORE INTO paquetemonedas (titulo, cantidadCoins, precioArs, beneficioExtra)
+INSERT IGNORE INTO paquetemonedas (titulo, cantidadCoins, precioArs, beneficioExtra) 
 VALUES ('Bolsita de Coins', 200, 350.00, 'Ideal para arrancar');
 
-INSERT IGNORE INTO paquetemonedas (titulo, cantidadCoins, precioArs, beneficioExtra)
+INSERT IGNORE INTO paquetemonedas (titulo, cantidadCoins, precioArs, beneficioExtra) 
 VALUES ('Cofre Táctico', 1000, 1500.00, '+1 Doble Chance GRATIS');
-*/
+
+ */

@@ -76,7 +76,7 @@ public class ControladorJuego {
     return "mapa";
   }
 
-  @RequestMapping(path = "/juego/tiempo-agotado", method = RequestMethod.POST)
+  @RequestMapping(path = "/tiempo-agotado", method = RequestMethod.POST)
   public ModelAndView tiempoAgotado(
     @RequestParam(ATRIBUTO_PARTIDA_ID) Long partidaId,
     HttpSession session
@@ -85,7 +85,7 @@ public class ControladorJuego {
     Long usuarioId = (Long) session.getAttribute("usuarioId");
 
     if (servicioJuego.evaluarYFinalizarPartida(partidaId, usuarioId)) {
-      return new ModelAndView("redirect:/partida/resultados/" + partidaId);
+      return new ModelAndView("redirect:/juego/partida/resultados/" + partidaId);
     }
 
     return new ModelAndView(REDIRECT_JUEGO + partidaId);
