@@ -41,16 +41,7 @@ L.tileLayer(
   }
 ).addTo(map);
 
-//hago que lea el geoJSON
-//agregué date.now para que el navegador descargue el json y no use cargas viejas
-document.addEventListener('DOMContentLoaded', () => {
-fetch('/spring/js/ProvinciasArgentinas.json?v=' + Date.now())
-    .then(response => response.json())
-    .then(data => {
 
-        const provinciasLayer = L.geoJSON(data, {
-
-            style: estiloProvincia,
 // Hago que lea el GeoJSON.
 // Agregué Date.now para que el navegador descargue el JSON y no use cargas viejas.
 fetch(`/spring/js/ProvinciasArgentinas.json?v=${Date.now()}`)
@@ -93,5 +84,4 @@ fetch(`/spring/js/ProvinciasArgentinas.json?v=${Date.now()}`)
 
         provinciasLayer.addTo(map);
 
-    });
 });

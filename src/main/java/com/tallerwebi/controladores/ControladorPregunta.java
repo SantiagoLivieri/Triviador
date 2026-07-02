@@ -101,7 +101,7 @@ public class ControladorPregunta {
       return new ModelAndView(REDIRECT_PREGUNTA_ACTUAL + partidaId);
     } catch (Exception e) {
       session.setAttribute(MENSAJE_RESULTADO, e.getMessage());
-      return new ModelAndView("redirect:/partida/" + partidaId);
+      return new ModelAndView("redirect:/juego/partida/" + partidaId);
     }
   }
 
