@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sugerir pregunta - Triviador Argentina</title>
+
+  <link rel="stylesheet" th:href="@{/css/main.css}">
+  <link rel="stylesheet" th:href="@{/css/sugerir-pregunta.css}">
+</head>
+
+<body>
+
+  <main class="contenedor-sugerencia">
+    <h1 class="titulo-sugerencia">Sugerir pregunta</h1>
+
+    <p class="subtitulo-sugerencia">
+      Cargá una pregunta para que un administrador la revise antes de sumarla al juego.
+    </p>
+
+    <div th:if="${error != null}" class="alerta-sugerencia alerta-error" th:text="${error}">
+      Error
+    </div>
+
+    <div th:if="${exito != null}" class="alerta-sugerencia alerta-exito" th:text="${exito}">
+      Sugerencia enviada
+    </div>
+
+    <form th:action="@{/sugerir-pregunta}" method="POST" th:object="${datosSugerenciaPregunta}">
+
+      <div class="grupo-formulario">
+        <label for="enunciado">Enunciado de la pregunta</label>
+        <textarea id="enunciado" th:field="*{enunciado}" required
+          placeholder="Ejemplo: ¿Cuál es la capital de la provincia de Mendoza?"></textarea>
+      </div>
+
+      <div class="grupo-formulario">
+        <label for="respuestaCorrecta">Respuesta correcta</label>
+        <input type="text" id="respuestaCorrecta" th:field="*{respuestaCorrecta}" required
+          placeholder="Ejemplo: Mendoza">
+      </div>
+
+      <div class="grupo-formulario">
+        <label for="opcionIncorrectaUno">Respuesta incorrecta 1</label>
+        <input type="text" id="opcionIncorrectaUno" th:field="*{opcionIncorrectaUno}" required>
+      </div>
+
+      <div class="grupo-formulario">
+        <label for="opcionIncorrectaDos">Respuesta incorrecta 2</label>
+        <input type="text" id="opcionIncorrectaDos" th:field="*{opcionIncorrectaDos}" required>
+      </div>
+
+      <div class="grupo-formulario">
+        <label for="opcionIncorrectaTres">Respuesta incorrecta 3</label>
+        <input type="text" id="opcionIncorrectaTres" th:field="*{opcionIncorrectaTres}" required>
+      </div>
+
+      <div class="grupo-formulario">
+  <label for="idProvincia">Provincia relacionada</label>
+  <select id="idProvincia" th:field="*{idProvincia}" required>
+    <option value="">Seleccionar provincia</option>
+    <option th:each="provincia : ${provincias}"
+            th:value="${provincia.id}"
+            th:text="${provincia.nombre}">
+      Provincia
+    </option>
+  </select>
+</div>
+
+      <div class="acciones-sugerencia">
+        <button type="submit" class="btn-sugerencia btn-principal">
+          Enviar sugerencia
+        </button>
+
+        <a th:href="@{/home}" class="btn-sugerencia btn-secundario">
+          Volver al inicio
+        </a>
+      </div>
+
+    </form>
+  </main>
+
+</body>
+
+</html>

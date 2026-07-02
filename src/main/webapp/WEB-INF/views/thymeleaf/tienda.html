@@ -29,38 +29,70 @@
     <div th:if="${error != null}" class="alerta alerta-error" th:text="${error}"></div>
     <div th:if="${exito != null}" class="alerta alerta-exito" th:text="${exito}"></div>
 
-    <main class="articulos-grilla">
+    <nav class="tienda-pestanas">
+      <button class="btn-pestana activa" data-target="panel-comodines">✨ Ventajas y Comodines</button>
+      <button class="btn-pestana" data-target="panel-coins">🪙 Cargar TriviaCoins</button>
+    </nav>
 
-      <article th:each="item : ${comodines}" class="tarjeta-article"
-        th:classappend="${item.nombre == 'ELIMINAR_2' ? 'item-destacado' : (item.nombre == 'DOBLE_CHANCE' ? 'item-intermedio' : 'item-economico')}">
+    <main class="tienda-contenido">
 
-        <div class="articulo-icono"
-          th:text="${item.nombre == 'ELIMINAR_2' ? '✂️' : (item.nombre == 'DOBLE_CHANCE' ? '🛡️' : '⏭️')}">✂️</div>
+      <section id="panel-comodines" class="panel-tienda activo articulos-grilla">
+        <article th:each="item : ${comodines}" class="tarjeta-articulo"
+          th:classappend="${item.nombre == 'ELIMINAR_2' ? 'item-destacado' : (item.nombre == 'DOBLE_CHANCE' ? 'item-intermedio' : 'item-economico')}">
 
-        <h3 class="articulo-nombre"
-          th:text="${item.nombre == 'ELIMINAR_2' ? 'Eliminar 2 Respuestas' : (item.nombre == 'DOBLE_CHANCE' ? 'Doble Chance' : 'Pasar Pregunta')}">
-          Nombre</h3>
+          <div class="articulo-icono"
+            th:text="${item.nombre == 'ELIMINAR_2' ? '✂️' : (item.nombre == 'DOBLE_CHANCE' ? '🛡️' : '⏭️')}">✂️</div>
 
-        <p class="articulo-descripcion" th:text="${item.descripcion}">Descripción dinámica traída desde la base de
-          datos.</p>
+          <h3 class="articulo-nombre"
+            th:text="${item.nombre == 'ELIMINAR_2' ? 'Eliminar 2 Respuestas' : (item.nombre == 'DOBLE_CHANCE' ? 'Doble Chance' : 'Pasar Pregunta')}">
+            Nombre</h3>
 
-        <div class="articulo-inventario">
-          <span th:if="${item.nombre == 'ELIMINAR_2'}"
-            th:text="'En inventario: ' + ${usuario.comodinesEliminarDos}">0</span>
-          <span th:if="${item.nombre == 'DOBLE_CHANCE'}"
-            th:text="'En inventario: ' + ${usuario.comodinesDobleChance}">0</span>
-          <span th:if="${item.nombre == 'PASAR_PREGUNTA'}"
-            th:text="'En inventario: ' + ${usuario.comodinesPasarPregunta}">0</span>
-        </div>
+          <p class="articulo-descripcion" th:text="${item.descripcion}">Descripción dinámica traída desde la base de
+            datos.</p>
 
-        <form th:action="@{/tienda/comprar}" method="POST" class="form-compra">
-          <input type="hidden" name="tipo" th:value="${item.nombre}">
-          <button type="submit" class="btn-comprar">
-            <span>Comprar por</span>
-            <strong class="precio-tag" th:text="${item.costo} + ' 🪙'">50 🪙</strong>
-          </button>
-        </form>
-      </article>
+          <div class="articulo-inventario">
+            <span th:if="${item.nombre == 'ELIMINAR_2'}"
+              th:text="'En inventario: ' + ${usuario.comodinesEliminarDos}">0</span>
+            <span th:if="${item.nombre == 'DOBLE_CHANCE'}"
+              th:text="'En inventario: ' + ${usuario.comodinesDobleChance}">0</span>
+            <span th:if="${item.nombre == 'PASAR_PREGUNTA'}"
+              th:text="'En inventario: ' + ${usuario.comodinesPasarPregunta}">0</span>
+          </div>
+
+          <form th:action="@{/tienda/comprar}" method="POST" class="form-compra">
+            <input type="hidden" name="tipo" th:value="${item.nombre}">
+            <button type="submit" class="btn-comprar">
+              <span>Comprar por</span>
+              <strong class="precio-tag" th:text="${item.costo} + ' 🪙'">50 🪙</strong>
+            </button>
+          </form>
+        </article>
+      </section>
+
+      <section id="panel-coins" class="panel-tienda articulos-grilla">
+        <article th:each="paquete : ${paquetes}" class="tarjeta-articulo"
+          th:classappend="${paquete.cantidadCoins >= 1000 ? 'pack-premium' : 'pack-basico'}">
+
+          <div class="articulo-icono">💰</div>
+
+          <h3 class="articulo-nombre" th:text="${paquete.titulo}">Bolsita de Coins</h3>
+
+          <div class="pack-coins-display">
+            <span class="pack-coins-cantidad" th:text="'+' + ${paquete.cantidadCoins}">+500</span>
+            <span class="pack-coins-label">TriviaCoins</span>
+          </div>
+
+          <p class="articulo-descripcion" th:text="${paquete.beneficioExtra}">Beneficios extras de la oferta real.</p>
+
+          <form th:action="@{/tienda/comprar-coins}" method="POST" class="form-compra">
+            <input type="hidden" name="idPaquete" th:value="${paquete.id}">
+            <button type="submit" class="btn-comprar btn-mercadopago">
+              <span>Cargar por</span>
+              <strong class="precio-tag" th:text="'$' + ${paquete.precioArs}">$500</strong>
+            </button>
+          </form>
+        </article>
+      </section>
 
     </main>
 
@@ -74,6 +106,23 @@
     </footer>
 
   </div>
+
+  <script>
+    document.querySelectorAll('.btn-pestana').forEach(boton => {
+      boton.addEventListener('click', () => {
+        // 1. Quitar la clase activa de todos los botones
+        document.querySelectorAll('.btn-pestana').forEach(b => b.classList.remove('activa'));
+        // 2. Ocultar todos los paneles de la tienda
+        document.querySelectorAll('.panel-tienda').forEach(p => p.classList.remove('activo'));
+
+        // 3. Activar el botón seleccionado
+        boton.classList.add('activa');
+        // 4. Mostrar el panel correspondiente por su ID
+        const targetId = boton.getAttribute('data-target');
+        document.getElementById(targetId).classList.add('activo');
+      });
+    });
+  </script>
 
 </body>
 

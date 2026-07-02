@@ -3,7 +3,17 @@ import globals from "globals";
 import jasmine from "eslint-plugin-jasmine";
 
 export default [
+  {
+    ignores: [
+      "**/leaflet.js",
+      "node_modules/**",
+      "coverage/**",
+      "dist/**"
+    ],
+  },
+
   js.configs.recommended,
+
   {
     files: ["**/*.js"],
     languageOptions: {
@@ -14,9 +24,11 @@ export default [
         ...globals.jasmine,
       },
     },
+
     plugins: {
       jasmine,
     },
+
     rules: {
       "indent": ["error", 2],
       "linebreak-style": ["error", "unix"],
@@ -25,6 +37,7 @@ export default [
       "no-unused-vars": "warn",
     },
   },
+
   {
     files: ["spec/**/*.js"],
     rules: {

@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Revisar sugerencias - Triviador Argentina</title>
+
+  <link rel="stylesheet" th:href="@{/css/main.css}">
+  <link rel="stylesheet" th:href="@{/css/admin-sugerencias.css}">
+</head>
+
+<body>
+
+  <main class="admin-contenedor">
+
+    <header class="admin-cabecera">
+      <h1 class="admin-titulo">Sugerencias de preguntas</h1>
+      
+    </header>
+
+    <div class="acciones-sugerencia" style="justify-content: center; margin-bottom: 1.5rem; border-top: none; padding-top: 0;">
+  <a th:href="@{/admin/preguntas/crear}" class="btn-admin btn-editar">
+    Crear pregunta nueva
+  </a>
+</div>
+
+    <section th:if="${#lists.isEmpty(sugerencias)}" class="estado-vacio">
+      <div class="estado-vacio-icono">📭</div>
+      <h2>No hay sugerencias pendientes</h2>
+      <p>Cuando un jugador sugiera una pregunta, aparecerá en esta pantalla.</p>
+    </section>
+
+    <section th:unless="${#lists.isEmpty(sugerencias)}" class="sugerencias-lista">
+
+      <article th:each="sugerencia : ${sugerencias}" class="tarjeta-sugerencia">
+
+        <div class="sugerencia-superior">
+          <h2 class="sugerencia-enunciado" th:text="${sugerencia.enunciado}">
+            Enunciado de la pregunta
+          </h2>
+
+          <span class="badge-pendiente">Pendiente</span>
+        </div>
+
+        <div class="sugerencia-meta">
+          <span class="meta-item"
+                th:text="'Provincia: ' + ${sugerencia.provincia != null ? sugerencia.provincia.nombre : 'Sin provincia'}">
+            Provincia
+          </span>
+
+          <span class="meta-item"
+                th:text="'Sugerida por: ' + ${sugerencia.usuarioCreador != null ? sugerencia.usuarioCreador.nombre : 'Usuario'}">
+            Usuario
+          </span>
+        </div>
+
+        <div class="respuestas-grid">
+
+          <div class="respuesta respuesta-correcta">
+            <span class="respuesta-label">Correcta</span>
+            <span th:text="${sugerencia.respuestaCorrecta}">Respuesta correcta</span>
+          </div>
+
+          <div class="respuesta respuesta-incorrecta">
+            <span class="respuesta-label">Incorrecta 1</span>
+            <span th:text="${sugerencia.opcionIncorrectaUno}">Incorrecta 1</span>
+          </div>
+
+          <div class="respuesta respuesta-incorrecta">
+            <span class="respuesta-label">Incorrecta 2</span>
+            <span th:text="${sugerencia.opcionIncorrectaDos}">Incorrecta 2</span>
+          </div>
+
+          <div class="respuesta respuesta-incorrecta">
+            <span class="respuesta-label">Incorrecta 3</span>
+            <span th:text="${sugerencia.opcionIncorrectaTres}">Incorrecta 3</span>
+          </div>
+
+        </div>
+
+        <div class="acciones-sugerencia">
+
+          <form th:action="@{/admin/sugerencias/aprobar}" method="POST" class="form-accion">
+            <input type="hidden" name="id" th:value="${sugerencia.id}">
+            <button type="submit" class="btn-admin btn-aprobar">
+              Aprobar
+            </button>
+          </form>
+
+          <a th:href="@{/admin/sugerencias/editar(id=${sugerencia.id})}"
+             class="btn-admin btn-editar">
+            Editar
+          </a>
+
+          <form th:action="@{/admin/sugerencias/eliminar}" method="POST" class="form-accion">
+            <input type="hidden" name="id" th:value="${sugerencia.id}">
+            <button type="submit" class="btn-admin btn-eliminar">
+              Eliminar
+            </button>
+          </form>
+
+        </div>
+
+      </article>
+
+    </section>
+
+    <footer class="admin-pie">
+      <a th:href="@{/home}" class="enlace-volver">
+        ← Volver al inicio
+      </a>
+    </footer>
+
+  </main>
+
+</body>
+
+</html>

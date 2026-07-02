@@ -1,0 +1,349 @@
+:root {
+  --color-blue-50: #eff6ff;
+  --color-blue-100: #dbeafe;
+  --color-blue-600: #2563eb;
+  --color-blue-700: #1d4ed8;
+
+  --color-green-100: #dcfce7;
+  --color-green-700: #15803d;
+  --color-green-800: #166534;
+
+  --color-red-100: #fee2e2;
+  --color-red-700: #b91c1c;
+  --color-red-800: #991b1b;
+
+  --color-purple-100: #f3e8ff;
+  --color-purple-700: #7e22ce;
+
+  --color-yellow-100: #fef9c3;
+  --color-yellow-800: #854d0e;
+
+  --color-gray-50: #f9fafb;
+  --color-gray-100: #f3f4f6;
+  --color-gray-200: #e5e7eb;
+  --color-gray-300: #d1d5db;
+  --color-gray-500: #6b7280;
+  --color-gray-600: #4b5563;
+  --color-gray-700: #374151;
+  --color-gray-800: #1f2937;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+}
+
+body {
+  min-height: 100vh;
+  padding: 2.5rem 1rem;
+  background: radial-gradient(circle at top, #263b63, #111827 55%, #05070c);
+}
+
+.admin-contenedor {
+  background-color: white;
+  padding: 2rem;
+  border-radius: 0.75rem;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.3);
+  width: 100%;
+  max-width: 72rem;
+  margin: 0 auto;
+}
+
+.admin-cabecera {
+  text-align: center;
+  border-bottom: 2px solid var(--color-gray-200);
+  padding-bottom: 1.5rem;
+  margin-bottom: 1.5rem;
+}
+
+.admin-titulo {
+  font-size: 1.875rem;
+  font-weight: 800;
+  color: var(--color-blue-600);
+}
+
+.admin-subtitulo {
+  color: var(--color-gray-500);
+  font-size: 0.9rem;
+  margin-top: 0.25rem;
+}
+
+.estado-vacio {
+  background-color: var(--color-gray-50);
+  border: 1px solid var(--color-gray-200);
+  border-radius: 0.75rem;
+  padding: 2rem;
+  text-align: center;
+  color: var(--color-gray-600);
+}
+
+.estado-vacio-icono {
+  font-size: 2.5rem;
+  margin-bottom: 0.75rem;
+}
+
+.sugerencias-lista {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.tarjeta-sugerencia {
+  border: 1px solid var(--color-gray-200);
+  border-radius: 0.75rem;
+  padding: 1.25rem;
+  background-color: white;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.02);
+  transition: box-shadow 0.2s, transform 0.2s;
+}
+
+.tarjeta-sugerencia:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.08);
+}
+
+.sugerencia-superior {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  align-items: flex-start;
+  margin-bottom: 1rem;
+}
+
+.sugerencia-enunciado {
+  font-size: 1.125rem;
+  font-weight: 700;
+  color: var(--color-gray-800);
+  line-height: 1.4;
+}
+
+.badge-pendiente {
+  background-color: var(--color-yellow-100);
+  color: var(--color-yellow-800);
+  padding: 0.25rem 0.75rem;
+  border-radius: 9999px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.sugerencia-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+  color: var(--color-gray-600);
+  font-size: 0.875rem;
+}
+
+.meta-item {
+  background-color: var(--color-gray-50);
+  border: 1px solid var(--color-gray-200);
+  padding: 0.35rem 0.65rem;
+  border-radius: 9999px;
+}
+
+.respuestas-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.75rem;
+  margin-bottom: 1.25rem;
+}
+
+.respuesta {
+  padding: 0.75rem;
+  border-radius: 0.5rem;
+  font-size: 0.9rem;
+}
+
+.respuesta-correcta {
+  background-color: var(--color-green-100);
+  color: var(--color-green-800);
+  border: 1px solid #86efac;
+}
+
+.respuesta-incorrecta {
+  background-color: var(--color-red-100);
+  color: var(--color-red-800);
+  border: 1px solid #fca5a5;
+}
+
+.respuesta-label {
+  display: block;
+  font-size: 0.75rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  margin-bottom: 0.25rem;
+}
+
+.acciones-sugerencia {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  justify-content: flex-end;
+  border-top: 1px solid var(--color-gray-200);
+  padding-top: 1rem;
+}
+
+.form-accion {
+  display: inline;
+}
+
+.btn-admin {
+  border: none;
+  border-radius: 0.5rem;
+  padding: 0.65rem 1rem;
+  font-weight: 700;
+  cursor: pointer;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: background-color 0.2s, transform 0.2s;
+}
+
+.btn-admin:hover {
+  transform: translateY(-2px);
+}
+
+.btn-aprobar {
+  background-color: var(--color-green-700);
+  color: white;
+}
+
+.btn-aprobar:hover {
+  background-color: var(--color-green-800);
+}
+
+.btn-editar {
+  background-color: var(--color-blue-600);
+  color: white;
+}
+
+.btn-editar:hover {
+  background-color: var(--color-blue-700);
+}
+
+.btn-eliminar {
+  background-color: var(--color-red-700);
+  color: white;
+}
+
+.btn-eliminar:hover {
+  background-color: var(--color-red-800);
+}
+
+.admin-pie {
+  text-align: center;
+  margin-top: 2rem;
+  border-top: 1px solid var(--color-gray-200);
+  padding-top: 1.5rem;
+}
+
+.enlace-volver {
+  display: inline-flex;
+  align-items: center;
+  color: var(--color-blue-600);
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.enlace-volver:hover {
+  color: var(--color-blue-700);
+}
+
+
+.formulario-edicion {
+  background-color: var(--color-gray-50);
+  border: 1px solid var(--color-gray-200);
+  border-radius: 0.75rem;
+  padding: 1.5rem;
+}
+
+.grupo-formulario {
+  margin-bottom: 1rem;
+}
+
+.grupo-formulario label {
+  display: block;
+  font-size: 0.875rem;
+  font-weight: 700;
+  color: var(--color-gray-700);
+  margin-bottom: 0.35rem;
+}
+
+.grupo-formulario input,
+.grupo-formulario textarea,
+.grupo-formulario select {
+  width: 100%;
+  padding: 0.65rem 1rem;
+  border: 1px solid var(--color-gray-300);
+  border-radius: 0.5rem;
+  outline: none;
+  transition: all 0.2s;
+  font-size: 1rem;
+  color: var(--color-gray-800);
+  background-color: white;
+}
+
+.grupo-formulario textarea {
+  min-height: 110px;
+  resize: vertical;
+}
+
+.grupo-formulario input:focus,
+.grupo-formulario textarea:focus,
+.grupo-formulario select:focus {
+  border-color: var(--color-blue-600);
+  box-shadow: 0 0 0 2px var(--color-blue-100);
+}
+
+.acciones-edicion {
+  display: flex;
+  justify-content: center;
+  gap: 1rem;
+  margin-top: 1.75rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid var(--color-gray-200);
+}
+
+.alerta-admin {
+  padding: 1rem;
+  border-radius: 0.5rem;
+  margin-bottom: 1.5rem;
+  font-size: 0.9rem;
+  font-weight: 600;
+  text-align: center;
+}
+
+.alerta-exito {
+  background-color: var(--color-green-100);
+  color: var(--color-green-800);
+  border: 1px solid #86efac;
+}
+
+@media (max-width: 760px) {
+  .acciones-edicion {
+    flex-direction: column;
+  }
+}
+
+@media (max-width: 760px) {
+  .sugerencia-superior {
+    flex-direction: column;
+  }
+
+  .respuestas-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .acciones-sugerencia {
+    flex-direction: column;
+  }
+
+  .btn-admin {
+    width: 100%;
+  }
+}

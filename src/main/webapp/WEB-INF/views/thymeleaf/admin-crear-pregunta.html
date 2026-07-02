@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Crear pregunta - Triviador Argentina</title>
+
+  <link rel="stylesheet" th:href="@{/css/main.css}">
+  <link rel="stylesheet" th:href="@{/css/admin-sugerencias.css}">
+</head>
+
+<body>
+
+  <main class="admin-contenedor">
+
+    <header class="admin-cabecera">
+      <h1 class="admin-titulo">Crear pregunta</h1>
+    </header>
+
+    <div th:if="${error != null}" class="alerta-admin alerta-error" th:text="${error}">
+      Error
+    </div>
+
+    <div th:if="${exito != null}" class="alerta-admin alerta-exito" th:text="${exito}">
+      Pregunta creada
+    </div>
+
+    <form th:action="@{/admin/preguntas/crear}"
+          method="POST"
+          th:object="${datosSugerenciaPregunta}"
+          class="formulario-edicion">
+
+      <div class="grupo-formulario">
+        <label for="enunciado">Enunciado de la pregunta</label>
+        <textarea id="enunciado"
+                  th:field="*{enunciado}"
+                  required
+                  placeholder="Ejemplo: ¿Cuál es la capital de Córdoba?"></textarea>
+      </div>
+
+      <div class="grupo-formulario">
+        <label for="respuestaCorrecta">Respuesta correcta</label>
+        <input type="text"
+               id="respuestaCorrecta"
+               th:field="*{respuestaCorrecta}"
+               required
+               placeholder="Ejemplo: Córdoba">
+      </div>
+
+      <div class="grupo-formulario">
+        <label for="opcionIncorrectaUno">Respuesta incorrecta 1</label>
+        <input type="text"
+               id="opcionIncorrectaUno"
+               th:field="*{opcionIncorrectaUno}"
+               required>
+      </div>
+
+      <div class="grupo-formulario">
+        <label for="opcionIncorrectaDos">Respuesta incorrecta 2</label>
+        <input type="text"
+               id="opcionIncorrectaDos"
+               th:field="*{opcionIncorrectaDos}"
+               required>
+      </div>
+
+      <div class="grupo-formulario">
+        <label for="opcionIncorrectaTres">Respuesta incorrecta 3</label>
+        <input type="text"
+               id="opcionIncorrectaTres"
+               th:field="*{opcionIncorrectaTres}"
+               required>
+      </div>
+
+      <div class="grupo-formulario">
+        <label for="idProvincia">Provincia relacionada</label>
+        <select id="idProvincia" th:field="*{idProvincia}" required>
+          <option value="">Seleccionar provincia</option>
+          <option th:each="provincia : ${provincias}"
+                  th:value="${provincia.id}"
+                  th:text="${provincia.nombre}">
+            Provincia
+          </option>
+        </select>
+      </div>
+
+      <div class="acciones-edicion">
+        <button type="submit" class="btn-admin btn-aprobar">
+          Crear pregunta
+        </button>
+
+        <a th:href="@{/admin/sugerencias}" class="btn-admin btn-editar">
+          Volver a sugerencias
+        </a>
+      </div>
+
+    </form>
+
+  </main>
+
+</body>
+
+</html>

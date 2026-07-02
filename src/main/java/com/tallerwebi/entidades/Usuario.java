@@ -81,6 +81,13 @@ public class Usuario {
     this.estadisticas.consumirComodin(comodin);
   }
 
+  public void sumarMonedas(Integer cantidad) {
+    if (this.estadisticas == null) {
+      this.estadisticas = new DatosEstadistica();
+    }
+    this.estadisticas.sumarMonedas(cantidad);
+  }
+
   public Long getId() {
     return id;
   }
