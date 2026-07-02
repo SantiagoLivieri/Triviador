@@ -1,4 +1,4 @@
-/*
+
 -- =============== PROVINCIAS ========================= --
 -- --- BUENOS AIRES (provincia_id: 1) ---
 INSERT IGNORE INTO Provincia (id, nombre, puntos) VALUES (1, 'Buenos Aires', 0);
@@ -211,5 +211,3 @@ VALUES ('Bolsita de Coins', 200, 350.00, 'Ideal para arrancar');
 
 INSERT IGNORE INTO paquetemonedas (titulo, cantidadCoins, precioArs, beneficioExtra) 
 VALUES ('Cofre Táctico', 1000, 1500.00, '+1 Doble Chance GRATIS');
-
- */
