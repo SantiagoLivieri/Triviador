@@ -79,6 +79,60 @@
 .saldo-valor { font-size: 1.125rem; font-weight: 700; color: #1f2937; }
 
 /* =========================================
+   SISTEMA DE PESTAÑAS (TABS)
+   ========================================= */
+.tienda-pestanas {
+  display: flex;
+  gap: 0.5rem;
+  margin-bottom: 1.5rem;
+  border-bottom: 1px solid var(--color-border);
+  padding-bottom: 0.5rem;
+}
+
+.btn-pestana {
+  background: none;
+  border: none;
+  padding: 0.75rem 1.25rem;
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: #6b7280;
+  cursor: pointer;
+  border-radius: 0.375rem;
+  transition: all 0.2s;
+}
+
+.btn-pestana:hover {
+  background-color: #f3f4f6;
+  color: #1f2937;
+}
+
+.btn-pestana.activa {
+  background-color: #eff6ff;
+  color: #2563eb;
+  border-bottom: 2px solid #2563eb;
+  border-radius: 0.375rem 0.375rem 0 0;
+}
+
+/* ✅ CORRECCIÓN CLAVE: Oculta los paneles que no están seleccionados */
+.panel-tienda {
+  display: none !important; 
+}
+
+/* ✅ CORRECCIÓN CLAVE: Muestra en forma de grilla únicamente el panel activo */
+.panel-tienda.activo {
+  display: grid !important; 
+}
+
+/* Controladores estructurales de los paneles */
+.panel-tienda {
+  display: none; /* Oculto por defecto */
+}
+
+.panel-tienda.activo {
+  display: grid; /* Se muestra solo el activo */
+}
+
+/* =========================================
    ALERTAS
    ========================================= */
 .alerta {
@@ -127,6 +181,23 @@
 .articulo-descripcion { font-size: 0.875rem; color: #4b5563; line-height: 1.4; margin-bottom: 1.25rem; flex-grow: 1; }
 .articulo-inventario { font-size: 0.8rem; font-weight: 600; color: #2563eb; background-color: #eff6ff; padding: 0.25rem 0.75rem; border-radius: 20px; display: inline-block; margin-bottom: 1.5rem; align-self: center; }
 
+/* Estilizador interno de los packs de monedas */
+.pack-coins-display {
+  margin-bottom: 1rem;
+}
+.pack-coins-cantidad {
+  font-size: 2rem;
+  font-weight: 800;
+  color: #1e3a8a;
+  display: block;
+}
+.pack-coins-label {
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: #6b7280;
+  text-transform: uppercase;
+}
+
 .btn-comprar {
   width: 100%;
   background-color: #1f2937;
@@ -145,6 +216,17 @@
 
 .btn-comprar:hover { background-color: #374151; }
 .precio-tag { color: var(--color-gold); font-weight: 700; }
+
+/* Botón específico con el color de MercadoPago */
+.btn-mercadopago {
+  background-color: #009ee3;
+}
+.btn-mercadopago:hover {
+  background-color: #0081ba;
+}
+.btn-mercadopago .precio-tag {
+  color: white;
+}
 
 /* Bordes decorativos sutiles según la importancia táctica del ítem */
 .item-destacado { border-top: 4px solid #3b82f6; }

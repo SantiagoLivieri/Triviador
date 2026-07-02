@@ -130,6 +130,13 @@ public class DatosEstadistica {
     return (this.experiencia / 200) + 1;
   }
 
+  public void sumarMonedas(Integer cantidad) {
+    if (this.monedas == null) {
+      this.monedas = 0;
+    }
+    this.monedas += cantidad;
+  }
+
   public Integer getExperiencia() {
     if (this.experiencia == null) return 0;
     return this.experiencia;

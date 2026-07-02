@@ -1,8 +1,10 @@
 package com.tallerwebi.servicios.Impl;
 
 import com.tallerwebi.entidades.Comodin;
+import com.tallerwebi.entidades.PaqueteMonedas;
 import com.tallerwebi.entidades.Usuario;
 import com.tallerwebi.repositorios.RepositorioComodin;
+import com.tallerwebi.repositorios.RepositorioPaqueteMonedas;
 import com.tallerwebi.repositorios.RepositorioUsuario;
 import com.tallerwebi.servicios.ServicioTienda;
 import java.util.List;
@@ -16,14 +18,17 @@ public class ServicioTiendaImpl implements ServicioTienda {
 
   private final RepositorioComodin repositorioComodin;
   private final RepositorioUsuario repositorioUsuario;
+  private final RepositorioPaqueteMonedas repositorioPaquete;
 
   @Autowired
   public ServicioTiendaImpl(
     RepositorioComodin repositorioComodin,
-    RepositorioUsuario repositorioUsuario
+    RepositorioUsuario repositorioUsuario,
+    RepositorioPaqueteMonedas repositorioPaquete
   ) {
     this.repositorioComodin = repositorioComodin;
     this.repositorioUsuario = repositorioUsuario;
+    this.repositorioPaquete = repositorioPaquete;
   }
 
   @Override
@@ -46,5 +51,15 @@ public class ServicioTiendaImpl implements ServicioTienda {
   @Transactional(readOnly = true)
   public List<Comodin> obtenerCatalogoDeComodines() {
     return repositorioComodin.buscarTodos();
+  }
+
+  @Override
+  public PaqueteMonedas buscarPaquetePorId(Long id) {
+    return repositorioPaquete.buscarPorId(id);
+  }
+
+  @Override
+  public List<PaqueteMonedas> obtenerTodosLosPaquetes() {
+    return repositorioPaquete.obtenerTodos();
   }
 }
