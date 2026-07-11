@@ -4,10 +4,23 @@
     <title>¡Partida Finalizada!</title>
     <link rel="stylesheet" th:href="@{/css/resultados.css}">
     </head>
-<body>
-    <div class="contenedor-resultados">
-        <h1>¡Juego Terminado!</h1>
-        
+
+    <body>
+        <div class="contenedor-resultados">
+            <h1>¡Juego Terminado!</h1>
+            <div
+                class="mensaje-exito"
+                th:if="${mensajeExito != null}"
+                th:text="${mensajeExito}"
+                >
+                </div>
+
+                <div
+                class="mensaje-error"
+                th:if="${mensajeError != null}"
+                th:text="${mensajeError}">
+                </div>
+
         <div class="ganador-destacado">
             <h2>🏆 Ganador:&nbsp;<span th:text="${ganador.nombre}">Nombre</span> 🏆</h2>
             <p>Con un total de <strong th:text="${ganador.puntaje}">0</strong> puntos.</p>
@@ -28,8 +41,10 @@
             </li>
         </ol>
 
+        <a class="btn-ver-preguntas" th:href="@{/juego/partida/resultados/{id}/preguntas(id=${partidaId} )}"> Ver preguntas de la partida </a>
         <a th:href="@{/lobby}" class="btn btn-primary">Volver al Lobby</a>
-    </div>
+        
+    </div>   
 </body>
 <script>
     history.pushState(null, "", location.href);

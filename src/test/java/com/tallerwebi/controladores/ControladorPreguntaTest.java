@@ -15,6 +15,7 @@ import com.tallerwebi.entidades.Usuario;
 import com.tallerwebi.servicios.ServicioJuego;
 import com.tallerwebi.servicios.ServicioPregunta;
 import com.tallerwebi.servicios.ServicioProvincia;
+import com.tallerwebi.servicios.ServicioRespuestaPartida;
 import com.tallerwebi.servicios.excepcion.TiempoAgotadoException;
 import com.tallerwebi.servicios.excepcion.TurnoInvalidoException;
 import java.util.HashSet;
@@ -42,6 +43,14 @@ public class ControladorPreguntaTest {
 
   @Mock
   private ServicioPregunta servicioPregunta;
+
+  /*
+   * Este servicio registra la respuesta elegida durante la partida.
+   * Mockito lo inyecta automáticamente en ControladorPregunta mediante
+   * la anotación @InjectMocks.
+   */
+  @Mock
+  private ServicioRespuestaPartida servicioRespuestaPartida;
 
   @Mock
   private HttpSession session;
@@ -237,6 +246,13 @@ public class ControladorPreguntaTest {
     verify(session).removeAttribute("preguntasRequeridas");
     verify(session).removeAttribute("preguntasRespondidasExito");
     verify(servicioJuego).avanzarTurno(partidaId);
+
+    /*
+     * La respuesta incorrecta también debe quedar registrada para que
+     * pueda mostrarse y reportarse al finalizar la partida.
+     */
+    verify(servicioRespuestaPartida)
+      .registrarOActualizarRespuesta(partidaId, idPregunta, "Mal", false);
   }
 
   @Test
@@ -272,6 +288,13 @@ public class ControladorPreguntaTest {
         "mensajeComodin",
         "¡Respuesta incorrecta, pero la Doble Chance te salvó! Te queda un intento."
       );
+
+    /*
+     * El primer intento se guarda como incorrecto. Si luego responde otra
+     * vez, el servicio actualizará el mismo registro de historial.
+     */
+    verify(servicioRespuestaPartida)
+      .registrarOActualizarRespuesta(partidaId, idPregunta, "Incorrecta 1", false);
   }
 
   @Test
@@ -305,6 +328,13 @@ public class ControladorPreguntaTest {
     verify(session).setAttribute("mensajeResultado", "Provincia conquistada.");
     verify(session).removeAttribute("preguntasRequeridas");
     verify(session).removeAttribute("preguntasRespondidasExito");
+
+    /*
+     * La respuesta correcta debe persistirse antes de continuar con el
+     * flujo de conquista y finalización.
+     */
+    verify(servicioRespuestaPartida)
+      .registrarOActualizarRespuesta(partidaId, idPregunta, "Correcta", true);
   }
 
   @Test
@@ -344,6 +374,13 @@ public class ControladorPreguntaTest {
     verify(session).setAttribute("opcionesActuales", opciones);
     verify(session).removeAttribute("comodinUsadoEnEstaPregunta");
     verify(session).removeAttribute("dobleChanceActivo");
+
+    /*
+     * Aunque todavía no se conquistó la provincia, esta respuesta debe
+     * formar parte del resumen final de la partida.
+     */
+    verify(servicioRespuestaPartida)
+      .registrarOActualizarRespuesta(partidaId, idPregunta, "Correcta", true);
   }
 
   @Test

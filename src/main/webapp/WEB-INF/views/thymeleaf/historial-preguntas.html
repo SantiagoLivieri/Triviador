@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html
+  lang="es"
+  xmlns:th="http://www.thymeleaf.org"
+>
+<head>
+  <meta charset="UTF-8">
+
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0"
+  >
+
+  <title>
+    Preguntas de la partida - Triviador
+  </title>
+
+  <link
+    rel="stylesheet"
+    th:href="@{/css/main.css}"
+  >
+
+  <link
+    rel="stylesheet"
+    th:href="@{/css/historial-preguntas.css}"
+  >
+
+  <script
+    defer
+    th:src="@{/js/reporte-pregunta.js}"
+  ></script>
+</head>
+
+<body>
+
+  <main class="historial-container">
+
+    <header class="historial-header">
+      <div>
+        <h1>Preguntas de la partida</h1>
+
+        <p>
+          Revisá tus respuestas y reportá cualquier
+          pregunta que tenga un problema.
+        </p>
+      </div>
+
+      <a
+        class="btn-volver-resultados"
+        th:href="@{/juego/partida/resultados/{id}(
+          id=${partidaId}
+        )}"
+      >
+        Volver a resultados
+      </a>
+    </header>
+
+    <div
+      class="mensaje-exito"
+      th:if="${mensajeExito != null}"
+      th:text="${mensajeExito}"
+    >
+    </div>
+
+    <div
+      class="mensaje-error"
+      th:if="${mensajeError != null}"
+      th:text="${mensajeError}"
+    >
+    </div>
+
+    <section class="historial-preguntas">
+
+      <p
+        class="sin-respuestas"
+        th:if="${#lists.isEmpty(respuestasPartida)}"
+      >
+        No hay respuestas registradas para esta partida.
+      </p>
+
+      <article
+        class="respuesta-partida"
+        th:each="respuesta, estado : ${respuestasPartida}"
+        th:classappend="${respuesta.correcta}
+          ? ' respuesta-correcta'
+          : ' respuesta-incorrecta'"
+      >
+        <div class="respuesta-encabezado">
+
+          <span class="numero-pregunta">
+            Pregunta
+            <strong th:text="${estado.count}">
+              1
+            </strong>
+          </span>
+
+          <span
+            class="resultado-respuesta"
+            th:text="${respuesta.correcta}
+              ? 'Correcta'
+              : 'Incorrecta'"
+          >
+            Resultado
+          </span>
+
+        </div>
+
+        <h2
+          class="enunciado-pregunta"
+          th:text="${respuesta.enunciadoPregunta}"
+        >
+          Enunciado de la pregunta
+        </h2>
+
+        <div class="detalle-respuesta">
+
+          <div class="respuesta-item">
+            <span>Tu respuesta</span>
+
+            <strong
+              th:text="${respuesta.respuestaElegida}"
+            >
+              Respuesta elegida
+            </strong>
+          </div>
+
+          <div class="respuesta-item">
+            <span>Respuesta correcta</span>
+
+            <strong
+              th:text="${respuesta.respuestaCorrecta}"
+            >
+              Respuesta correcta
+            </strong>
+          </div>
+
+          <div
+            class="respuesta-item"
+            th:if="${respuesta.cantidadIntentos > 1}"
+          >
+            <span>Intentos realizados</span>
+
+            <strong
+              th:text="${respuesta.cantidadIntentos}"
+            >
+              2
+            </strong>
+          </div>
+
+        </div>
+
+        <button
+          type="button"
+          class="btn-reportar-pregunta"
+          th:if="${respuesta.reporte == null}"
+          th:attr="
+            data-respuesta-id=${respuesta.id},
+            data-pregunta=${respuesta.enunciadoPregunta}
+          "
+        >
+          Reportar pregunta
+        </button>
+
+        <span
+          class="reporte-enviado"
+          th:if="${respuesta.reporte != null}"
+        >
+          Reporte enviado
+        </span>
+
+      </article>
+
+    </section>
+
+  </main>
+
+  <div
+    id="modalReporte"
+    class="modal-reporte"
+    hidden
+  >
+    <div class="modal-reporte-contenido">
+
+      <button
+        id="cerrarModalReporte"
+        type="button"
+        class="cerrar-modal"
+        aria-label="Cerrar"
+      >
+        ×
+      </button>
+
+      <h2>Reportar pregunta</h2>
+
+      <p id="preguntaReportada"></p>
+
+      <form
+        th:action="@{/juego/partida/{id}/reportar-pregunta(
+          id=${partidaId}
+        )}"
+        method="post"
+      >
+        <input
+          id="respuestaPartidaId"
+          type="hidden"
+          name="respuestaPartidaId"
+        >
+
+        <label for="motivoReporte">
+          Motivo
+        </label>
+
+        <select
+          id="motivoReporte"
+          name="motivo"
+          required
+        >
+          <option value="">
+            Seleccioná un motivo
+          </option>
+
+          <option
+            th:each="motivo : ${motivosReporte}"
+            th:value="${motivo}"
+            th:text="${motivo.descripcion}"
+          >
+            Motivo
+          </option>
+        </select>
+
+        <label for="comentarioReporte">
+          Comentario opcional
+        </label>
+
+        <textarea
+          id="comentarioReporte"
+          name="comentario"
+          maxlength="1000"
+          rows="5"
+          placeholder="Contanos qué problema encontraste"
+        ></textarea>
+
+        <div class="acciones-reporte">
+
+          <button
+            id="cancelarReporte"
+            type="button"
+            class="btn-cancelar-reporte"
+          >
+            Cancelar
+          </button>
+
+          <button
+            type="submit"
+            class="btn-confirmar-reporte"
+          >
+            Enviar reporte
+          </button>
+
+        </div>
+
+      </form>
+
+    </div>
+  </div>
+
+</body>
+</html>

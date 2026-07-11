@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html
+  lang="es"
+  xmlns:th="http://www.thymeleaf.org"
+>
+<head>
+  <meta charset="UTF-8">
+
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0"
+  >
+
+  <title>
+    Preguntas reportadas - Triviador Argentina
+  </title>
+
+  <link
+    rel="stylesheet"
+    th:href="@{/css/main.css}"
+  >
+
+  <link
+    rel="stylesheet"
+    th:href="@{/css/admin-sugerencias.css}"
+  >
+</head>
+
+<body>
+
+  <main class="admin-contenedor">
+
+    <header class="admin-cabecera">
+      <h1 class="admin-titulo">
+        Preguntas reportadas
+      </h1>
+    </header>
+
+    <div
+      class="mensaje-exito"
+      th:if="${mensajeExito != null}"
+      th:text="${mensajeExito}"
+    >
+    </div>
+
+    <div
+      class="mensaje-error"
+      th:if="${mensajeError != null}"
+      th:text="${mensajeError}"
+    >
+    </div>
+
+    <section
+      class="estado-vacio"
+      th:if="${#lists.isEmpty(reportes)}"
+    >
+      <h2>No hay reportes pendientes</h2>
+
+      <p>
+        Los reportes realizados por los jugadores
+        aparecerán en esta pantalla.
+      </p>
+    </section>
+
+    <section
+      class="sugerencias-lista"
+      th:unless="${#lists.isEmpty(reportes)}"
+    >
+      <article
+        class="tarjeta-sugerencia"
+        th:each="reporte : ${reportes}"
+      >
+
+        <div class="sugerencia-superior">
+          <h2
+            class="sugerencia-enunciado"
+            th:text="${
+              reporte.respuestaPartida.enunciadoPregunta
+            }"
+          >
+            Pregunta reportada
+          </h2>
+
+          <span class="badge-pendiente">
+            Pendiente
+          </span>
+        </div>
+
+        <div class="sugerencia-meta">
+          <span
+            class="meta-item"
+            th:text="|Reportado por: ${
+              reporte.usuario.nombre
+            }|"
+          >
+            Usuario
+          </span>
+
+          <span
+            class="meta-item"
+            th:text="|Motivo: ${
+              reporte.motivo.descripcion
+            }|"
+          >
+            Motivo
+          </span>
+        </div>
+
+        <div class="respuestas-grid">
+
+          <div class="respuesta respuesta-incorrecta">
+            <span class="respuesta-label">
+              Respuesta elegida
+            </span>
+
+            <span
+              th:text="${
+                reporte.respuestaPartida.respuestaElegida
+              }"
+            >
+              Respuesta elegida
+            </span>
+          </div>
+
+          <div class="respuesta respuesta-correcta">
+            <span class="respuesta-label">
+              Respuesta correcta
+            </span>
+
+            <span
+              th:text="${
+                reporte.respuestaPartida.respuestaCorrecta
+              }"
+            >
+              Respuesta correcta
+            </span>
+          </div>
+
+        </div>
+
+        <div
+          class="respuesta"
+          th:if="${
+            reporte.comentario != null and
+            !#strings.isEmpty(reporte.comentario)
+          }"
+        >
+          <span class="respuesta-label">
+            Comentario
+          </span>
+
+          <span th:text="${reporte.comentario}">
+            Comentario del jugador
+          </span>
+        </div>
+
+        <div class="acciones-sugerencia">
+
+          <form
+            class="form-accion"
+            th:action="@{
+              /admin/reportes-pregunta/estado
+            }"
+            method="post"
+          >
+            <input
+              type="hidden"
+              name="id"
+              th:value="${reporte.id}"
+            >
+
+            <input
+              type="hidden"
+              name="estado"
+              value="REVISADO"
+            >
+
+            <button
+              type="submit"
+              class="btn-admin btn-aprobar"
+            >
+              Marcar revisado
+            </button>
+          </form>
+
+          <form
+            class="form-accion"
+            th:action="@{
+              /admin/reportes-pregunta/estado
+            }"
+            method="post"
+          >
+            <input
+              type="hidden"
+              name="id"
+              th:value="${reporte.id}"
+            >
+
+            <input
+              type="hidden"
+              name="estado"
+              value="CORREGIDO"
+            >
+
+            <button
+              type="submit"
+              class="btn-admin btn-editar"
+            >
+              Marcar corregido
+            </button>
+          </form>
+
+          <form
+            class="form-accion"
+            th:action="@{
+              /admin/reportes-pregunta/estado
+            }"
+            method="post"
+          >
+            <input
+              type="hidden"
+              name="id"
+              th:value="${reporte.id}"
+            >
+
+            <input
+              type="hidden"
+              name="estado"
+              value="DESESTIMADO"
+            >
+
+            <button
+              type="submit"
+              class="btn-admin btn-eliminar"
+            >
+              Desestimar
+            </button>
+          </form>
+
+        </div>
+
+      </article>
+    </section>
+
+    <footer class="admin-pie">
+      <a
+        th:href="@{/admin/sugerencias}"
+        class="enlace-volver"
+      >
+        ← Volver a sugerencias
+      </a>
+    </footer>
+
+  </main>
+
+</body>
+</html>

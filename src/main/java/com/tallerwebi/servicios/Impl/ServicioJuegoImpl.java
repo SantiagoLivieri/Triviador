@@ -224,28 +224,53 @@ public class ServicioJuegoImpl implements ServicioJuego {
   public boolean evaluarYFinalizarPartida(Long partidaId, Long usuarioId) {
     Partida partida = servicioPartida.buscarPorId(partidaId);
 
-    if (partida != null && partida.estaFinalizada()) {
-      this.finalizarYRegistrarPartida(partidaId, usuarioId);
+    if (partida == null) {
+      return false;
+    }
+
+    if (partida.getEstadoDePartida() == EstadoDePartida.ABANDONADA) {
+      return false;
+    }
+
+    if (partida.getEstadoDePartida() == EstadoDePartida.FINALIZADA) {
       return true;
     }
 
-    return false;
+    if (!partida.estaFinalizada()) {
+      return false;
+    }
+
+    finalizarYRegistrarPartida(partidaId, usuarioId);
+
+    return true;
   }
 
   @Override
   public void finalizarYRegistrarPartida(Long partidaId, Long usuarioId) {
     Partida partida = servicioPartida.buscarPorId(partidaId);
-    if (partida == null || !partida.estaFinalizada()) {
-      throw new IllegalStateException("La partida no ha finalizado o no existe.");
+
+    if (
+      partida == null ||
+      partida.getEstadoDePartida() == EstadoDePartida.ABANDONADA ||
+      !partida.estaFinalizada()
+    ) {
+      throw new IllegalStateException("La partida no ha finalizado normalmente o no existe.");
     }
 
+    partida.setEstadoDePartida(EstadoDePartida.FINALIZADA);
+
+    servicioPartida.actualizar(partida);
+
     Usuario usuario = servicioUsuario.buscarUsuarioPorId(usuarioId);
+
     if (usuario == null) {
       throw new IllegalArgumentException("El usuario anfitrión no existe.");
     }
 
     int puestoFinal = partida.calcularPuestoDeUsuario(usuarioId);
+
     int xpGanada = usuario.registrarFinDePartida(puestoFinal);
+
     String nombreGanador = partida.obtenerNombreGanador();
 
     servicioUsuario.actualizarUsuario(usuario);
@@ -256,6 +281,7 @@ public class ServicioJuegoImpl implements ServicioJuego {
       xpGanada,
       nombreGanador
     );
+
     servicioHistorial.guardar(ticketHistorial);
   }
 

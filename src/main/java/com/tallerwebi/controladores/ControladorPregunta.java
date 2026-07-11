@@ -7,6 +7,7 @@ import com.tallerwebi.entidades.Usuario;
 import com.tallerwebi.servicios.ServicioJuego;
 import com.tallerwebi.servicios.ServicioPregunta;
 import com.tallerwebi.servicios.ServicioProvincia;
+import com.tallerwebi.servicios.ServicioRespuestaPartida;
 import java.util.List;
 import java.util.Set;
 import javax.servlet.http.HttpServletResponse;
@@ -28,6 +29,7 @@ public class ControladorPregunta {
   private final ServicioJuego servicioJuego;
   private final ServicioProvincia servicioProvincia;
   private final ServicioPregunta servicioPregunta;
+  private final ServicioRespuestaPartida servicioRespuestaPartida;
 
   private static final String ATRIBUTO_PARTIDA_ID = "partidaId";
   private static final String ID_PROVINCIA_ACTUAL = "idProvinciaActual";
@@ -63,11 +65,13 @@ public class ControladorPregunta {
   public ControladorPregunta(
     ServicioJuego servicioJuego,
     ServicioProvincia servicioProvincia,
-    ServicioPregunta servicioPregunta
+    ServicioPregunta servicioPregunta,
+    ServicioRespuestaPartida servicioRespuestaPartida
   ) {
     this.servicioJuego = servicioJuego;
     this.servicioProvincia = servicioProvincia;
     this.servicioPregunta = servicioPregunta;
+    this.servicioRespuestaPartida = servicioRespuestaPartida;
   }
 
   @PostMapping("/seleccionar-provincia")
@@ -197,6 +201,13 @@ public class ControladorPregunta {
     }
 
     Boolean acerto = servicioPregunta.validarRespuesta(idPregunta, respuesta);
+
+    servicioRespuestaPartida.registrarOActualizarRespuesta(
+      partidaId,
+      idPregunta,
+      respuesta,
+      Boolean.TRUE.equals(acerto)
+    );
 
     if (!acerto) {
       return procesarRespuestaIncorrecta(partidaId, respuesta, session, flash);

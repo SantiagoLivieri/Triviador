@@ -8,11 +8,14 @@ body {
     background: radial-gradient(circle at top, #1e293b, #0f172a);
     color: #f8fafc;
     font-family: 'Poppins', 'Segoe UI', Tahoma, sans-serif;
-    height: 100vh;
+    min-height: 100vh;
+        height: auto;
+        overflow-y: auto;
+        padding: 32px 16px;
     display: flex;
     justify-content: center;
     align-items: center;
-    overflow: hidden;
+    
 }
 
 .contenedor-resultados {
@@ -29,7 +32,8 @@ body {
 
     padding: 10px 40px;
     width: 100%;
-    max-width: 600px;
+     width: 100%;
+  max-width: 900px;
 }
 
 .contenedor-resultados h1 {
@@ -189,4 +193,120 @@ li > p {
 .btn-primary:hover {
     transform: translateY(-3px) scale(1.02);
     box-shadow: 0 15px 35px rgba(9, 132, 227, 0.6), 0 0 15px rgba(116, 185, 255, 0.5);
+}
+
+.respuesta-encabezado {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 10px;
+}
+
+.resultado-respuesta {
+  font-weight: 700;
+}
+
+.respuesta-correcta .resultado-respuesta {
+  color: #22c55e;
+}
+
+.respuesta-incorrecta .resultado-respuesta {
+  color: #ef4444;
+}
+
+.btn-reportar-pregunta {
+  margin-top: 12px;
+  padding: 10px 16px;
+  border: 2px solid #f59e0b;
+  border-radius: 9px;
+  background-color: transparent;
+  color: #fbbf24;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.btn-reportar-pregunta:hover {
+  background-color: #f59e0b;
+  color: #111827;
+}
+
+.reporte-enviado {
+  display: inline-block;
+  margin-top: 12px;
+  color: #94a3b8;
+  font-weight: 700;
+}
+
+
+.acciones-reporte {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 20px;
+}
+
+.btn-cancelar-reporte,
+.btn-confirmar-reporte {
+  padding: 10px 16px;
+  border-radius: 8px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.btn-cancelar-reporte {
+  border: 1px solid #64748b;
+  background-color: transparent;
+  color: #ffffff;
+}
+
+.btn-confirmar-reporte {
+  border: 0;
+  background-color: #f59e0b;
+  color: #111827;
+}
+
+.mensaje-exito,
+.mensaje-error {
+  margin-bottom: 16px;
+  padding: 12px;
+  border-radius: 8px;
+  font-weight: 700;
+}
+
+.mensaje-exito {
+  background-color: rgba(34, 197, 94, 0.2);
+  color: #86efac;
+}
+
+.mensaje-error {
+  background-color: rgba(239, 68, 68, 0.2);
+  color: #fca5a5;
+}
+
+.acciones-resultados {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+
+  margin-top: 20px;
+}
+
+.btn-ver-preguntas {
+  display: block;
+  width: 100%;
+  padding: 12px 18px;
+
+  border: 2px solid #f59e0b;
+  border-radius: 10px;
+
+  background-color: transparent;
+  color: #fbbf24;
+
+  text-align: center;
+  text-decoration: none;
+  font-weight: 700;
+}
+
+.btn-ver-preguntas:hover {
+  background-color: #f59e0b;
+  color: #111827;
 }
