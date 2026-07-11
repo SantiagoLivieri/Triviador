@@ -38,7 +38,7 @@ public class Partida {
 
   private Integer etapaActual;
   private Integer rondaActual = 1;
-  private static final Integer CANTIDAD_MAX_RONDAS = 12;
+  private static final Integer CANTIDAD_MAX_RONDAS = 6;
   private Integer conquistasEnEsteTurno = 0;
   private static final int MAX_CONQUISTAS_POR_TURNO = 3;
   private LocalDateTime inicioEtapa;
@@ -115,9 +115,17 @@ public class Partida {
   }
 
   public boolean estaFinalizada() {
+    if (
+      this.estadoDePartida == EstadoDePartida.FINALIZADA ||
+      this.estadoDePartida == EstadoDePartida.ABANDONADA
+    ) {
+      return true;
+    }
+
     if (this.rondaActual == null) {
       this.rondaActual = 0;
     }
+
     return this.getRondaActual() > CANTIDAD_MAX_RONDAS;
   }
 

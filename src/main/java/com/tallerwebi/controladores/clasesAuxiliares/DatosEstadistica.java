@@ -193,4 +193,14 @@ public class DatosEstadistica {
   public void setComodinesPasarPregunta(Integer cantidad) {
     this.comodinesPasarPregunta = cantidad;
   }
+
+  public void restarExperiencia(Integer cantidad) {
+    if (cantidad == null || cantidad < 0) {
+      throw new IllegalArgumentException("La cantidad de experiencia a descontar debe ser válida.");
+    }
+
+    int experienciaActual = this.experiencia == null ? 0 : this.experiencia;
+
+    this.experiencia = Math.max(0, experienciaActual - cantidad);
+  }
 }

@@ -9,7 +9,45 @@
   <link rel="stylesheet" th:href="@{/css/leaflet.css}">
   <link rel="stylesheet" th:href="@{/css/mapa.css}">
   <link rel="stylesheet" th:href="@{/css/juego.css}">
+
+  <style>
+  .abandonar-partida-form {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  margin-top: 14px;
+}
+
+.btn-abandonar-partida {
+  width: 100%;
+  padding: 12px 18px;
+
+  border: 2px solid #ff334d;
+  border-radius: 12px;
+
+  background-color: rgba(15, 23, 42, 0.92);
+  color: #ff4d63;
+
+  font-family: inherit;
+  font-size: 0.95rem;
+  font-weight: 700;
+
+  cursor: pointer;
+
+  transition:
+    background-color 0.2s ease,
+    color 0.2s ease,
+    transform 0.2s ease;
+}
+
+.btn-abandonar-partida:hover {
+  background-color: #dc3545;
+  color: #ffffff;
+  transform: translateY(-2px);
+}
+</style>
 </head>
+
 
 <body>
   <header>
@@ -37,19 +75,35 @@
               <strong th:text="${jugadorActual != null ? jugadorActual.nombre : 'Sin jugadores'}"></strong>
             </div>
             <div id="timerBox">
-              Tiempo restante:&nbsp;<span id="timer">30</span>s
+              Tiempo restante:&nbsp;<span id="timer">33</span>s
             </div>
 
             <div id="rondaBox" style="margin-top: 5px; padding-top: 8px; font-size: 1.1rem;">
-              Ronda: <strong style="color: white;" th:text="${partida.rondaActual ?: 1}">1</strong> / 12
+              Ronda: <strong style="color: white;" th:text="${partida.rondaActual ?: 1}">1</strong> / 6
             </div>
           </article>
           <div class="mensaje" th:if="${mensajeResultado != null}" th:text="${mensajeResultado}">
           </div>
+
+          <form
+            class="abandonar-partida-form"
+            th:action="@{/juego/partida/{id}/abandonar(id=${partida.id})}"
+            method="post"
+            onsubmit="return confirm('¿Seguro que querés abandonar la partida? Perderás 20 XP.');"
+          >
+            <button
+              type="submit"
+              class="btn-abandonar-partida"
+            >
+              Abandonar partida
+            </button>
+          </form>
         </section>
 
       </div>
     </section>
+
+      
 
     <section class="tablero">
       <form class="provincia-form" th:each="provincia : ${provincias}" th:action="@{/disputa/seleccionar-provincia}"
@@ -84,7 +138,7 @@
     const partidaId = /*[[${partida.id}]]*/ 0;
     const inicioEtapaStr = /*[[${partida.inicioEtapa?.toString()}]]*/ '';
     const inicioTurno = new Date(inicioEtapaStr).getTime();
-    const DURACION_TURNO_MS = 30 * 1000;
+    const DURACION_TURNO_MS = 33 * 1000;
     const display = document.getElementById('timer');
 
     function actualizarCronometro() {
@@ -108,14 +162,16 @@
       }
     }
 
-    actualizarCronometro();
-
     const cronometro = setInterval(actualizarCronometro, 1000);
+
+    actualizarCronometro();
 
     function forzarTiempoAgotado() {
       const form = document.createElement('form');
       form.method = 'POST';
-      form.action = '/spring/juego/tiempo-agotado';
+      form.action =
+      /*[[@{/juego/tiempo-agotado}]]*/
+      '/juego/tiempo-agotado';
 
       const input = document.createElement('input');
       input.type = 'hidden';

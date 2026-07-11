@@ -191,4 +191,12 @@ public class Usuario {
   public void setTriviaCoins(Integer triviaCoins) {
     this.triviaCoins = triviaCoins;
   }
+
+  public void restarExperiencia(Integer cantidad) {
+    if (this.estadisticas == null) {
+      this.estadisticas = new DatosEstadistica();
+    }
+
+    this.estadisticas.restarExperiencia(cantidad);
+  }
 }

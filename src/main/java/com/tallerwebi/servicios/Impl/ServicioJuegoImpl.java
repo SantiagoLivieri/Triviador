@@ -1,6 +1,7 @@
 package com.tallerwebi.servicios.Impl;
 
 import com.tallerwebi.controladores.clasesAuxiliares.DatosLobby;
+import com.tallerwebi.controladores.clasesAuxiliares.EstadoDePartida;
 import com.tallerwebi.entidades.HistorialPartida;
 import com.tallerwebi.entidades.Jugador;
 import com.tallerwebi.entidades.Partida;
@@ -30,8 +31,10 @@ public class ServicioJuegoImpl implements ServicioJuego {
   private final ServicioPartida servicioPartida;
   private final ServicioHistorial servicioHistorial;
   private final ServicioUsuario servicioUsuario;
-  private static final int TIEMPO_MAXIMO_TURNO = 30;
+  private static final int TIEMPO_MAXIMO_TURNO = 33; // en segundos
   private static final int REQUERIDAS_POR_CONQUISTA = 3;
+  private static final int PENALIZACION_ABANDONO_XP = 20;
+  private static final long USUARIOS_REGISTRADOS_EN_MODO_LOCAL = 1L;
 
   public ServicioJuegoImpl(
     ServicioJugador servicioJugador,
@@ -300,5 +303,102 @@ public class ServicioJuegoImpl implements ServicioJuego {
   @Override
   public Integer obtenerCantidadPreguntasRequeridas(Long idProvincia) {
     return servicioProvincia.obtenerCantidadPreguntasRequeridas(idProvincia);
+  }
+
+  @Override
+  public void abandonarPartidaLocal(Long partidaId, Long usuarioId) {
+    validarUsuarioAutenticado(usuarioId);
+
+    Partida partida = obtenerPartidaParaAbandono(partidaId);
+
+    /*
+     * Si el POST se repite, no volvemos a descontar experiencia.
+     */
+    if (partida.getEstadoDePartida() == EstadoDePartida.ABANDONADA) {
+      return;
+    }
+
+    validarPartidaActiva(partida);
+
+    Usuario usuario = obtenerUsuarioParaAbandono(usuarioId);
+
+    validarUsuarioEnPartida(partida, usuarioId);
+    validarQueSeaPartidaLocal(partida);
+
+    aplicarPenalizacionPorAbandono(usuario, partida);
+  }
+
+  private void validarUsuarioAutenticado(Long usuarioId) {
+    if (usuarioId == null) {
+      throw new IllegalArgumentException("No hay un usuario autenticado.");
+    }
+  }
+
+  private Partida obtenerPartidaParaAbandono(Long partidaId) {
+    Partida partida = servicioPartida.buscarPorId(partidaId);
+
+    if (partida == null) {
+      throw new IllegalArgumentException("La partida no existe.");
+    }
+    return partida;
+  }
+
+  private void validarPartidaActiva(Partida partida) {
+    if (partida.estaFinalizada()) {
+      throw new IllegalStateException("La partida ya está finalizada.");
+    }
+  }
+
+  private Usuario obtenerUsuarioParaAbandono(Long usuarioId) {
+    Usuario usuario = servicioUsuario.buscarUsuarioPorId(usuarioId);
+
+    if (usuario == null) {
+      throw new IllegalArgumentException("El usuario no existe.");
+    }
+    return usuario;
+  }
+
+  private void validarUsuarioEnPartida(Partida partida, Long usuarioId) {
+    boolean pertenece = partida
+      .getJugadores()
+      .stream()
+      .anyMatch(jugador -> perteneceAlUsuario(jugador, usuarioId));
+
+    if (!pertenece) {
+      throw new IllegalStateException("El usuario no pertenece a esta partida.");
+    }
+  }
+
+  private boolean perteneceAlUsuario(Jugador jugador, Long usuarioId) {
+    return (
+      jugador != null &&
+      jugador.getUsuario() != null &&
+      usuarioId.equals(jugador.getUsuario().getId())
+    );
+  }
+
+  private void validarQueSeaPartidaLocal(Partida partida) {
+    long usuariosRegistrados = partida
+      .getJugadores()
+      .stream()
+      .filter(this::tieneUsuarioRegistrado)
+      .count();
+
+    if (usuariosRegistrados != USUARIOS_REGISTRADOS_EN_MODO_LOCAL) {
+      throw new IllegalStateException("Esta acción solamente está disponible en el modo local.");
+    }
+  }
+
+  private boolean tieneUsuarioRegistrado(Jugador jugador) {
+    return jugador != null && jugador.getUsuario() != null;
+  }
+
+  private void aplicarPenalizacionPorAbandono(Usuario usuario, Partida partida) {
+    usuario.restarExperiencia(PENALIZACION_ABANDONO_XP);
+
+    partida.setEstadoDePartida(EstadoDePartida.ABANDONADA);
+
+    servicioUsuario.actualizarUsuario(usuario);
+    servicioPartida.actualizar(partida);
   }
 }

@@ -18,6 +18,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 @Controller
 @RequestMapping("/juego")
@@ -46,6 +47,37 @@ public class ControladorJuego {
     Long partidaId = servicioJuego.inicializarPartida(datosLobby, usuarioAnfitrion);
 
     return new ModelAndView(REDIRECT_JUEGO + partidaId);
+  }
+
+  @PostMapping("/partida/{partidaId}/abandonar")
+  public ModelAndView abandonarPartidaLocal(
+    @PathVariable Long partidaId,
+    HttpSession session,
+    RedirectAttributes flash
+  ) {
+    Long usuarioId = (Long) session.getAttribute("usuarioId");
+
+    if (usuarioId == null) {
+      return new ModelAndView("redirect:/login");
+    }
+
+    try {
+      servicioJuego.abandonarPartidaLocal(partidaId, usuarioId);
+
+      Usuario usuarioActualizado = servicioJuego.obtenerUsuarioPorId(usuarioId);
+
+      session.setAttribute("usuarioLogueado", usuarioActualizado);
+
+      limpiarDatosDePartida(session);
+
+      flash.addFlashAttribute("mensajeExito", "Abandonaste la partida. Se descontaron 20 XP.");
+
+      return new ModelAndView("redirect:/home");
+    } catch (IllegalArgumentException | IllegalStateException e) {
+      flash.addFlashAttribute("mensajeError", e.getMessage());
+
+      return new ModelAndView("redirect:/juego/partida/" + partidaId);
+    }
   }
 
   @GetMapping("/partida/{id}")
@@ -132,5 +164,17 @@ public class ControladorJuego {
       }
     }
     return false;
+  }
+
+  private void limpiarDatosDePartida(HttpSession session) {
+    session.removeAttribute("preguntasRequeridas");
+    session.removeAttribute("preguntasRespondidasExito");
+    session.removeAttribute("preguntaActual");
+    session.removeAttribute("opcionesActuales");
+    session.removeAttribute("idProvinciaActual");
+    session.removeAttribute("comodinUsadoEnEstaPregunta");
+    session.removeAttribute("dobleChanceActivo");
+    session.removeAttribute("preguntasYaHechas");
+    session.removeAttribute("mensajeResultado");
   }
 }

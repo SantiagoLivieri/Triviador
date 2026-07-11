@@ -91,12 +91,12 @@ public class PartidaTest {
 
     partida.setJugadores(List.of(jugadorUno, jugadorDos));
     partida.setJugadorEnTurno(jugadorDos);
-    partida.setRondaActual(12);
+    partida.setRondaActual(6);
 
     partida.avanzarTurno();
 
     assertSame(jugadorDos, partida.getJugadorEnTurno());
-    assertEquals(13, partida.getRondaActual());
+    assertEquals(7, partida.getRondaActual());
     assertTrue(partida.estaFinalizada());
   }
 
@@ -180,7 +180,7 @@ public class PartidaTest {
   public void alSuperarLaCantidadMaximaDeRondasDebeEstarFinalizada() {
     Partida partida = new Partida();
 
-    partida.setRondaActual(13);
+    partida.setRondaActual(7);
 
     assertTrue(partida.estaFinalizada());
   }

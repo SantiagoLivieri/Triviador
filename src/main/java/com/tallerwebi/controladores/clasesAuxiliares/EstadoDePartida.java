@@ -4,4 +4,5 @@ public enum EstadoDePartida {
   EN_ESPERA,
   JUGANDO,
   FINALIZADA,
+  ABANDONADA,
 }

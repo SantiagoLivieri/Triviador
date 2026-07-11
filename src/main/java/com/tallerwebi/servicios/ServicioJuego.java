@@ -49,4 +49,6 @@ public interface ServicioJuego {
   List<Provincia> obtenerProvinciasDelTablero();
 
   void validarTurnoMultijugador(Long partidaId, Long id) throws TurnoInvalidoException;
+
+  void abandonarPartidaLocal(Long partidaId, Long usuarioId);
 }

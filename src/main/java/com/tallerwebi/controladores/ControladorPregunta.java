@@ -47,6 +47,18 @@ public class ControladorPregunta {
   private static final String MENSAJE_COMODIN = "mensajeComodin";
   private static final String COMODIN_YA_USADO = "comodinUsadoEnEstaPregunta";
 
+  private static final String ID_PROVINCIA_PARAM = "idProvincia";
+  private static final String PREGUNTA_VIEW_ATTR = "pregunta";
+  private static final String PARTIDA_VIEW_ATTR = "partida";
+  private static final String SUPPRESS_UNCHECKED = "unchecked";
+  private static final String JUGADOR_ACTUAL_VIEW_ATTR = "jugadorActual";
+  private static final String OPCIONES_VIEW_ATTR = "opciones";
+  private static final String PROVINCIA_VIEW_ATTR = "provincia";
+
+  private static final String DESTINO_TABLERO = "TABLERO";
+  private static final String DESTINO_RESULTADOS = "RESULTADOS";
+  private static final String DESTINO_PREGUNTA = "PREGUNTA";
+
   @Autowired
   public ControladorPregunta(
     ServicioJuego servicioJuego,
@@ -60,7 +72,7 @@ public class ControladorPregunta {
 
   @PostMapping("/seleccionar-provincia")
   public ModelAndView seleccionarProvincia(
-    @RequestParam("idProvincia") Long idProvincia,
+    @RequestParam(ID_PROVINCIA_PARAM) Long idProvincia,
     @RequestParam(ATRIBUTO_PARTIDA_ID) Long partidaId,
     HttpSession session
   ) {
@@ -95,7 +107,7 @@ public class ControladorPregunta {
       session.setAttribute(RESPONDIDAS_ATTR, 0);
       session.setAttribute(PREGUNTA_ACTUAL, pregunta);
       session.setAttribute(OPCIONES_ACTUALES, servicioPregunta.obtenerOpcionesMezcladas(pregunta));
-      session.setAttribute("ID_PROVINCIA_ACTUAL", idProvincia);
+      session.setAttribute(ID_PROVINCIA_ACTUAL, idProvincia);
 
       session.removeAttribute(COMODIN_YA_USADO);
       session.removeAttribute(DOBLE_CHANCE_ACTIVA);
@@ -107,13 +119,31 @@ public class ControladorPregunta {
     }
   }
 
+  @PostMapping("/continuar-feedback-incorrecto")
+  public ModelAndView continuarFeedbackIncorrecto(
+    @RequestParam(ATRIBUTO_PARTIDA_ID) Long partidaId,
+    HttpSession session
+  ) {
+    limpiarSesionDisputa(session);
+
+    servicioJuego.avanzarTurno(partidaId);
+
+    Long usuarioId = (Long) session.getAttribute("usuarioId");
+
+    if (servicioJuego.evaluarYFinalizarPartida(partidaId, usuarioId)) {
+      return new ModelAndView(REDIRECT_RESULTADOS + partidaId);
+    }
+
+    return new ModelAndView(REDIRECT_TABLERO + partidaId);
+  }
+
   @GetMapping("/pregunta-actual")
   public ModelAndView mostrarPreguntaActual(
     @RequestParam("partidaId") Long partidaId,
     HttpSession session,
     HttpServletResponse response
   ) {
-    response.setHeader("Chache-Control", "no-cache, no-store, must-revalidate");
+    response.setHeader("Cache-Control", "no-cache, no-store, must-revalidate");
     response.setHeader("Pragma", "no-cache");
     response.setDateHeader("Expires", 0);
 
@@ -135,21 +165,21 @@ public class ControladorPregunta {
     Partida partidaActualizada = servicioJuego.obtenerPartidaPorId(partidaId);
 
     ModelMap modelo = new ModelMap();
-    modelo.put("partida", partidaActualizada);
+    modelo.put(PARTIDA_VIEW_ATTR, partidaActualizada);
     modelo.put(ATRIBUTO_PARTIDA_ID, partidaId);
-    modelo.put("pregunta", pregunta);
-    modelo.put("jugadorActual", partidaActualizada.getJugadorEnTurno());
-    modelo.put("idProvincia", provincia.getId());
-    modelo.put("opciones", session.getAttribute(OPCIONES_ACTUALES));
-    modelo.put("provincia", provincia);
+    modelo.put(PREGUNTA_VIEW_ATTR, pregunta);
+    modelo.put(JUGADOR_ACTUAL_VIEW_ATTR, partidaActualizada.getJugadorEnTurno());
+    modelo.put(ID_PROVINCIA_PARAM, provincia.getId());
+    modelo.put(OPCIONES_VIEW_ATTR, session.getAttribute(OPCIONES_ACTUALES));
+    modelo.put(PROVINCIA_VIEW_ATTR, provincia);
 
-    return new ModelAndView("pregunta", modelo);
+    return new ModelAndView(PREGUNTA_VIEW_ATTR, modelo);
   }
 
   @PostMapping("/responder-provincia")
   public ModelAndView responderProvincia(
     @RequestParam(ATRIBUTO_PARTIDA_ID) Long partidaId,
-    @RequestParam("idProvincia") Long idProvincia,
+    @RequestParam(ID_PROVINCIA_PARAM) Long idProvincia,
     @RequestParam("idPregunta") Long idPregunta,
     @RequestParam("respuesta") String respuesta,
     HttpSession session,
@@ -240,7 +270,7 @@ public class ControladorPregunta {
     switch (tipoComodin) {
       case "ELIMINAR_2":
         {
-          @SuppressWarnings("unchecked")
+          @SuppressWarnings(SUPPRESS_UNCHECKED)
           final List<String> opcionesEnPantalla = (List<String>) session.getAttribute(
             OPCIONES_ACTUALES
           );
@@ -331,7 +361,7 @@ public class ControladorPregunta {
   }
 
   private Set<Long> recuperarPreguntasYaHechas(HttpSession session) {
-    @SuppressWarnings("unchecked")
+    @SuppressWarnings(SUPPRESS_UNCHECKED)
     Set<Long> historial = (Set<Long>) session.getAttribute("preguntasYaHechas");
     return historial != null ? historial : new java.util.HashSet<>();
   }
@@ -347,7 +377,8 @@ public class ControladorPregunta {
 
     if (tieneDobleChance) {
       session.setAttribute(DOBLE_CHANCE_ACTIVA, false);
-      @SuppressWarnings("unchecked")
+
+      @SuppressWarnings(SUPPRESS_UNCHECKED)
       List<String> opciones = (List<String>) session.getAttribute(OPCIONES_ACTUALES);
 
       session.setAttribute(
@@ -363,19 +394,19 @@ public class ControladorPregunta {
       return new ModelAndView(REDIRECT_PREGUNTA_ACTUAL + partidaId);
     }
 
-    session.setAttribute(MENSAJE_RESULTADO, "Respuesta incorrecta. Fin de tu turno.");
+    Pregunta preguntaRespondida = (Pregunta) session.getAttribute(PREGUNTA_ACTUAL);
 
-    limpiarSesionDisputa(session);
+    @SuppressWarnings(SUPPRESS_UNCHECKED)
+    List<String> opcionesRespondidas = (List<String>) session.getAttribute(OPCIONES_ACTUALES);
 
-    servicioJuego.avanzarTurno(partidaId);
+    Long idProvincia = (Long) session.getAttribute(ID_PROVINCIA_ACTUAL);
 
-    Long usuarioId = (Long) session.getAttribute("usuarioId");
-
-    if (servicioJuego.evaluarYFinalizarPartida(partidaId, usuarioId)) {
-      return new ModelAndView(REDIRECT_RESULTADOS + partidaId);
-    }
-
-    return new ModelAndView(REDIRECT_TABLERO + partidaId);
+    return mostrarFeedbackIncorrecto(
+      partidaId,
+      idProvincia,
+      preguntaRespondida,
+      opcionesRespondidas
+    );
   }
 
   private ModelAndView procesarRespuestaCorrecta(
@@ -383,8 +414,14 @@ public class ControladorPregunta {
     Long idProvincia,
     HttpSession session
   ) {
-    Integer respondidas = (Integer) session.getAttribute(RESPONDIDAS_ATTR);
+    // Guardamos la pregunta y las opciones que acaba de responder
+    // para poder mostrarlas detrás del feedback.
+    Pregunta preguntaRespondida = (Pregunta) session.getAttribute(PREGUNTA_ACTUAL);
 
+    @SuppressWarnings(SUPPRESS_UNCHECKED)
+    List<String> opcionesRespondidas = (List<String>) session.getAttribute(OPCIONES_ACTUALES);
+
+    Integer respondidas = (Integer) session.getAttribute(RESPONDIDAS_ATTR);
     Integer requeridas = (Integer) session.getAttribute(REQUERIDAS_ATTR);
 
     Integer nuevasRespondidas = (respondidas != null ? respondidas : 0) + 1;
@@ -401,18 +438,28 @@ public class ControladorPregunta {
     if (mensajeVictoria != null) {
       session.setAttribute(MENSAJE_RESULTADO, mensajeVictoria);
 
-      limpiarSesionDisputa(session);
-
       Long usuarioId = (Long) session.getAttribute("usuarioId");
 
-      if (servicioJuego.evaluarYFinalizarPartida(partidaId, usuarioId)) {
-        return new ModelAndView(REDIRECT_RESULTADOS + partidaId);
-      }
+      final String destinoFeedback = servicioJuego.evaluarYFinalizarPartida(partidaId, usuarioId)
+        ? DESTINO_RESULTADOS
+        : DESTINO_TABLERO;
 
-      return new ModelAndView(REDIRECT_TABLERO + partidaId);
+      limpiarSesionDisputa(session);
+
+      return mostrarFeedbackProvinciaGanada(
+        partidaId,
+        idProvincia,
+        preguntaRespondida,
+        opcionesRespondidas,
+        destinoFeedback,
+        mensajeVictoria
+      );
     }
 
+    // Si todavía necesita responder más preguntas,
+    // dejamos preparada la próxima en sesión.
     Set<Long> preguntasHechas = servicioJuego.obtenerPreguntasHechas(partidaId);
+
     Pregunta proximaPregunta = servicioPregunta.obtenerPreguntaPorProvincia(
       idProvincia,
       preguntasHechas
@@ -425,9 +472,95 @@ public class ControladorPregunta {
       OPCIONES_ACTUALES,
       servicioPregunta.obtenerOpcionesMezcladas(proximaPregunta)
     );
+
     session.removeAttribute(COMODIN_YA_USADO);
     session.removeAttribute(DOBLE_CHANCE_ACTIVA);
 
-    return new ModelAndView(REDIRECT_PREGUNTA_ACTUAL + partidaId);
+    return mostrarFeedbackCorrecto(
+      partidaId,
+      idProvincia,
+      preguntaRespondida,
+      opcionesRespondidas,
+      DESTINO_PREGUNTA
+    );
+  }
+
+  private ModelAndView mostrarFeedbackCorrecto(
+    Long partidaId,
+    Long idProvincia,
+    Pregunta preguntaRespondida,
+    List<String> opcionesRespondidas,
+    String destinoFeedback
+  ) {
+    Partida partida = servicioJuego.obtenerPartidaPorId(partidaId);
+    Provincia provincia = servicioProvincia.buscarPorId(idProvincia);
+
+    ModelMap modelo = new ModelMap();
+
+    modelo.put(PARTIDA_VIEW_ATTR, partida);
+    modelo.put(ATRIBUTO_PARTIDA_ID, partidaId);
+    modelo.put(PREGUNTA_VIEW_ATTR, preguntaRespondida);
+    modelo.put(JUGADOR_ACTUAL_VIEW_ATTR, partida.getJugadorEnTurno());
+    modelo.put(ID_PROVINCIA_PARAM, idProvincia);
+    modelo.put(OPCIONES_VIEW_ATTR, opcionesRespondidas);
+    modelo.put(PROVINCIA_VIEW_ATTR, provincia);
+
+    modelo.put("feedbackCorrecto", true);
+    modelo.put("destinoFeedback", destinoFeedback);
+
+    return new ModelAndView(PREGUNTA_VIEW_ATTR, modelo);
+  }
+
+  private ModelAndView mostrarFeedbackIncorrecto(
+    Long partidaId,
+    Long idProvincia,
+    Pregunta preguntaRespondida,
+    List<String> opcionesRespondidas
+  ) {
+    Partida partida = servicioJuego.obtenerPartidaPorId(partidaId);
+    Provincia provincia = servicioProvincia.buscarPorId(idProvincia);
+
+    ModelMap modelo = new ModelMap();
+
+    modelo.put(PARTIDA_VIEW_ATTR, partida);
+    modelo.put(ATRIBUTO_PARTIDA_ID, partidaId);
+    modelo.put(PREGUNTA_VIEW_ATTR, preguntaRespondida);
+    modelo.put(JUGADOR_ACTUAL_VIEW_ATTR, partida.getJugadorEnTurno());
+    modelo.put(ID_PROVINCIA_PARAM, idProvincia);
+    modelo.put(OPCIONES_VIEW_ATTR, opcionesRespondidas);
+    modelo.put(PROVINCIA_VIEW_ATTR, provincia);
+
+    modelo.put("feedbackIncorrecto", true);
+
+    return new ModelAndView(PREGUNTA_VIEW_ATTR, modelo);
+  }
+
+  private ModelAndView mostrarFeedbackProvinciaGanada(
+    Long partidaId,
+    Long idProvincia,
+    Pregunta preguntaRespondida,
+    List<String> opcionesRespondidas,
+    String destinoFeedback,
+    String mensajeVictoria
+  ) {
+    Partida partida = servicioJuego.obtenerPartidaPorId(partidaId);
+    Provincia provincia = servicioProvincia.buscarPorId(idProvincia);
+
+    ModelMap modelo = new ModelMap();
+
+    modelo.put(PARTIDA_VIEW_ATTR, partida);
+    modelo.put(ATRIBUTO_PARTIDA_ID, partidaId);
+    modelo.put(PREGUNTA_VIEW_ATTR, preguntaRespondida);
+    modelo.put(JUGADOR_ACTUAL_VIEW_ATTR, partida.getJugadorEnTurno());
+    modelo.put(ID_PROVINCIA_PARAM, idProvincia);
+    modelo.put(OPCIONES_VIEW_ATTR, opcionesRespondidas);
+    modelo.put(PROVINCIA_VIEW_ATTR, provincia);
+
+    modelo.put("feedbackCorrecto", true);
+    modelo.put("feedbackProvinciaGanada", true);
+    modelo.put("mensajeVictoria", mensajeVictoria);
+    modelo.put("destinoFeedback", destinoFeedback);
+
+    return new ModelAndView(PREGUNTA_VIEW_ATTR, modelo);
   }
 }
