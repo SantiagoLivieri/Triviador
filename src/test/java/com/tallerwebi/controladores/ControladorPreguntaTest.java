@@ -21,6 +21,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -44,6 +45,9 @@ public class ControladorPreguntaTest {
 
   @Mock
   private HttpSession session;
+
+  @Mock
+  private HttpServletResponse response;
 
   @Mock
   private RedirectAttributes flash;
@@ -138,7 +142,11 @@ public class ControladorPreguntaTest {
 
     when(session.getAttribute("preguntaActual")).thenReturn(null);
 
-    ModelAndView modelAndView = controladorPregunta.mostrarPreguntaActual(partidaId, session);
+    ModelAndView modelAndView = controladorPregunta.mostrarPreguntaActual(
+      partidaId,
+      session,
+      response
+    );
 
     assertEquals("redirect:/juego?id=1", modelAndView.getViewName());
   }
@@ -153,7 +161,11 @@ public class ControladorPreguntaTest {
     when(session.getAttribute("idProvinciaActual")).thenReturn(2L);
     when(servicioProvincia.buscarPorId(2L)).thenReturn(null);
 
-    ModelAndView modelAndView = controladorPregunta.mostrarPreguntaActual(partidaId, session);
+    ModelAndView modelAndView = controladorPregunta.mostrarPreguntaActual(
+      partidaId,
+      session,
+      response
+    );
 
     assertEquals("redirect:/juego?id=1", modelAndView.getViewName());
     verify(session).setAttribute("mensajeResultado", "No se encontro la provincia seleccionada.");
@@ -180,7 +192,11 @@ public class ControladorPreguntaTest {
     when(servicioProvincia.buscarPorId(2L)).thenReturn(provincia);
     when(servicioJuego.obtenerPartidaPorId(partidaId)).thenReturn(partida);
 
-    ModelAndView modelAndView = controladorPregunta.mostrarPreguntaActual(partidaId, session);
+    ModelAndView modelAndView = controladorPregunta.mostrarPreguntaActual(
+      partidaId,
+      session,
+      response
+    );
 
     assertEquals("pregunta", modelAndView.getViewName());
 

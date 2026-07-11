@@ -31,4 +31,11 @@
         <a th:href="@{/lobby}" class="btn btn-primary">Volver al Lobby</a>
     </div>
 </body>
+<script>
+    history.pushState(null, "", location.href);
+
+    window.addEventListener("popstate", function () {
+        location.replace(location.href);
+    });
+</script>
 </html>

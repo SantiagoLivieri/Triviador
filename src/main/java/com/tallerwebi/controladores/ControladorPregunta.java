@@ -9,6 +9,7 @@ import com.tallerwebi.servicios.ServicioPregunta;
 import com.tallerwebi.servicios.ServicioProvincia;
 import java.util.List;
 import java.util.Set;
+import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -29,6 +30,7 @@ public class ControladorPregunta {
   private final ServicioPregunta servicioPregunta;
 
   private static final String ATRIBUTO_PARTIDA_ID = "partidaId";
+  private static final String ID_PROVINCIA_ACTUAL = "idProvinciaActual";
   private static final String MENSAJE_RESULTADO = "mensajeResultado";
   private static final String REDIRECT_TABLERO = "redirect:/juego/partida/";
   private static final String REDIRECT_PREGUNTA_ACTUAL =
@@ -93,7 +95,7 @@ public class ControladorPregunta {
       session.setAttribute(RESPONDIDAS_ATTR, 0);
       session.setAttribute(PREGUNTA_ACTUAL, pregunta);
       session.setAttribute(OPCIONES_ACTUALES, servicioPregunta.obtenerOpcionesMezcladas(pregunta));
-      session.setAttribute("idProvinciaActual", idProvincia);
+      session.setAttribute("ID_PROVINCIA_ACTUAL", idProvincia);
 
       session.removeAttribute(COMODIN_YA_USADO);
       session.removeAttribute(DOBLE_CHANCE_ACTIVA);
@@ -108,14 +110,19 @@ public class ControladorPregunta {
   @GetMapping("/pregunta-actual")
   public ModelAndView mostrarPreguntaActual(
     @RequestParam("partidaId") Long partidaId,
-    HttpSession session
+    HttpSession session,
+    HttpServletResponse response
   ) {
+    response.setHeader("Chache-Control", "no-cache, no-store, must-revalidate");
+    response.setHeader("Pragma", "no-cache");
+    response.setDateHeader("Expires", 0);
+
     Pregunta pregunta = (Pregunta) session.getAttribute(PREGUNTA_ACTUAL);
     if (pregunta == null) {
       return new ModelAndView(REDIRECT_TABLERO + partidaId);
     }
 
-    Long idProvinciaActual = (Long) session.getAttribute("idProvinciaActual");
+    Long idProvinciaActual = (Long) session.getAttribute(ID_PROVINCIA_ACTUAL);
     Provincia provincia = idProvinciaActual != null
       ? servicioProvincia.buscarPorId(idProvinciaActual)
       : pregunta.getProvincia();
@@ -148,82 +155,24 @@ public class ControladorPregunta {
     HttpSession session,
     RedirectAttributes flash
   ) {
+    Pregunta preguntaActual = (Pregunta) session.getAttribute(PREGUNTA_ACTUAL);
+    Integer requeridas = (Integer) session.getAttribute(REQUERIDAS_ATTR);
+
+    if (preguntaActual == null || requeridas == null) {
+      return new ModelAndView(REDIRECT_TABLERO + partidaId);
+    }
+
+    if (!preguntaActual.getId().equals(idPregunta)) {
+      return new ModelAndView(REDIRECT_TABLERO + partidaId);
+    }
+
     Boolean acerto = servicioPregunta.validarRespuesta(idPregunta, respuesta);
 
     if (!acerto) {
-      Boolean dobleChanceActiva = (Boolean) session.getAttribute(DOBLE_CHANCE_ACTIVA);
-      boolean tieneDobleChance = dobleChanceActiva != null && dobleChanceActiva;
-      if (tieneDobleChance) {
-        session.setAttribute(DOBLE_CHANCE_ACTIVA, false);
-
-        @SuppressWarnings("unchecked")
-        List<String> opciones = (List<String>) session.getAttribute(OPCIONES_ACTUALES);
-
-        session.setAttribute(
-          OPCIONES_ACTUALES,
-          servicioPregunta.removerOpcionIncorrecta(opciones, respuesta)
-        );
-
-        flash.addFlashAttribute(
-          MENSAJE_COMODIN,
-          "¡Respuesta incorrecta, pero la Doble Chance te salvó! Te queda un intento."
-        );
-        return new ModelAndView(REDIRECT_PREGUNTA_ACTUAL + partidaId);
-      } else {
-        session.setAttribute(MENSAJE_RESULTADO, "Respuesta incorrecta. Fin de tu turno.");
-        limpiarSesionDisputa(session);
-
-        servicioJuego.avanzarTurno(partidaId);
-
-        Long usuarioId = (Long) session.getAttribute("usuarioId");
-        if (servicioJuego.evaluarYFinalizarPartida(partidaId, usuarioId)) {
-          return new ModelAndView(REDIRECT_RESULTADOS + partidaId);
-        }
-        return new ModelAndView(REDIRECT_TABLERO + partidaId);
-      }
+      return procesarRespuestaIncorrecta(partidaId, respuesta, session, flash);
     }
 
-    Integer respondidas = (Integer) session.getAttribute(RESPONDIDAS_ATTR);
-    Integer requeridas = (Integer) session.getAttribute(REQUERIDAS_ATTR);
-    Integer nuevasRespondidas = (respondidas != null ? respondidas : 0) + 1;
-
-    session.setAttribute(RESPONDIDAS_ATTR, nuevasRespondidas);
-
-    String mensajeVictoria = servicioJuego.evaluarAcierto(
-      partidaId,
-      idProvincia,
-      nuevasRespondidas,
-      requeridas
-    );
-
-    if (mensajeVictoria != null) {
-      session.setAttribute(MENSAJE_RESULTADO, mensajeVictoria);
-      limpiarSesionDisputa(session);
-
-      Long usuarioId = (Long) session.getAttribute("usuarioId");
-      if (servicioJuego.evaluarYFinalizarPartida(partidaId, usuarioId)) {
-        return new ModelAndView(REDIRECT_RESULTADOS + partidaId);
-      }
-      return new ModelAndView(REDIRECT_TABLERO + partidaId);
-    } else {
-      Set<Long> preguntasHechas = servicioJuego.obtenerPreguntasHechas(partidaId);
-      Pregunta proximaPregunta = servicioPregunta.obtenerPreguntaPorProvincia(
-        idProvincia,
-        preguntasHechas
-      );
-
-      servicioJuego.registrarPreguntaHecha(partidaId, proximaPregunta.getId());
-
-      session.setAttribute(PREGUNTA_ACTUAL, proximaPregunta);
-      session.setAttribute(
-        OPCIONES_ACTUALES,
-        servicioPregunta.obtenerOpcionesMezcladas(proximaPregunta)
-      );
-      session.removeAttribute(COMODIN_YA_USADO);
-      session.removeAttribute(DOBLE_CHANCE_ACTIVA);
-
-      return new ModelAndView(REDIRECT_PREGUNTA_ACTUAL + partidaId);
-    }
+    return procesarRespuestaCorrecta(partidaId, idProvincia, session);
   }
 
   @PostMapping("/usar-comodin")
@@ -337,7 +286,7 @@ public class ControladorPregunta {
       case "PASAR_PREGUNTA":
         {
           final Set<Long> preguntasYaHechas = recuperarPreguntasYaHechas(session);
-          final Long idProvinciaActual = (Long) session.getAttribute("idProvinciaActual");
+          final Long idProvinciaActual = (Long) session.getAttribute(ID_PROVINCIA_ACTUAL);
 
           final Pregunta nuevaPregunta = servicioPregunta.aplicarComodinPasarPregunta(
             idUsuario,
@@ -367,6 +316,14 @@ public class ControladorPregunta {
   private void limpiarSesionDisputa(HttpSession session) {
     session.removeAttribute(REQUERIDAS_ATTR);
     session.removeAttribute(RESPONDIDAS_ATTR);
+
+    session.removeAttribute(PREGUNTA_ACTUAL);
+    session.removeAttribute(OPCIONES_ACTUALES);
+
+    session.removeAttribute(ID_PROVINCIA_ACTUAL);
+
+    session.removeAttribute(COMODIN_YA_USADO);
+    session.removeAttribute(DOBLE_CHANCE_ACTIVA);
   }
 
   private Long getIdUsuario(HttpSession session) {
@@ -377,5 +334,100 @@ public class ControladorPregunta {
     @SuppressWarnings("unchecked")
     Set<Long> historial = (Set<Long>) session.getAttribute("preguntasYaHechas");
     return historial != null ? historial : new java.util.HashSet<>();
+  }
+
+  private ModelAndView procesarRespuestaIncorrecta(
+    Long partidaId,
+    String respuesta,
+    HttpSession session,
+    RedirectAttributes flash
+  ) {
+    Boolean dobleChanceActiva = (Boolean) session.getAttribute(DOBLE_CHANCE_ACTIVA);
+    boolean tieneDobleChance = dobleChanceActiva != null && dobleChanceActiva;
+
+    if (tieneDobleChance) {
+      session.setAttribute(DOBLE_CHANCE_ACTIVA, false);
+      @SuppressWarnings("unchecked")
+      List<String> opciones = (List<String>) session.getAttribute(OPCIONES_ACTUALES);
+
+      session.setAttribute(
+        OPCIONES_ACTUALES,
+        servicioPregunta.removerOpcionIncorrecta(opciones, respuesta)
+      );
+
+      flash.addFlashAttribute(
+        MENSAJE_COMODIN,
+        "¡Respuesta incorrecta, pero la Doble Chance te salvó! Te queda un intento."
+      );
+
+      return new ModelAndView(REDIRECT_PREGUNTA_ACTUAL + partidaId);
+    }
+
+    session.setAttribute(MENSAJE_RESULTADO, "Respuesta incorrecta. Fin de tu turno.");
+
+    limpiarSesionDisputa(session);
+
+    servicioJuego.avanzarTurno(partidaId);
+
+    Long usuarioId = (Long) session.getAttribute("usuarioId");
+
+    if (servicioJuego.evaluarYFinalizarPartida(partidaId, usuarioId)) {
+      return new ModelAndView(REDIRECT_RESULTADOS + partidaId);
+    }
+
+    return new ModelAndView(REDIRECT_TABLERO + partidaId);
+  }
+
+  private ModelAndView procesarRespuestaCorrecta(
+    Long partidaId,
+    Long idProvincia,
+    HttpSession session
+  ) {
+    Integer respondidas = (Integer) session.getAttribute(RESPONDIDAS_ATTR);
+
+    Integer requeridas = (Integer) session.getAttribute(REQUERIDAS_ATTR);
+
+    Integer nuevasRespondidas = (respondidas != null ? respondidas : 0) + 1;
+
+    session.setAttribute(RESPONDIDAS_ATTR, nuevasRespondidas);
+
+    String mensajeVictoria = servicioJuego.evaluarAcierto(
+      partidaId,
+      idProvincia,
+      nuevasRespondidas,
+      requeridas
+    );
+
+    if (mensajeVictoria != null) {
+      session.setAttribute(MENSAJE_RESULTADO, mensajeVictoria);
+
+      limpiarSesionDisputa(session);
+
+      Long usuarioId = (Long) session.getAttribute("usuarioId");
+
+      if (servicioJuego.evaluarYFinalizarPartida(partidaId, usuarioId)) {
+        return new ModelAndView(REDIRECT_RESULTADOS + partidaId);
+      }
+
+      return new ModelAndView(REDIRECT_TABLERO + partidaId);
+    }
+
+    Set<Long> preguntasHechas = servicioJuego.obtenerPreguntasHechas(partidaId);
+    Pregunta proximaPregunta = servicioPregunta.obtenerPreguntaPorProvincia(
+      idProvincia,
+      preguntasHechas
+    );
+
+    servicioJuego.registrarPreguntaHecha(partidaId, proximaPregunta.getId());
+
+    session.setAttribute(PREGUNTA_ACTUAL, proximaPregunta);
+    session.setAttribute(
+      OPCIONES_ACTUALES,
+      servicioPregunta.obtenerOpcionesMezcladas(proximaPregunta)
+    );
+    session.removeAttribute(COMODIN_YA_USADO);
+    session.removeAttribute(DOBLE_CHANCE_ACTIVA);
+
+    return new ModelAndView(REDIRECT_PREGUNTA_ACTUAL + partidaId);
   }
 }

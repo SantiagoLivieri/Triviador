@@ -51,9 +51,25 @@ public class ControladorJuego {
   @GetMapping("/partida/{id}")
   public ModelAndView mostrarJuego(@PathVariable("id") Long partidaId, HttpSession session) {
     Partida partida = servicioJuego.obtenerPartidaPorId(partidaId);
+
+    if (partida == null) {
+      return new ModelAndView("redirect:/home");
+    }
+
+    Usuario usuario = (Usuario) session.getAttribute("usuarioLogueado");
+
+    if (usuario == null) {
+      return new ModelAndView("redirect:/login");
+    }
+
+    if (!usuarioParticipaEnPartida(partida, usuario)) {
+      return new ModelAndView("redirect:/home");
+    }
+
     if (partida.getJugadorEnTurno() == null && !partida.getJugadores().isEmpty()) {
       partida.setJugadorEnTurno(partida.getJugadores().get(0));
     }
+
     ModelMap modelo = new ModelMap();
 
     modelo.put("coloresPorJugador", partida.obtenerMapaDeColoresPorJugador());
@@ -105,5 +121,16 @@ public class ControladorJuego {
     modelo.put("ganador", ranking.get(0));
 
     return new ModelAndView("resultados", modelo);
+  }
+
+  private boolean usuarioParticipaEnPartida(Partida partida, Usuario usuario) {
+    for (Jugador jugador : partida.getJugadores()) {
+      Usuario usuarioJugador = jugador.getUsuario();
+
+      if (usuarioJugador != null && usuarioJugador.getId().equals(usuario.getId())) {
+        return true;
+      }
+    }
+    return false;
   }
 }

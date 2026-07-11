@@ -190,6 +190,9 @@ public class ServicioJuegoImpl implements ServicioJuego {
     Integer respondidas,
     Integer requeridas
   ) {
+    if (respondidas == null || requeridas == null) {
+      return null;
+    }
     if (respondidas < requeridas) {
       return null;
     }

@@ -127,6 +127,15 @@
       form.submit();
     }
   </script>
+
+  <script>
+    history.pushState(null, "", location.href);
+
+    window.addEventListener("popstate", function () {
+        location.replace(location.href);
+    });
+  </script>
+
   <script type="module" th:src="@{/js/mapa.js}"></script>
 
 </body>

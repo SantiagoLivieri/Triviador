@@ -153,6 +153,15 @@
     form.submit();
   }
 </script>
+
+<script>
+    history.pushState(null, "", location.href);
+
+    window.addEventListener("popstate", function () {
+        location.replace(location.href);
+    });
+</script>
+
 </body>
 
 </html>
