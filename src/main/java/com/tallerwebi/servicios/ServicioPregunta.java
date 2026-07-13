@@ -9,6 +9,8 @@ public interface ServicioPregunta {
 
   Pregunta buscarPorId(Long id);
 
+  List<Pregunta> buscarPorProvincia(Long idProvincia);
+
   Pregunta obtenerPreguntaPorProvincia(Long idProvincia, Set<Long> preguntasYaHechas);
 
   boolean validarRespuesta(Long idPregunta, String respuesta);

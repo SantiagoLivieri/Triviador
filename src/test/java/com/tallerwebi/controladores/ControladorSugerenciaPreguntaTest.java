@@ -370,4 +370,161 @@ public class ControladorSugerenciaPreguntaTest {
 
     assertEquals(datos, mv.getModel().get("datosSugerenciaPregunta"));
   }
+
+  @Test
+  public void usuarioNoLogueadoNoPuedeVerFormularioDeSugerencia() {
+    when(session.getAttribute("usuarioLogueado")).thenReturn(null);
+
+    ModelAndView mv = controlador.mostrarFormularioSugerencia(session);
+
+    assertEquals("redirect:/home", mv.getViewName());
+
+    verify(servicioProvincia, never()).obtenerProvincias();
+  }
+
+  @Test
+  public void usuarioSinRolNoPuedeVerListadoDeSugerenciasAdmin() {
+    Usuario usuarioSinRol = new Usuario();
+
+    when(session.getAttribute("usuarioLogueado")).thenReturn(usuarioSinRol);
+
+    ModelAndView mv = controlador.mostrarSugerenciasAdmin(session);
+
+    assertEquals("redirect:/home", mv.getViewName());
+
+    verify(servicioSugerenciaPregunta, never()).obtenerSugerenciasPendientes();
+  }
+
+  @Test
+  public void usuarioConRolSinDescripcionNoPuedeVerFormularioCrearPreguntaAdmin() {
+    Rol rolSinDescripcion = new Rol();
+
+    Usuario usuario = new Usuario();
+    usuario.setRol(rolSinDescripcion);
+
+    when(session.getAttribute("usuarioLogueado")).thenReturn(usuario);
+
+    ModelAndView mv = controlador.mostrarFormularioCrearPreguntaAdmin(session);
+
+    assertEquals("redirect:/home", mv.getViewName());
+
+    verify(servicioProvincia, never()).obtenerProvincias();
+  }
+
+  @Test
+  public void formularioSugerenciaCargaListaDeProvincias() {
+    Usuario jugador = crearUsuarioConRol("JUGADOR");
+
+    List<Provincia> provincias = List.of(new Provincia("Buenos Aires", 0));
+
+    when(session.getAttribute("usuarioLogueado")).thenReturn(jugador);
+    when(servicioProvincia.obtenerProvincias()).thenReturn(provincias);
+
+    ModelAndView mv = controlador.mostrarFormularioSugerencia(session);
+
+    assertEquals("sugerir-pregunta", mv.getViewName());
+
+    assertEquals(provincias, mv.getModel().get("provincias"));
+
+    assertNotNull(mv.getModel().get("datosSugerenciaPregunta"));
+  }
+
+  @Test
+  public void guardarSugerenciaConErrorMantieneDatosIngresadosYCargaProvincias() {
+    Usuario jugador = crearUsuarioConRol("JUGADOR");
+    DatosSugerenciaPregunta datos = new DatosSugerenciaPregunta();
+
+    List<Provincia> provincias = List.of(new Provincia("Córdoba", 0));
+
+    when(session.getAttribute("usuarioLogueado")).thenReturn(jugador);
+    when(servicioProvincia.obtenerProvincias()).thenReturn(provincias);
+
+    doThrow(new IllegalArgumentException("datos inválidos"))
+      .when(servicioSugerenciaPregunta)
+      .crearSugerencia(datos, jugador);
+
+    ModelAndView mv = controlador.guardarSugerencia(datos, session);
+
+    assertEquals("sugerir-pregunta", mv.getViewName());
+
+    assertEquals("datos inválidos", mv.getModel().get("error"));
+
+    assertEquals(datos, mv.getModel().get("datosSugerenciaPregunta"));
+
+    assertEquals(provincias, mv.getModel().get("provincias"));
+  }
+
+  @Test
+  public void adminPuedeVerSugerenciasPendientesYModeloContieneLista() {
+    Usuario admin = crearUsuarioConRol("ADMIN");
+
+    SugerenciaPregunta sugerencia = mock(SugerenciaPregunta.class);
+    List<SugerenciaPregunta> sugerencias = List.of(sugerencia);
+
+    when(session.getAttribute("usuarioLogueado")).thenReturn(admin);
+    when(servicioSugerenciaPregunta.obtenerSugerenciasPendientes()).thenReturn(sugerencias);
+
+    ModelAndView mv = controlador.mostrarSugerenciasAdmin(session);
+
+    assertEquals("admin-sugerencias", mv.getViewName());
+
+    assertEquals(sugerencias, mv.getModel().get("sugerencias"));
+
+    verify(servicioSugerenciaPregunta).obtenerSugerenciasPendientes();
+  }
+
+  @Test
+  public void guardarEdicionExitosaLlamaAlServicioYRedirecciona() {
+    Usuario admin = crearUsuarioConRol("ADMIN");
+    DatosSugerenciaPregunta datos = new DatosSugerenciaPregunta();
+
+    when(session.getAttribute("usuarioLogueado")).thenReturn(admin);
+
+    ModelAndView mv = controlador.guardarEdicionSugerencia(datos, session);
+
+    assertEquals("redirect:/admin/sugerencias", mv.getViewName());
+
+    verify(servicioSugerenciaPregunta).actualizarSugerencia(datos, admin);
+  }
+
+  @Test
+  public void formularioCrearPreguntaAdminCargaProvinciasYDto() {
+    Usuario admin = crearUsuarioConRol("ADMIN");
+
+    List<Provincia> provincias = List.of(new Provincia("Mendoza", 0));
+
+    when(session.getAttribute("usuarioLogueado")).thenReturn(admin);
+    when(servicioProvincia.obtenerProvincias()).thenReturn(provincias);
+
+    ModelAndView mv = controlador.mostrarFormularioCrearPreguntaAdmin(session);
+
+    assertEquals("admin-crear-pregunta", mv.getViewName());
+
+    assertEquals(provincias, mv.getModel().get("provincias"));
+
+    assertNotNull(mv.getModel().get("datosSugerenciaPregunta"));
+  }
+
+  @Test
+  public void guardarPreguntaAdminExitosaLlamaAlServicioYCargaFormularioLimpio() {
+    Usuario admin = crearUsuarioConRol("ADMIN");
+    DatosSugerenciaPregunta datos = new DatosSugerenciaPregunta();
+
+    List<Provincia> provincias = List.of(new Provincia("Santa Fe", 0));
+
+    when(session.getAttribute("usuarioLogueado")).thenReturn(admin);
+    when(servicioProvincia.obtenerProvincias()).thenReturn(provincias);
+
+    ModelAndView mv = controlador.guardarPreguntaAdmin(datos, session);
+
+    assertEquals("admin-crear-pregunta", mv.getViewName());
+
+    assertEquals("¡Pregunta creada correctamente!", mv.getModel().get("exito"));
+
+    assertNotNull(mv.getModel().get("datosSugerenciaPregunta"));
+
+    assertEquals(provincias, mv.getModel().get("provincias"));
+
+    verify(servicioSugerenciaPregunta).crearPreguntaComoAdmin(datos, admin);
+  }
 }

@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Pregunta de entrenamiento</title>
+  <link rel="stylesheet" th:href="@{/css/home.css(v=4)}" />
+  <style>
+    body { font-family: Arial, sans-serif; background: linear-gradient(135deg, #eef4ff 0%, #f8fbff 100%); margin: 0; padding: 0; color: #23324a; }
+    .container { max-width: 900px; margin: 40px auto; background: white; border-radius: 20px; padding: 32px; box-shadow: 0 14px 40px rgba(31, 111, 235, 0.14); }
+    .hero { display: flex; justify-content: space-between; align-items: center; gap: 16px; margin-bottom: 18px; flex-wrap: wrap; }
+    .hero h1 { margin: 0; font-size: 28px; }
+    .stats { display: flex; gap: 10px; flex-wrap: wrap; }
+    .badge { background: #eaf3ff; color: #1f6feb; padding: 8px 12px; border-radius: 999px; font-weight: 700; }
+    .btn { display: inline-block; padding: 12px 18px; border-radius: 10px; text-decoration: none; background: linear-gradient(135deg, #1f6feb, #3b82f6); color: white; border: none; cursor: pointer; margin-top: 14px; font-weight: 600; }
+    .btn.secondary { background: #6c757d; }
+    .option { display: block; margin: 10px 0; padding: 10px 12px; border: 1px solid #e4ebf8; border-radius: 10px; background: #fafcff; }
+    .card { margin-top: 18px; padding: 18px; border: 1px solid #e6e6e6; border-radius: 14px; background: #fff; }
+    .message-card { background: #f2f7ff; border-color: #d7e7ff; }
+    .question-title { font-size: 22px; margin-bottom: 14px; line-height: 1.4; }
+    .empty-state { text-align: center; padding: 24px 12px; border: 1px dashed #bcd3ff; border-radius: 14px; background: #f7fbff; }
+    .empty-state .emoji { font-size: 34px; display: block; margin-bottom: 8px; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="hero">
+      <h1>Entrenamiento</h1>
+      <div class="stats">
+        <span class="badge">Puntaje: <span th:text="${puntaje}"></span></span>
+        <span class="badge">Respuestas: <span th:text="${respuestas}"></span></span>
+      </div>
+    </div>
+
+    <div th:if="${mensaje != null}" class="card message-card">
+      <strong th:text="${mensaje}"></strong>
+    </div>
+
+    <div th:if="${explicacion != null}" class="card" style="background: #f0f9ff; border-color: #bde0ff; padding: 16px; border-radius: 10px; margin-top: 12px;">
+      <div style="color: #0066cc; font-size: 14px; line-height: 1.6;" th:text="${explicacion}"></div>
+    </div>
+
+    <div class="card" th:if="${pregunta != null and finalizado != true}">
+      <h3 class="question-title" th:text="${#strings.isEmpty(pregunta.enunciado) ? 'No hay un enunciado disponible para esta pregunta.' : pregunta.enunciado}"></h3>
+      <form th:action="@{/entrenamiento/responder}" method="post">
+        <input type="hidden" name="idPregunta" th:value="${pregunta.id}" />
+        <div th:each="opcion : ${opciones}">
+          <label class="option">
+            <input type="radio" name="respuesta" th:value="${opcion}" required />
+            <span th:text="${opcion}"></span>
+          </label>
+        </div>
+        <button type="submit" class="btn">Responder</button>
+      </form>
+      <form th:action="@{/entrenamiento/salir}" method="post" style="display: inline-block; margin-left: 10px;">
+        <button type="submit" class="btn secondary">Salir del entrenamiento</button>
+      </form>
+    </div>
+
+    <div class="card empty-state" th:if="${pregunta == null and finalizado != true}">
+      <span class="emoji">🧠</span>
+      <h3>No hay una pregunta para mostrar en este momento</h3>
+      <p>Podés volver a intentarlo o regresar al inicio para elegir otra provincia.</p>
+      <a th:href="@{/entrenamiento}" class="btn">Volver a entrenar</a>
+      <a th:href="@{/home}" class="btn secondary">Volver al home</a>
+    </div>
+
+    <div class="card" th:if="${finalizado == true}">
+      <h3>Entrenamiento finalizado</h3>
+      <p>Podés volver al menú de entrenamiento o regresar al home.</p>
+      <a th:href="@{/entrenamiento}" class="btn">Volver al menú</a>
+      <a th:href="@{/home}" class="btn secondary">Volver al home</a>
+    </div>
+  </div>
+</body>
+</html>

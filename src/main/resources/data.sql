@@ -209,5 +209,5 @@ ON DUPLICATE KEY UPDATE nombre = VALUES(nombre), descripcion = VALUES(descripcio
 INSERT IGNORE INTO PaqueteMonedas (titulo, cantidadCoins, precioArs, beneficioExtra) 
 VALUES ('Bolsita de Coins', 200, 350.00, 'Ideal para arrancar');
 
-INSERT IGNORE INTO PaqueteMonedas (titulo, cantidadCoins, precioArs, beneficioExtra) 
+INSERT IGNORE INTO PaqueteMonedas  (titulo, cantidadCoins, precioArs, beneficioExtra) 
 VALUES ('Cofre Táctico', 1000, 1500.00, '+1 Doble Chance GRATIS');

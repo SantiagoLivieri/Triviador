@@ -12,9 +12,6 @@
   --color-red-700: #b91c1c;
   --color-red-800: #991b1b;
 
-  --color-purple-100: #f3e8ff;
-  --color-purple-700: #7e22ce;
-
   --color-yellow-100: #fef9c3;
   --color-yellow-800: #854d0e;
 
@@ -41,6 +38,8 @@ body {
   background: radial-gradient(circle at top, #263b63, #111827 55%, #05070c);
 }
 
+/* CONTENEDOR PRINCIPAL */
+
 .admin-contenedor {
   background-color: white;
   padding: 2rem;
@@ -51,24 +50,41 @@ body {
   margin: 0 auto;
 }
 
-.admin-cabecera {
+/* CABECERA */
+/* Reforzamos estos estilos para que main.css no afecte esta pantalla */
+
+.admin-contenedor .admin-cabecera {
+  display: block;
   text-align: center;
+  background: transparent;
+  backdrop-filter: none;
   border-bottom: 2px solid var(--color-gray-200);
-  padding-bottom: 1.5rem;
+  padding: 0 0 1.5rem 0;
   margin-bottom: 1.5rem;
 }
 
-.admin-titulo {
+.admin-contenedor .admin-titulo {
   font-size: 1.875rem;
   font-weight: 800;
   color: var(--color-blue-600);
+  margin: 0;
 }
 
-.admin-subtitulo {
+.admin-contenedor .admin-subtitulo {
   color: var(--color-gray-500);
   font-size: 0.9rem;
   margin-top: 0.25rem;
 }
+
+/* ACCIÓN PRINCIPAL DE ADMIN */
+
+.acciones-admin-principal {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 1.5rem;
+}
+
+/* ESTADO VACÍO */
 
 .estado-vacio {
   background-color: var(--color-gray-50);
@@ -83,6 +99,20 @@ body {
   font-size: 2.5rem;
   margin-bottom: 0.75rem;
 }
+
+.estado-vacio h2 {
+  color: var(--color-gray-800);
+  font-size: 1.4rem;
+  font-weight: 800;
+  margin-bottom: 0.5rem;
+}
+
+.estado-vacio p {
+  color: var(--color-gray-600);
+  font-size: 1rem;
+}
+
+/* LISTADO DE SUGERENCIAS */
 
 .sugerencias-lista {
   display: flex;
@@ -145,6 +175,8 @@ body {
   border-radius: 9999px;
 }
 
+/* RESPUESTAS */
+
 .respuestas-grid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -178,6 +210,8 @@ body {
   margin-bottom: 0.25rem;
 }
 
+/* ACCIONES DE TARJETAS */
+
 .acciones-sugerencia {
   display: flex;
   flex-wrap: wrap;
@@ -191,22 +225,61 @@ body {
   display: inline;
 }
 
-.btn-admin {
+/* BOTONES */
+
+.btn-admin,
+.enlace-volver {
   border: none;
   border-radius: 0.5rem;
-  padding: 0.65rem 1rem;
+  padding: 0.75rem 1.25rem;
   font-weight: 700;
   cursor: pointer;
   text-decoration: none;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  transition: background-color 0.2s, transform 0.2s;
+  transition: background-color 0.2s, transform 0.2s, box-shadow 0.2s;
+  font-size: 0.95rem;
+  line-height: 1;
 }
 
-.btn-admin:hover {
+.btn-admin:visited,
+.enlace-volver:visited {
+  color: inherit;
+}
+
+.btn-admin:hover,
+.enlace-volver:hover {
   transform: translateY(-2px);
 }
+
+/* Botón principal: Crear pregunta nueva */
+
+.btn-principal-admin {
+  background-color: var(--color-blue-600);
+  color: white;
+}
+
+.btn-principal-admin:hover {
+  background-color: var(--color-blue-700);
+  box-shadow: 0 8px 18px rgba(37, 99, 235, 0.25);
+}
+
+/* Botón secundario: Volver */
+
+.btn-secundario-admin,
+.enlace-volver {
+  background-color: var(--color-gray-100);
+  color: var(--color-gray-700);
+}
+
+.btn-secundario-admin:hover,
+.enlace-volver:hover {
+  background-color: var(--color-gray-200);
+  color: var(--color-gray-800);
+}
+
+/* Botones de acciones */
 
 .btn-aprobar {
   background-color: var(--color-green-700);
@@ -235,6 +308,8 @@ body {
   background-color: var(--color-red-800);
 }
 
+/* PIE */
+
 .admin-pie {
   text-align: center;
   margin-top: 2rem;
@@ -242,18 +317,7 @@ body {
   padding-top: 1.5rem;
 }
 
-.enlace-volver {
-  display: inline-flex;
-  align-items: center;
-  color: var(--color-blue-600);
-  font-weight: 600;
-  text-decoration: none;
-}
-
-.enlace-volver:hover {
-  color: var(--color-blue-700);
-}
-
+/* FORMULARIOS DE EDICIÓN / CREACIÓN */
 
 .formulario-edicion {
   background-color: var(--color-gray-50);
@@ -309,6 +373,8 @@ body {
   border-top: 1px solid var(--color-gray-200);
 }
 
+/* ALERTAS */
+
 .alerta-admin {
   padding: 1rem;
   border-radius: 0.5rem;
@@ -324,11 +390,13 @@ body {
   border: 1px solid #86efac;
 }
 
-@media (max-width: 760px) {
-  .acciones-edicion {
-    flex-direction: column;
-  }
+.alerta-error {
+  background-color: var(--color-red-100);
+  color: var(--color-red-800);
+  border: 1px solid #fca5a5;
 }
+
+/* RESPONSIVE */
 
 @media (max-width: 760px) {
   .sugerencia-superior {
@@ -339,11 +407,13 @@ body {
     grid-template-columns: 1fr;
   }
 
-  .acciones-sugerencia {
+  .acciones-sugerencia,
+  .acciones-edicion {
     flex-direction: column;
   }
 
-  .btn-admin {
+  .btn-admin,
+  .enlace-volver {
     width: 100%;
   }
 }

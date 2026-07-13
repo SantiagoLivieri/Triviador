@@ -57,9 +57,9 @@
       </div>
 
       <div class="grupo-formulario">
-  <label for="idProvincia">Provincia relacionada</label>
-  <select id="idProvincia" th:field="*{idProvincia}" required>
-    <option value="">Seleccionar provincia</option>
+        <label for="idProvincia">Provincia relacionada</label>
+        <select id="idProvincia" th:field="*{idProvincia}" required>
+        <option value="">Seleccionar provincia</option>
     <option th:each="provincia : ${provincias}"
             th:value="${provincia.id}"
             th:text="${provincia.nombre}">

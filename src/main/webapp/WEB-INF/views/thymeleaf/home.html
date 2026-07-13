@@ -4,89 +4,187 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" th:href="@{/css/main.css}">
-    <link rel="stylesheet" th:href="@{/css/home.css}">
+    <link rel="stylesheet" th:href="@{/css/home.css(v=4)}">
+    <script th:src="@{/js/home.js}" defer></script>
     <title>Triviador Argentina - Home</title>
-
 </head>
 
 <body>
-    <header
-    style="display: flex; justify-content: space-between; align-items: center; width: 100%; box-sizing: border-box; padding: 15px 40px; background: rgba(0, 0, 0, 0.45); backdrop-filter: blur(10px); border-bottom: 2px solid rgba(255, 255, 255, 0.1); z-index: 10;">
 
-    <div style="flex: 1; display: flex; justify-content: flex-start; align-items: center; gap: 12px;">
-        <a th:href="@{/logout}" class="logout-btn">Salir</a>
+<header class="home-header">
+<div class="header-left">
 
-        <a th:if="${usuario != null && usuario.rol != null && usuario.rol.descripcion == 'JUGADOR'}"
-           th:href="@{/sugerir-pregunta}"
-           class="sec-btn header-menu-btn">
-            Sugerir pregunta
-        </a>
+    <a th:href="@{/logout}" class="header-link header-link-danger">
+        Salir
+    </a>
 
-        <a th:if="${usuario != null && usuario.rol != null && usuario.rol.descripcion == 'ADMIN'}"
-           th:href="@{/admin/sugerencias}"
-           class="sec-btn header-menu-btn">
-            Revisar sugerencias
-        </a>
-    </div>
+</div>
 
-    <div style="flex: 1; display: flex; justify-content: center;">
-        <h1 class="game-title" style="margin: 0; white-space: nowrap;">
+    <div class="header-center">
+        <h1 class="game-title">
             Triviador <span>Argentina</span>
         </h1>
     </div>
 
-    <div style="flex: 1; display: flex; justify-content: flex-end; align-items: center; gap: 15px;">
+    <div class="header-right">
 
-        <div class="user-profile wallet-badge"
-            style="display: flex; align-items: center; background-color: rgba(255, 215, 0, 0.1); border: 1px solid #ffd700; border-radius: 8px; padding: 5px 12px; cursor: default;">
-            <div class="avatar"
-                style="margin-right: 8px; font-size: 1.2rem; background-color: transparent; border: none;">🪙</div>
-            <div class="user-info" style="display: flex; flex-direction: column;">
-                <span class="user-stats"
-                    style="font-size: 0.75rem; color: #aaa; text-transform: uppercase; letter-spacing: 0.5px;">TriviaCoins</span>
-                <strong class="username" style="color: #ffd700; font-size: 1rem;"
-                    th:text="${usuario.monedas} + ' 🪙'">
+        <div class="user-profile wallet-badge">
+            <div class="avatar coin-avatar">🪙</div>
+            <div class="user-info">
+                <span class="user-stats">TriviaCoins</span>
+                <strong class="username coin-text"
+                        th:text="${usuario.monedas} + ' 🪙'">
                     0 🪙
                 </strong>
             </div>
         </div>
 
-        <a th:href="@{/perfil}" class="profile-link" style="text-decoration: none; color: inherit;">
+        <a th:href="@{/perfil}" class="profile-link">
             <div class="user-profile">
                 <div class="avatar">👤</div>
                 <div class="user-info">
                     <span class="username" th:text="${usuario.nombreJugador}">Jugador</span>
-                    <span class="user-stats" th:text="'Nivel ' + ${usuario.nivel}">Nivel 1</span>
                 </div>
             </div>
         </a>
-
     </div>
+
 </header>
+<main class="home-main">
+   <div class="home-level-card">
+    <span class="home-level-icon" aria-hidden="true">★</span>
 
-    <main>
-        
+    <span class="home-level-label">Nivel</span>
 
-        <div class = btn-flex>
-            <a th:href="@{/lobby(modo='local')}" class="play-btn">¡Iniciar Partida Local!</a>
-            <a th:href="@{/lobby-online(modo='online')}" class="play-btn">¡Iniciar Partida Online!</a>
+    <strong th:text="${usuario.nivel}">
+        1
+    </strong>
+</div>
+
+<div class="home-left-actions">
+
+    <nav class="home-side-menu" aria-label="Opciones principales">
+
+        <a th:if="${usuario != null
+                    && usuario.rol != null
+                    && usuario.rol.descripcion == 'JUGADOR'}"
+           th:href="@{/sugerir-pregunta}"
+           class="side-menu-link"
+           title="Sugerir pregunta">
+
+            <span class="side-menu-icon">
+                <svg viewBox="0 0 24 24" aria-hidden="true">
+                    <path d="M4 4h16v12H8l-4 4V4z"></path>
+                    <path d="M9.5 9a2.5 2.5 0 1 1 4.2 1.8c-.9.7-1.7 1.1-1.7 2.2"></path>
+                    <circle cx="12" cy="15.8" r="0.8"></circle>
+                </svg>
+            </span>
+
+            <span class="side-menu-text">
+                Sugerir pregunta
+            </span>
+
+        </a>
+
+        <a th:if="${usuario != null
+                    && usuario.rol != null
+                    && usuario.rol.descripcion == 'ADMIN'}"
+           th:href="@{/admin/sugerencias}"
+           class="side-menu-link"
+           title="Revisar sugerencias">
+
+            <span class="side-menu-icon">
+                <svg viewBox="0 0 24 24" aria-hidden="true">
+                    <path d="M9 4h6"></path>
+                    <path d="M9 2h6v4H9z"></path>
+                    <path d="M7 4H5v17h14V4h-2"></path>
+                    <path d="m8 13 2.5 2.5L16 10"></path>
+                </svg>
+            </span>
+
+            <span class="side-menu-text">
+                Revisar sugerencias
+            </span>
+
+        </a>
+
+        <a th:href="@{/tienda}"
+           class="side-menu-link"
+           title="Tienda">
+
+            <span class="side-menu-icon">
+                <svg viewBox="0 0 24 24" aria-hidden="true">
+                    <circle cx="9" cy="20" r="1.5"></circle>
+                    <circle cx="18" cy="20" r="1.5"></circle>
+                    <path d="M3 4h2l2.4 10.2a2 2 0 0 0 2 1.5h7.8a2 2 0 0 0 1.9-1.4L21 8H7"></path>
+                </svg>
+            </span>
+
+            <span class="side-menu-text">
+                Tienda
+            </span>
+
+        </a>
+
+        <a th:href="@{/ranking}"
+           class="side-menu-link"
+           title="Ranking">
+
+            <span class="side-menu-icon">
+                <svg viewBox="0 0 24 24" aria-hidden="true">
+                    <path d="M8 4h8v4a4 4 0 0 1-8 0V4z"></path>
+                    <path d="M6 5H3v2a4 4 0 0 0 4 4"></path>
+                    <path d="M18 5h3v2a4 4 0 0 1-4 4"></path>
+                    <path d="M12 12v5"></path>
+                    <path d="M8 21h8"></path>
+                    <path d="M10 17h4v4h-4z"></path>
+                </svg>
+            </span>
+
+            <span class="side-menu-text">
+                Ranking
+            </span>
+
+        </a>
+
+    </nav>
+
+    <button type="button"
+            class="play-btn play-main-btn"
+            id="openPlayModal">
+        Jugar
+    </button>
+
+    <a th:href="@{/entrenamiento}" class="play-btn play-main-btn" style="margin-top: 12px;">
+        Comenzar entrenamiento
+    </a>
+    </div>
+
+</main>
+
+<div class="modal-overlay" id="playModal">
+    <div class="play-modal">
+        <h2>Elegí el modo de juego</h2>
+
+        <div class="modal-actions">
+            <a th:href="@{/lobby(modo='local')}" class="modal-play-btn">
+                Iniciar partida local
+            </a>
+
+            <a th:href="@{/lobby-online(modo='online')}" class="modal-play-btn">
+                Iniciar partida online
+            </a>
+
+            <button type="button" class="modal-back-btn" id="closePlayModal">
+                Volver
+            </button>
         </div>
+    </div>
+</div>
 
-        <div class="secondary-options">
-            <a th:href="@{/tienda}" class="sec-btn"
-                style="text-decoration: none; display: inline-flex; align-items: center; justify-content: center; box-sizing: border-box;">Tienda</a>
-            <a th:href="@{/ranking}" class="sec-btn"
-                style="text-decoration: none; display: inline-flex; align-items: center; justify-content: center; box-sizing: border-box;">Ranking</a>
-            <button class="sec-btn" hidden>Amigos</button>
-        </div>
-    </main>
-
-
-    <footer>
-        &copy; 2026 Triviador Argentina - El juego de preguntas y estrategia.
-    </footer>
-
+<footer>
+    &copy; 2026 Triviador Argentina - El juego de preguntas y estrategia.
+</footer>
 
 </body>
 

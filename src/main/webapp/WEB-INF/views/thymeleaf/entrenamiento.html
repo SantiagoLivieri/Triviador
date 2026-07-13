@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Entrenamiento</title>
+  <link rel="stylesheet" th:href="@{/css/home.css(v=4)}" />
+  <style>
+    body { font-family: Arial, sans-serif; background: linear-gradient(135deg, #eef4ff 0%, #f8fbff 100%); margin: 0; padding: 0; color: #23324a; }
+    .container { max-width: 900px; margin: 40px auto; background: white; border-radius: 20px; padding: 32px; box-shadow: 0 14px 40px rgba(31, 111, 235, 0.14); }
+    .btn { display: inline-block; padding: 12px 18px; border-radius: 10px; text-decoration: none; background: linear-gradient(135deg, #1f6feb, #3b82f6); color: white; border: none; cursor: pointer; font-weight: 600; }
+    .btn.secondary { background: #6c757d; }
+    .select { width: 100%; padding: 12px; border-radius: 10px; border: 1px solid #cbd8ee; margin-top: 8px; background: #fdfefe; }
+    .card { margin-top: 20px; padding: 18px; border: 1px solid #e6e6e6; border-radius: 14px; }
+    .message-card { background: #f2f7ff; border-color: #d7e7ff; }
+    .hero { margin-bottom: 8px; }
+    .hero h1 { margin-bottom: 6px; font-size: 28px; }
+    .empty-state { text-align: center; padding: 24px 12px; border: 1px dashed #bcd3ff; background: #f7fbff; }
+    .empty-state .emoji { font-size: 32px; display: block; margin-bottom: 8px; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="hero">
+      <h1>Entrenamiento rápido</h1>
+      <p>Respondé preguntas de provincias existentes, ya sea eligiendo una provincia o jugando al azar.</p>
+    </div>
+
+    <div th:if="${mensaje != null}" class="card message-card">
+      <strong th:text="${mensaje}"></strong>
+    </div>
+
+    <div class="card" th:if="${provincias != null and !#lists.isEmpty(provincias)}">
+      <form th:action="@{/entrenamiento/iniciar}" method="post">
+        <label for="idProvincia">Elegí una provincia</label>
+        <select id="idProvincia" name="idProvincia" class="select">
+          <option value="">🎲 Al azar</option>
+          <option th:each="provincia : ${provincias}" th:value="${provincia.id}" th:text="${provincia.nombre}"></option>
+        </select>
+        <br /><br />
+        <button type="submit" class="btn">Comenzar entrenamiento</button>
+        <a th:href="@{/home}" class="btn secondary" style="margin-left: 10px;">Volver al home</a>
+      </form>
+    </div>
+
+    <div class="card" th:if="${provincias != null and !#lists.isEmpty(provincias)}">
+      <form th:action="@{/entrenamiento/generar-pregunta-ia}" method="post">
+        <label for="idProvinciaIa">Generar pregunta con IA</label>
+        <select id="idProvinciaIa" name="idProvincia" class="select">
+          <option value="">🌍 Cualquier provincia</option>
+          <option th:each="provincia : ${provincias}" th:value="${provincia.id}" th:text="${provincia.nombre}"></option>
+        </select>
+        <br /><br />
+        <button type="submit" class="btn">Crear pregunta con IA</button>
+      </form>
+    </div>
+
+    <div class="card" th:if="${preguntaGenerada != null}">
+      <h3>Pregunta generada por IA</h3>
+      <p><strong th:text="${preguntaGenerada.enunciado}"></strong></p>
+      <ul>
+        <li><strong>Correcta:</strong> <span th:text="${preguntaGenerada.respuestaCorrecta}"></span></li>
+        <li><strong>Incorrecta:</strong> <span th:text="${preguntaGenerada.opcionIncorrectaUno}"></span></li>
+        <li><strong>Incorrecta:</strong> <span th:text="${preguntaGenerada.opcionIncorrectaDos}"></span></li>
+        <li><strong>Incorrecta:</strong> <span th:text="${preguntaGenerada.opcionIncorrectaTres}"></span></li>
+      </ul>
+      <form th:action="@{/entrenamiento/sugerir-pregunta-ia}" method="post">
+        <button type="submit" class="btn">Sugerir esta pregunta al admin</button>
+      </form>
+    </div>
+
+    <div class="card empty-state" th:if="${provincias == null or #lists.isEmpty(provincias)}">
+      <span class="emoji">📚</span>
+      <h3>Aún no hay preguntas disponibles</h3>
+      <p>Cuando cargues preguntas para alguna provincia, aparecerán aquí para practicar.</p>
+      <a th:href="@{/home}" class="btn">Volver al home</a>
+    </div>
+  </div>
+</body>
+</html>

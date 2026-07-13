@@ -2,6 +2,7 @@ package com.tallerwebi.servicios;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.*;
 
 import com.tallerwebi.controladores.clasesAuxiliares.DatosSugerenciaPregunta;
@@ -347,6 +348,134 @@ public class ServicioSugerenciaPreguntaImplTest {
     );
 
     assertEquals("El enunciado no puede estar vacío.", e.getMessage());
+  }
+
+  @Test
+  public void dadoUsuarioNullCuandoCreaSugerenciaEntoncesLanzaExcepcion() {
+    DatosSugerenciaPregunta datos = crearDatos();
+
+    IllegalArgumentException e = assertThrows(
+      IllegalArgumentException.class,
+      () -> servicio.crearSugerencia(datos, null)
+    );
+
+    assertEquals("Solo los usuarios con rol JUGADOR pueden sugerir preguntas.", e.getMessage());
+
+    verify(repositorioSugerenciaPregunta, never()).guardar(any(SugerenciaPregunta.class));
+  }
+
+  @Test
+  public void dadoUsuarioSinRolCuandoCreaSugerenciaEntoncesLanzaExcepcion() {
+    DatosSugerenciaPregunta datos = crearDatos();
+
+    Usuario usuarioSinRol = mock(Usuario.class);
+    when(usuarioSinRol.getRol()).thenReturn(null);
+
+    IllegalArgumentException e = assertThrows(
+      IllegalArgumentException.class,
+      () -> servicio.crearSugerencia(datos, usuarioSinRol)
+    );
+
+    assertEquals("Solo los usuarios con rol JUGADOR pueden sugerir preguntas.", e.getMessage());
+
+    verify(repositorioSugerenciaPregunta, never()).guardar(any(SugerenciaPregunta.class));
+  }
+
+  @Test
+  public void dadoUsuarioConRolSinDescripcionCuandoCreaPreguntaComoAdminEntoncesLanzaExcepcion() {
+    DatosSugerenciaPregunta datos = crearDatos();
+
+    Usuario usuario = mock(Usuario.class);
+    Rol rol = mock(Rol.class);
+
+    when(usuario.getRol()).thenReturn(rol);
+    when(rol.getDescripcion()).thenReturn(null);
+
+    IllegalArgumentException e = assertThrows(
+      IllegalArgumentException.class,
+      () -> servicio.crearPreguntaComoAdmin(datos, usuario)
+    );
+
+    assertEquals("Solo los usuarios con rol ADMIN pueden administrar sugerencias.", e.getMessage());
+
+    verify(repositorioPregunta, never()).guardar(any(Pregunta.class));
+  }
+
+  @Test
+  public void dadoDatosNullCuandoActualizaSugerenciaEntoncesLanzaExcepcion() {
+    Usuario admin = crearUsuario("ADMIN");
+
+    IllegalArgumentException e = assertThrows(
+      IllegalArgumentException.class,
+      () -> servicio.actualizarSugerencia(null, admin)
+    );
+
+    assertEquals("No se encontró la sugerencia a editar.", e.getMessage());
+
+    verify(repositorioSugerenciaPregunta, never()).actualizar(any(SugerenciaPregunta.class));
+  }
+
+  @Test
+  public void dadoProvinciaInexistenteCuandoActualizaSugerenciaEntoncesLanzaExcepcion() {
+    Usuario admin = crearUsuario("ADMIN");
+
+    DatosSugerenciaPregunta datos = crearDatos();
+    datos.setId(1L);
+
+    Provincia provinciaVieja = new Provincia("Buenos Aires", 10);
+
+    SugerenciaPregunta sugerencia = new SugerenciaPregunta(
+      "Pregunta vieja",
+      "Correcta vieja",
+      "Inc1",
+      "Inc2",
+      "Inc3",
+      provinciaVieja,
+      crearUsuario("JUGADOR")
+    );
+
+    when(repositorioSugerenciaPregunta.buscarPorId(1L)).thenReturn(sugerencia);
+
+    when(repositorioProvincia.buscarPorId(1L)).thenReturn(null);
+
+    IllegalArgumentException e = assertThrows(
+      IllegalArgumentException.class,
+      () -> servicio.actualizarSugerencia(datos, admin)
+    );
+
+    assertEquals("La provincia seleccionada no existe.", e.getMessage());
+
+    verify(repositorioSugerenciaPregunta, never()).actualizar(any(SugerenciaPregunta.class));
+  }
+
+  @Test
+  public void dadoUsuarioNoAdminCuandoApruebaSugerenciaEntoncesLanzaExcepcion() {
+    Usuario jugador = crearUsuario("JUGADOR");
+
+    IllegalArgumentException e = assertThrows(
+      IllegalArgumentException.class,
+      () -> servicio.aprobarSugerencia(1L, jugador)
+    );
+
+    assertEquals("Solo los usuarios con rol ADMIN pueden administrar sugerencias.", e.getMessage());
+
+    verify(repositorioSugerenciaPregunta, never()).buscarPorId(anyLong());
+    verify(repositorioPregunta, never()).guardar(any(Pregunta.class));
+  }
+
+  @Test
+  public void dadoUsuarioNoAdminCuandoEliminaSugerenciaEntoncesLanzaExcepcion() {
+    Usuario jugador = crearUsuario("JUGADOR");
+
+    IllegalArgumentException e = assertThrows(
+      IllegalArgumentException.class,
+      () -> servicio.eliminarSugerencia(1L, jugador)
+    );
+
+    assertEquals("Solo los usuarios con rol ADMIN pueden administrar sugerencias.", e.getMessage());
+
+    verify(repositorioSugerenciaPregunta, never()).buscarPorId(anyLong());
+    verify(repositorioSugerenciaPregunta, never()).eliminar(any(SugerenciaPregunta.class));
   }
 
   private DatosSugerenciaPregunta crearDatos() {

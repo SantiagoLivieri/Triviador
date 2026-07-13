@@ -19,30 +19,15 @@
       
     </header>
 
-        <div
-      class="acciones-sugerencia"
-      style="
-        justify-content: center;
-        margin-bottom: 1.5rem;
-        border-top: none;
-        padding-top: 0;
-        gap: 1rem;
-      "
-    >
-      <a
-        th:href="@{/admin/preguntas/crear}"
-        class="btn-admin btn-editar"
-      >
-        Crear pregunta nueva
-      </a>
+<div class="acciones-admin-principal">
+  <a th:href="@{/admin/preguntas/crear}" class="btn-admin btn-principal-admin">
+    Crear pregunta nueva
+  </a>
 
-      <a
-        th:href="@{/admin/reportes-pregunta}"
-        class="btn-admin btn-aprobar"
-      >
-        Preguntas reportadas
-      </a>
-    </div>
+  <a th:href="@{/admin/reportes-pregunta}" class="btn-admin btn-principal-admin">
+    Preguntas reportadas
+  </a>
+</div>
 
     <section th:if="${#lists.isEmpty(sugerencias)}" class="estado-vacio">
       <div class="estado-vacio-icono">📭</div>
@@ -125,11 +110,11 @@
 
     </section>
 
-    <footer class="admin-pie">
-      <a th:href="@{/home}" class="enlace-volver">
-        ← Volver al inicio
-      </a>
-    </footer>
+  <footer class="admin-pie">
+  <a th:href="@{/home}" class="btn-admin btn-secundario-admin">
+    Volver al inicio
+  </a>
+</footer>
 
   </main>
 

@@ -78,6 +78,11 @@ public class ServicioPreguntaImpl implements ServicioPregunta {
   }
 
   @Override
+  public List<Pregunta> buscarPorProvincia(Long idProvincia) {
+    return repositorioPregunta.buscarPorProvincia(idProvincia);
+  }
+
+  @Override
   public boolean validarRespuesta(Long idPregunta, String respuesta) {
     Pregunta pregunta = this.buscarPorId(idPregunta);
     if (pregunta == null) {
